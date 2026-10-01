@@ -13,9 +13,9 @@ import streamlit as st
 import config as C
 import data
 from textes import charger_textes
-from ui import components as ui
-from ui.components import e, url, fr
-from ui.theme import CSS, PAPER, INK, RED, MUTED, LINE, SOFT, SERIF, COND
+import components as ui
+from components import e, url, fr
+from theme import CSS, PAPER, INK, RED, MUTED, LINE, SOFT, SERIF, COND
 
 st.set_page_config(page_title="D1 Futsal", page_icon="⚽", layout="centered", initial_sidebar_state="collapsed")
 st.html(CSS)

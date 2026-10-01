@@ -12,7 +12,7 @@ from urllib.parse import urlencode
 import streamlit as st
 
 import config as C
-from ui.theme import CR, PAPER, INK, RED, MUTED, LINE, SOFT, SERIF, SANS, COND
+from theme import CR, PAPER, INK, RED, MUTED, LINE, SOFT, SERIF, SANS, COND
 
 e = _html.escape
 

@@ -1,7 +1,7 @@
 """Paramètres du site D1 Futsal : chemins, listes fermées, constantes."""
 from pathlib import Path
 
-DATA_DIR = Path(__file__).parent / "data"
+DATA_DIR = Path(__file__).parent          # fichiers xlsx à la racine du dépôt
 FICHIER_BUTS = DATA_DIR / "But_D1_26_27.xlsx"
 FICHIER_PASSES = DATA_DIR / "PasseD_26_27.xlsx"
 FICHIER_FICHES = DATA_DIR / "D1_Fiches_Clubs_Joueurs_26_27.xlsx"
