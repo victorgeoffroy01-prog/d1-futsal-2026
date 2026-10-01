@@ -34,3 +34,13 @@ a:focus-visible, button:focus-visible {{ outline: 3px solid {RED}; outline-offse
 @media (prefers-reduced-motion: reduce) {{ * {{ transition: none !important; }} }}
 </style>
 """
+
+# espace pour la barre de navigation fixe en haut et le badge Streamlit en bas
+CSS += """
+<style>
+.block-container, [data-testid="stMainBlockContainer"] { padding-top: 58px !important; padding-bottom: 110px !important; }
+.st-key-scorebox { background: #FBF8F2; border-bottom: 1px solid #D6CDBD; }
+.st-key-scorebox [class*="st-key-rw-cards"] { padding: 0 16px; }
+[class*="st-key-pad-"] { padding: 0 16px; }
+</style>
+"""

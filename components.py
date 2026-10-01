@@ -7,7 +7,6 @@ from __future__ import annotations
 import base64
 import html as _html
 from pathlib import Path
-from urllib.parse import urlencode
 
 import streamlit as st
 
@@ -30,10 +29,6 @@ def svg_img(svg: str, w=None, h=None, alt="") -> str:
 def show(h: str):
     """Affiche un bloc HTML dans la page (sans iframe)."""
     st.html(h)
-
-
-def url(**params) -> str:
-    return "?" + urlencode({k: v for k, v in params.items() if v is not None})
 
 
 def fr(x, d=1) -> str:
@@ -130,89 +125,68 @@ def empty(msg):
             f'font-size: 13px; color: {MUTED}">{msg}</div>')
 
 
-# ------------------------------------------------------------- navigation
-def appbar(title, sub=None, back=None):
-    left = (f'<a href="{back}" target="_self" aria-label="Retour" style="display: inline-flex; width: 44px; height: 44px; '
-            f'align-items: center; justify-content: center; margin-left: -10px">{icon("back", 24)}</a>') if back else ""
+# ------------------------------------------------------------- navigation (contenu des zones cliquables, voir nav.py)
+def titre_bar(title, sub=None):
     s = (f'<div style="font-family: {COND}; font-weight: 600; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; '
          f'color: {RED}; margin-top: 4px">{e(sub)}</div>') if sub else ""
-    return (f'<header style="display: flex; align-items: center; gap: 6px; padding: 14px 16px 12px; background: {CR}; border-bottom: 2px solid {INK}">'
-            f'{left}<div style="flex: 1; min-width: 0"><div style="font-family: {SERIF}; font-size: 26px; line-height: 1.05">{e(title)}</div>{s}</div></header>')
+    return f'<div style="min-width: 0"><div style="font-family: {SERIF}; font-size: 26px; line-height: 1.05">{e(title)}</div>{s}</div>'
 
 
-def tabs(items: list[tuple[str, str, bool]]):
-    """items = [(libellé, url, actif)]"""
-    out = ""
-    for lab, u, on in items:
-        st_ = (f"border-bottom: 3px solid {RED}; color: {INK}; font-weight: 700" if on
-               else f"border-bottom: 3px solid transparent; color: {MUTED}; font-weight: 600")
-        out += (f'<a href="{u}" target="_self" role="tab" aria-selected="{str(on).lower()}" style="{st_}; padding: 12px 2px 9px; '
-                f'font-family: {COND}; font-size: 14px; letter-spacing: 0.05em; text-transform: uppercase; white-space: nowrap; min-height: 44px; box-sizing: border-box">{e(lab)}</a>')
-    return f'<nav role="tablist" style="display: flex; gap: 20px; padding: 0 16px; border-bottom: 1px solid {LINE}; overflow-x: auto">{out}</nav>'
+def back_btn():
+    return f'<div style="display: flex; width: 40px; height: 44px; align-items: center; margin-left: -8px">{icon("back", 24)}</div>'
 
 
-def pills(items: list[tuple[str, str, bool]], pad="12px 16px"):
-    out = ""
-    for lab, u, on in items:
-        s = (f"background: {INK}; color: #fff; border: 1.5px solid {INK}" if on
-             else f"background: {PAPER}; color: {INK}; border: 1.5px solid {INK}")
-        out += (f'<a href="{u}" target="_self" style="{s}; border-radius: 999px; min-width: 48px; height: 36px; padding: 0 14px; '
-                f'display: inline-flex; align-items: center; justify-content: center; font-family: {COND}; font-weight: 700; font-size: 14px; flex-shrink: 0">{e(lab)}</a>')
-    return f'<div style="display: flex; gap: 8px; padding: {pad}; overflow-x: auto">{out}</div>'
+def tab_item(lab, on):
+    st_ = (f"border-bottom: 3px solid {RED}; color: {INK}; font-weight: 700" if on
+           else f"border-bottom: 3px solid transparent; color: {MUTED}; font-weight: 600")
+    return (f'<div style="{st_}; padding: 13px 2px 9px; font-family: {COND}; font-size: 14px; letter-spacing: 0.05em; '
+            f'text-transform: uppercase; white-space: nowrap">{e(lab)}</div>')
 
 
-def segmented(items: list[tuple[str, str, bool]]):
-    out = ""
-    for lab, u, on in items:
-        out += (f'<a href="{u}" target="_self" style="flex: 1; height: 40px; display: flex; align-items: center; justify-content: center; '
-                f'border-radius: 8px; background: {INK if on else "transparent"}; color: {"#fff" if on else INK}; font-family: {COND}; '
-                f'font-weight: 700; font-size: 13px">{e(lab)}</a>')
-    return f'<div style="margin: 12px 16px 0; padding: 4px; background: {SOFT}; border-radius: 10px; display: flex; gap: 4px">{out}</div>'
+def pill_item(lab, on):
+    s = (f"background: {INK}; color: #fff; border: 1.5px solid {INK}" if on else f"background: {PAPER}; color: {INK}; border: 1.5px solid {INK}")
+    return (f'<div style="{s}; border-radius: 999px; min-width: 48px; height: 36px; padding: 0 14px; box-sizing: border-box; display: flex; '
+            f'align-items: center; justify-content: center; font-family: {COND}; font-weight: 700; font-size: 14px; white-space: nowrap">{e(lab)}</div>')
 
 
-def botnav(active):
-    items = [("une", "La Une", url()), ("match", "Matchs", url(page="matchs")),
-             ("class", "Classements", url(page="classements")), ("club", "Clubs", url(page="clubs")),
-             ("joueur", "Joueurs", url(page="joueurs"))]
-    cells = ""
-    for k, lab, u in items:
-        on = k == active
-        c = RED if on else INK
-        cells += (f'<a href="{u}" target="_self" {"aria-current=page" if on else ""} style="flex: 1; display: flex; flex-direction: column; '
-                  f'align-items: center; justify-content: center; gap: 3px; min-height: 56px; color: {c}; font-family: {COND}; '
-                  f'font-weight: {700 if on else 600}; font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase">{icon(k, 22, c)}<span>{lab}</span></a>')
-    return (f'<nav aria-label="Navigation principale" style="position: fixed; left: 50%; transform: translateX(-50%); bottom: 0; '
-            f'width: 100%; max-width: 480px; z-index: 1000; background: {PAPER}; border-top: 2px solid {INK}; display: flex; '
-            f'padding: 0 6px env(safe-area-inset-bottom, 6px); box-sizing: border-box">{cells}</nav>')
+def seg_item(lab, on):
+    return (f'<div style="height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 8px; '
+            f'background: {INK if on else "transparent"}; color: {"#fff" if on else INK}; font-family: {COND}; font-weight: 700; font-size: 13px">{e(lab)}</div>')
+
+
+def nav_item(k, lab, on):
+    c = RED if on else INK
+    return (f'<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; height: 54px; '
+            f'color: {c}; font-family: {COND}; font-weight: {700 if on else 600}; font-size: 10.5px; letter-spacing: 0.03em; '
+            f'text-transform: uppercase; border-bottom: 3px solid {RED if on else "transparent"}; box-sizing: border-box">{icon(k, 20, c)}<span>{lab}</span></div>')
 
 
 def footer():
     return (f'<div style="padding: 28px 16px 8px; font-size: 11px; color: {MUTED}; line-height: 1.5">'
-            f'Données collectées par Victor Geoffroy, non officielles. Crédits : clubs, joueurs, FFF. '
-            f'<a href="{url(page="methodo")}" target="_self" style="text-decoration: underline; color: {MUTED}">Méthodologie</a></div>')
+            f'Données collectées par Victor Geoffroy, non officielles. Crédits : clubs, joueurs, FFF.</div>')
 
 
 # ------------------------------------------------------------- lignes de listes
-def match_row(m, noms, href):
+def match_row(m, noms):
     wd, we = m.bd > m.be, m.be > m.bd
 
     def side(club, s, win):
         return (f'<div style="display: flex; align-items: center; gap: 10px">{logo_or_badge(club, 26, 9)}'
                 f'<span style="flex: 1; font-weight: {700 if win else 500}; font-size: 15px">{e(noms[club])}</span>'
                 f'<span style="font-family: {SERIF}; font-size: 20px; line-height: 1; color: {INK if win or not (wd or we) else MUTED}">{s}</span></div>')
-    return (f'<a href="{href}" target="_self" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; '
+    return (f'<div style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; '
             f'border-bottom: 1px solid {LINE}; background: {PAPER}"><div style="width: 30px; font-family: {COND}; font-weight: 700; '
             f'font-size: 11px; color: {MUTED}">TER</div><div style="flex: 1; display: flex; flex-direction: column; gap: 8px">'
-            f'{side(m.dom, m.bd, wd)}{side(m.ext, m.be, we)}</div>{icon("chev", 18, MUTED)}</a>')
+            f'{side(m.dom, m.bd, wd)}{side(m.ext, m.be, we)}</div>{icon("chev", 18, MUTED)}</div>')
 
 
-def rank_row(rang, titre, sous, valeur, href, highlight=False):
-    return (f'<a href="{href}" target="_self" style="display: grid; grid-template-columns: 22px minmax(0,1fr) 40px; gap: 10px; align-items: center; '
-            f'padding: 10px 16px; border-bottom: 1px solid {LINE}; background: {PAPER}">'
+def rank_row(rang, titre, sous, valeur, highlight=False, pad="10px 16px"):
+    return (f'<div style="display: grid; grid-template-columns: 22px minmax(0,1fr) 40px; gap: 10px; align-items: center; '
+            f'padding: {pad}; border-bottom: 1px solid {LINE}; background: {PAPER}">'
             f'<span style="font-family: {COND}; font-weight: 700; color: {RED if highlight else MUTED}">{rang}</span>'
             f'<span style="min-width: 0"><span style="display: block; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{e(titre)}</span>'
             f'<span style="display: block; font-size: 12px; color: {MUTED}">{e(sous)}</span></span>'
-            f'<span style="font-family: {SERIF}; font-size: 20px; text-align: right">{valeur}</span></a>')
+            f'<span style="font-family: {SERIF}; font-size: 20px; text-align: right">{valeur}</span></div>')
 
 
 # ------------------------------------------------------------- graphiques SVG
