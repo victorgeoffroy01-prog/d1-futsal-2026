@@ -139,7 +139,7 @@ def page_une():
     podium(STATS[STATS.Passes > 0].sort_values(["Passes", "Buts"], ascending=False), "Passes", "Meilleurs passeurs", "passeurs")
     o.add(f'<div style="padding: 22px 16px 6px">{ui.kicker("Classement")}</div>')
     for r in CLASSEMENT.head(5).itertuples():
-        o.lien(f'<div style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-bottom: 1px solid {LINE}">'
+        o.lien(f'<div style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-bottom: 1px solid {LINE}; {"box-shadow: inset 4px 0 0 " + RED if r.Rg <= C.NB_PLAYOFFS else ""}">'
                f'<span style="width: 18px; font-family: {COND}; font-weight: 700">{r.Rg}</span>{ui.logo_or_badge(r.club, 24, 8)}'
                f'<span style="flex: 1; font-weight: 600">{e(NOMS[r.club])}</span><span style="font-family: {COND}; color: {MUTED}; width: 34px; text-align: right">{r.Diff:+d}</span>'
                f'<span style="font-family: {SERIF}; font-size: 18px; width: 28px; text-align: right">{r.Pts}</span></div>', "club", id=r.club)
@@ -250,14 +250,18 @@ def page_classements():
               f'<span>#</span><span></span><span>ÉQUIPE</span><span style="text-align:center">J</span><span style="text-align:center">G</span><span style="text-align:center">N</span>'
               f'<span style="text-align:center">P</span><span style="text-align:right">DIFF</span><span style="text-align:right">PTS</span></div>')
         for r in base.classement(lieu).itertuples():
-            zone = C.NB_PLAYOFFS and r.Rg <= C.NB_PLAYOFFS
+            nb = len(base.clubs)
+            zone = RED if (lieu == "tous" and r.Rg <= C.NB_PLAYOFFS) else (INK if (lieu == "tous" and r.Rg > nb - C.NB_DESCENTE) else None)
             o.lien(f'<div style="display: grid; {grid}; gap: 6px; align-items: center; padding: 10px 12px; border-bottom: 1px solid {LINE}; background: {PAPER}; '
-                   f'{"box-shadow: inset 4px 0 0 " + RED if zone else ""}"><span style="font-family: {COND}; font-weight: 700">{r.Rg}</span>{ui.logo_or_badge(r.club, 24, 8)}'
+                   f'{"box-shadow: inset 4px 0 0 " + zone if zone else ""}"><span style="font-family: {COND}; font-weight: 700">{r.Rg}</span>{ui.logo_or_badge(r.club, 24, 8)}'
                    f'<span style="font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{e(NOMS[r.club])}</span>'
                    + "".join(f'<span style="font-family: {COND}; color: {MUTED}; text-align: center">{v}</span>' for v in (r.J, r.G, r.N, r.P))
                    + f'<span style="font-family: {COND}; text-align: right">{r.Diff:+d}</span><span style="font-family: {SERIF}; font-size: 19px; text-align: right">{r.Pts}</span></div>',
                    "club", id=r.club)
-        o.add(f'<div style="padding: 10px 16px; font-size: 12px; color: {MUTED}">Départage : points, différence de buts, buts marqués.</div>')
+        leg = lambda c, t: f'<span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 4px; height: 14px; background: {c}"></span>{t}</span>'
+        o.add(f'<div style="display: flex; flex-wrap: wrap; gap: 14px; padding: 12px 16px 4px; font-size: 12px; color: {MUTED}">'
+              f'{leg(RED, f"Top {C.NB_PLAYOFFS} : play-offs")}{leg(INK, f"{C.NB_DESCENTE} derniers : descente en D2")}</div>'
+              f'<div style="padding: 4px 16px; font-size: 12px; color: {MUTED}">Départage : points, différence de buts, buts marqués.</div>')
     else:
         col, tri = {"buteurs": ("Buts", ["Buts", "Passes"]), "passeurs": ("Passes", ["Passes", "Buts"]), "bp": ("B+P", ["B+P", "Buts"])}[vue]
         d = STATS[STATS[col] > 0].sort_values(tri + ["joueur"], ascending=[False, False, True])
@@ -450,6 +454,14 @@ def page_controle():
                    for a in base.anomalies) or ui.empty("Aucune anomalie.")
     entete(o, "Contrôle des données")
     o.add(ui.section(ui.kicker(f"{len(base.anomalies)} anomalie(s)") + rows, pad="16px 16px 0"))
+    o.add(ui.section(ui.kicker("Textes à valider") + f'<p style="font-size: 13px; color: {MUTED}">Télécharge le fichier, relis, corrige dans texte_valide si besoin, '
+                     f'mets OK dans statut, puis dépose-le dans le dépôt avec tes données. Les textes déjà validés sont conservés.</p>'))
+    o.flush()
+    if not base.bloquant:
+        import generer_textes
+        jt = st.selectbox("Journée", base.journees[::-1], format_func=lambda x: f"J{x}")
+        st.download_button("Télécharger textes_journee.xlsx", generer_textes.fichier_pour_telechargement(base, jt),
+                           file_name="textes_journee.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
     o.fin()
 
 

@@ -42,5 +42,6 @@ CSS += """
 .st-key-scorebox { background: #FBF8F2; border-bottom: 1px solid #D6CDBD; }
 .st-key-scorebox [class*="st-key-rw-cards"] { padding: 0 16px; }
 [class*="st-key-pad-"] { padding: 0 16px; }
+[data-testid="stSelectbox"], [data-testid="stDownloadButton"] { padding: 4px 16px; }
 </style>
 """

@@ -34,4 +34,8 @@ ABREV_CLUBS = {"ACASA": "ACA", "ARTISTES": "ART", "AVION": "AVI", "GARGES": "GAR
                "TOULON": "TLN", "TOULOUSE": "UJS"}
 ASSETS_DIR = Path(__file__).parent / "assets"
 FICHIER_TEXTES = DATA_DIR / "textes_journee.xlsx"
-NB_PLAYOFFS = None     # nombre de places play-offs, None tant que le format n'est pas confirmé
+NB_PLAYOFFS = 4       # qualifiés pour les play-offs
+
+# Grammaire des noms de clubs dans les textes : (forme avec article, pluriel ?)
+ARTICLES_CLUBS = {"SPORTING": ("le Sporting", False), "ARTISTES": ("les Artistes", True)}
+NB_DESCENTE = 2        # relégués en D2
