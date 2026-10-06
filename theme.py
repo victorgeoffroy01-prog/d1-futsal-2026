@@ -66,3 +66,17 @@ CSS += """
 .st-key-editeur [data-testid="stSelectbox"], .st-key-editeur [data-testid="stDownloadButton"] { padding: 0; }
 </style>
 """
+
+# page contrôle : cases de saisie toujours lisibles, quel que soit le thème du navigateur
+CSS += """
+<style>
+.st-key-editeur textarea, .st-key-editeur [data-baseweb="select"] > div { background: #FBF8F2 !important; color: #111 !important;
+  -webkit-text-fill-color: #111 !important; border: 1.5px solid #111 !important; border-radius: 8px !important; font-size: 15px !important; }
+.st-key-editeur [data-baseweb="select"] svg { fill: #111 !important; }
+.st-key-editeur p, .st-key-editeur label, .st-key-editeur summary, .st-key-editeur [data-testid="stText"],
+.st-key-editeur [data-testid="stCaptionContainer"] { color: #111 !important; }
+.st-key-editeur [data-testid="stExpander"] details { background: #FBF8F2 !important; border: 1px solid #D6CDBD !important; }
+.st-key-editeur [data-testid="stCheckbox"] span:first-child { border-color: #111 !important; }
+.st-key-editeur [data-testid="stVerticalBlockBorderWrapper"] { background: #FFFFFF55; border-color: #111 !important; }
+</style>
+"""
