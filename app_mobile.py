@@ -16,6 +16,7 @@ import data
 import re
 
 import nav
+import analyse
 import rapports
 import site_ordi
 from nav import Sortie
@@ -67,15 +68,29 @@ DERNIERE = max(base.journees) if base.journees else 1
 RAPPORTS, ANOM_RAPPORTS = rapports.lister(base)
 
 
+@st.cache_resource(show_spinner=False)
+def _analyses(_cle):
+    return analyse.preparer(base, RAPPORTS)
+
+
+# chiffres lus dans les rapports PDF (recalculés seulement si un fichier change)
+ANALYSES, _anom = _analyses((_empreinte(), tuple((p, os.path.getmtime(p)) for p in sorted(RAPPORTS.values()))))
+ANOM_RAPPORTS = ANOM_RAPPORTS + _anom
+
+
 @st.cache_data(show_spinner=False)
 def _pages_rapport(chemin, mtime, largeur):
     return rapports.pages_png(chemin, largeur)
 
 
-def afficher_rapport(chemin, colonnes=1, largeur=900):
-    """Bouton de téléchargement + aperçu des pages du rapport PDF."""
+def bouton_pdf(chemin):
     with open(chemin, "rb") as f:
         st.download_button("Télécharger le rapport complet (PDF)", f.read(), file_name=os.path.basename(chemin), mime="application/pdf", type="primary")
+
+
+def afficher_rapport(chemin, colonnes=1, largeur=900):
+    """Secours si les chiffres du rapport n'ont pas pu être lus : les pages du PDF."""
+    bouton_pdf(chemin)
     pages = _pages_rapport(chemin, os.path.getmtime(chemin), largeur)
     for k in range(0, len(pages), colonnes):
         cols = st.columns(colonnes) if colonnes > 1 else [st.container()]
@@ -231,7 +246,7 @@ def page_match():
               f'{buteurs(m.dom, "right")}{buteurs(m.ext, "left")}</div>')
         o.flush()
     onglets(o, "match", {"j": j, "dom": dom}, [("resume", "Résumé"), ("timeline", "Timeline"), ("stats", "Stats")]
-            + ([("rapport", "Rapport")] if rapport else []), onglet)
+            + ([("rapport", "Analyse")] if rapport else []), onglet)
     if onglet == "resume":
         txt = TEXTES.get(f"match:J{j}:{dom}")
         n_d = b[(b.club_marque == m.dom) & b.id_buteur.notna()].id_buteur.nunique()
@@ -272,14 +287,39 @@ def page_match():
                        ("Buts 5 dernières min.", lambda d: (d.minute > 35).sum())]:
             rows.append((lab, int(f(b[b.club_marque == m.dom])), int(f(b[b.club_marque == m.ext]))))
         o.add(ui.section(ui.kicker("Face-à-face") + '<div style="margin-top: 10px">' + ui.mirror(rows, NOMS[m.dom], NOMS[m.ext], mid_w=130) + "</div>", pad="16px 16px 0"))
-        o.add(ui.section(ui.empty("Stats détaillées (tirs, duels, pertes, gardiens) : voir l’onglet Rapport." if rapport
+        o.add(ui.section(ui.empty("Stats détaillées (tirs, duels, pertes, gardiens) : voir l’onglet Analyse." if rapport
                                   else "Stats détaillées (tirs, duels, pertes, gardiens) disponibles quand le match est analysé.")))
     else:
-        o.add(ui.section(ui.kicker("Rapport d’analyse") + f'<div style="font-size: 13px; color: {MUTED}; margin-top: 8px">'
-                         f'Tirs, duels, pertes, gardiens : le rapport complet du match diffusé.</div>', pad="16px 16px 10px"))
-        o.fin()
-        with st.container(key="rapport-m"):
-            afficher_rapport(rapport, colonnes=1, largeur=700)
+        r = ANALYSES.get((j, dom))
+        if r is None:       # chiffres non lus : on montre les pages du PDF
+            o.add(ui.section(ui.kicker("Rapport d’analyse"), pad="16px 16px 10px"))
+            o.fin()
+            with st.container(key="rapport-m"):
+                afficher_rapport(rapport, colonnes=1, largeur=700)
+        else:
+            c = r["collectif"]
+            o.add(ui.section(ui.kicker("L’analyse en chiffres") + ui.tiles(
+                ui.tile(f"{analyse.conversion(r, 0)} %", f"tirs cadrés convertis {e(NOMS[m.dom])}", "dark", 30),
+                ui.tile(f"{analyse.conversion(r, 1)} %", f"tirs cadrés convertis {e(NOMS[m.ext])}", "red", 30),
+                ui.tile(f"{c['tirs'][0]}-{c['tirs'][1]}", "tirs", numsize=30)), pad="16px 16px 0"))
+            o.add(ui.section(ui.kicker("Face-à-face") + '<div style="height: 10px"></div>' + analyse.miroir(analyse.face_a_face(r), NOMS[m.dom], NOMS[m.ext], mid_w=112)))
+            o.add(ui.section(ui.kicker("Les tirs") + '<div style="height: 12px"></div>' + analyse.bloc_tirs(r, NOMS)))
+            o.add(ui.section(ui.kicker("Gardiens") + '<div style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px">'
+                             + "".join(analyse.cartes_gardiens(r, NOMS)) + "</div>"))
+            k = 1 if qp.get("eq") == "1" else 0
+            o.add(ui.section(ui.kicker("Joueurs de champ"), pad="22px 16px 0"))
+            o.rangee([(ui.pill_item(NOMS[r["clubs"][x]], x == k), "match", {"j": j, "dom": dom, "onglet": "rapport", "eq": x}, "content") for x in (0, 1)], style="pills")
+            head, lignes = analyse.tableau_joueurs(r, k, analyse.COLS_MOBILE, pad="16px")
+            o.add(head)
+            for h, i in lignes:
+                if i:
+                    o.lien(h, "joueur", id=i)
+                else:
+                    o.add(h)
+            o.add(f'<div style="padding: 12px 16px 14px; font-size: 11px; color: {MUTED}; line-height: 1.5">{analyse.LEGENDE}</div>')
+            o.fin()
+            with st.container(key="rapport-m"):
+                bouton_pdf(rapport)
     pieds(o)
 
 
@@ -400,6 +440,21 @@ def page_club():
     pieds(o)
 
 
+def section_analyses(o: Sortie, i, club, mj):
+    """Matchs analysés d'un joueur : jamais additionnés aux totaux de saison."""
+    lignes = analyse.lignes_joueur(ANALYSES, i)
+    if not lignes:
+        return
+    o.add(ui.section(ui.kicker(f"Matchs analysés · {len(lignes)} sur {mj}") + f'<div style="font-size: 13px; color: {MUTED}; margin-top: 8px">'
+                     f'Stats détaillées des matchs diffusés et analysés. Elles ne sont pas ajoutées aux totaux de saison.</div>', pad="22px 0 0" if ORDI else "22px 16px 0"))
+    for j, dom, k, jr in lignes:
+        m = base.matchs[(base.matchs.journee == j) & (base.matchs.dom == dom)].iloc[0]
+        adv = m.ext if k == 0 else m.dom
+        score = f"{m.bd}-{m.be}"
+        o.lien(f'<div style="padding: 0 {"16px" if not ORDI else "0"}">' + analyse.carte_joueur_match(j, "DOM" if k == 0 else "EXT", NOMS[adv], score, jr) + "</div>",
+               "match", j=j, dom=dom, onglet="rapport", eq=k)
+
+
 # ================================================================== JOUEURS
 def page_joueurs():
     topnav("joueur")
@@ -456,6 +511,7 @@ def page_joueur():
         if npas:
             c = pj.groupby("buteur").size().sort_values(ascending=False)
             o.add(ui.section(ui.kicker("Ses passes pour") + '<div style="margin-top: 12px">' + ui.hbars([(k, int(v), INK) for k, v in c.items()], int(c.max()), label_w=170) + "</div>"))
+        section_analyses(o, i, club, mj)
     else:
         d = bj if onglet == "buts" else pj
         lib = "buts" if onglet == "buts" else "passes décisives"
@@ -536,7 +592,7 @@ if base.bloquant:
     DEFS = [(n, f if n == "controle" else page_maintenance, t, u) for n, f, t, u in DEFS]
 
 site_ordi.init(base=base, textes=TEXTES, noms=NOMS, jref=JREF, classement=CLASSEMENT, stats=STATS, derniere=DERNIERE,
-               journees=base.journees, rapports=RAPPORTS, orig=ORIG, param=param_int, choix=param_choix,
+               journees=base.journees, rapports=RAPPORTS, analyses=ANALYSES, bouton_pdf=bouton_pdf, section_analyses=section_analyses, orig=ORIG, param=param_int, choix=param_choix,
                afficher_rapport=afficher_rapport, bascule=bascule)
 
 

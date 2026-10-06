@@ -11,6 +11,7 @@ import streamlit as st
 
 import config as C
 import data
+import analyse
 import nav
 import rapports
 from nav import Sortie
@@ -20,7 +21,7 @@ from theme import CR, PAPER, INK, RED, MUTED, LINE, SOFT, SERIF, SANS, COND
 
 CSS_ORDI = f"""
 <style>
-.block-container, [data-testid="stMainBlockContainer"] {{ max-width: 1320px !important; padding: 0 32px 110px !important; }}
+.block-container, [data-testid="stMainBlockContainer"] {{ max-width: 100% !important; width: 100% !important; padding: 0 40px 110px !important; }}
 [class*="st-key-rw-dnav"] {{ gap: 26px !important; border-top: 2px solid {INK}; border-bottom: 1px solid {INK}; margin-top: 18px; }}
 [class*="st-key-rw-dgrid"] {{ gap: 14px !important; margin-top: 12px; }}
 [class*="st-key-rw-dtabs"] {{ gap: 28px !important; border-bottom: 1px solid {INK}; margin-bottom: 24px; }}
@@ -63,7 +64,7 @@ def entete_site(active):
     o = Sortie()
     lig = X["base"].stats_ligue()
     o.add(f'<div style="background: {INK}; color: #E9E2D5; font-family: {COND}; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; '
-          f'margin: 0 -32px; padding: 8px 32px; display: flex; justify-content: space-between">'
+          f'margin: 0 -40px; padding: 8px 40px; display: flex; justify-content: space-between">'
           f'<span>Saison {C.SAISON} · Après la journée {X["derniere"]} · {lig["nb_buts"]} buts</span>'
           f'<span>Données collectées par V. Geoffroy · non officielles · crédits clubs, joueurs, FFF</span></div>')
     o.add(f'<div style="padding-top: 22px"><div style="font-family: {SERIF}; font-size: 60px; line-height: 0.95">D1 Futsal</div>'
@@ -318,7 +319,7 @@ def page_match():
     o.rangee([(f'<div style="padding: 12px 18px 12px 0; font-family: {COND}; font-weight: 700; font-size: 13px; letter-spacing: 0.08em; color: {RED}">FICHE {e(N[c]).upper()} →</div>',
                "club", {"id": c}, "content") for c in (m.dom, m.ext)], style="cards")
     o.fin()
-    onglets_d("match", {"j": j, "dom": dom}, [("resume", "Résumé"), ("timeline", "Timeline")] + ([("rapport", "Rapport d’analyse")] if rapport else []), onglet)
+    onglets_d("match", {"j": j, "dom": dom}, [("resume", "Résumé"), ("timeline", "Timeline")] + ([("rapport", "Analyse du match")] if rapport else []), onglet)
     if onglet == "resume":
         g, d = st.columns([1.3, 1], gap="large")
         txt = T.get(f"match:J{j}:{dom}")
@@ -342,7 +343,7 @@ def page_match():
                     + kick("Face-à-face", mt=26) + '<div style="height: 12px"></div>' + card(ui.mirror(rows, N[m.dom], N[m.ext], mid_w=140), 16))
             if rapport:
                 st.html(card(f'<div style="font-family: {COND}; font-weight: 700; font-size: 12px; letter-spacing: 0.1em; color: {RED}">MATCH ANALYSÉ</div>'
-                             f'<div style="font-size: 14px; margin-top: 6px">Le rapport complet (tirs, duels, pertes, gardiens…) est dans l’onglet Rapport d’analyse.</div>', 14)
+                             f'<div style="font-size: 14px; margin-top: 6px">Tirs, duels, pertes, gardiens, joueur par joueur : voir l’onglet Analyse du match.</div>', 14)
                         .replace(f"background: {PAPER}", f"background: {PAPER}; margin-top: 20px"))
     elif onglet == "timeline":
         tpl = "grid-template-columns: 44px 70px minmax(0,1fr) minmax(0,1fr) 150px 60px"
@@ -364,7 +365,41 @@ def page_match():
                 o.add(l)
         o.fin()
     else:
-        X["afficher_rapport"](rapport, colonnes=2, largeur=900)
+        r = X["analyses"].get((j, dom))
+        if r is None:        # chiffres non lus : on montre les pages du PDF
+            X["afficher_rapport"](rapport, colonnes=3, largeur=800)
+        else:
+            c = r["collectif"]
+            g, d = st.columns([1.35, 1], gap="large")
+            with g:
+                st.html(kick("L’analyse en chiffres") + ui.tiles(
+                    ui.tile(f"{analyse.conversion(r, 0)} %", f"tirs cadrés convertis {e(N[m.dom])}", "dark", 40),
+                    ui.tile(f"{analyse.conversion(r, 1)} %", f"tirs cadrés convertis {e(N[m.ext])}", "red", 40),
+                    ui.tile(f"{c['tirs'][0]}-{c['tirs'][1]}", "tirs", numsize=40),
+                    ui.tile(f"{c['duels'][0][0]}-{c['duels'][1][0]}", "duels gagnés", numsize=40),
+                    ui.tile(f"{c['inter'][0]}-{c['inter'][1]}", "interceptions", numsize=40), mt=14)
+                    + kick("Face-à-face complet", mt=28) + '<div style="height: 12px"></div>'
+                    + card(analyse.miroir(analyse.face_a_face(r), N[m.dom], N[m.ext], mid_w=170, taille=18), 20))
+            with d:
+                st.html(kick("Les tirs") + '<div style="height: 12px"></div>' + card(analyse.bloc_tirs(r, N), 18)
+                        + kick("Gardiens", mt=28) + '<div style="display: flex; flex-direction: column; gap: 10px; margin-top: 12px">'
+                        + "".join(analyse.cartes_gardiens(r, N)) + "</div>")
+                st.html('<div style="height: 14px"></div>')
+                X["bouton_pdf"](rapport)
+            st.html('<div style="height: 30px"></div>' + kick("Joueurs de champ"))
+            cols = st.columns(2, gap="large")
+            for k, col in enumerate(cols):
+                with col:
+                    head, lignes = analyse.tableau_joueurs(r, k, analyse.COLS_ORDI, pad="10px")
+                    o = Sortie()
+                    o.add(f'<div style="font-family: {SERIF}; font-size: 24px; margin: 12px 0 6px; color: {INK if k == 0 else RED}">{e(N[r["clubs"][k]])}</div>' + head)
+                    for h, i in lignes:
+                        if i:
+                            o.lien(h, "joueur", id=i)
+                        else:
+                            o.add(h)
+                    o.fin()
+            st.html(f'<div style="font-size: 12px; color: {MUTED}; margin-top: 14px">{analyse.LEGENDE} Cliquer un joueur ouvre sa fiche quand il a déjà marqué ou passé.</div>')
     pied()
 
 
@@ -637,6 +672,9 @@ def page_joueur():
         if not h:
             h = ui.empty("Aucun but ni passe décisive pour l’instant.")
         st.html(h)
+        oa = Sortie()
+        X["section_analyses"](oa, i, club, mj)
+        oa.fin()
     st.html('<div style="height: 26px"></div>')
     g2, d2 = st.columns(2, gap="large")
     for col, df, titre, mode in [(g2, bj, f"{nb} but{'s' if nb > 1 else ''}", "buts"), (d2, pj, f"{npas} passe{'s' if npas > 1 else ''} décisive{'s' if npas > 1 else ''}", "passes")]:
@@ -669,7 +707,7 @@ def page_methodo():
                 "Chaque but est saisi avec sa minute, son score, son buteur, son passeur et la phase de jeu qui l’a amené.")
             + p("Avant chaque mise en ligne, des contrôles automatiques vérifient l’enchaînement des scores, la cohérence buteur/passeur et le rattachement "
                 "de chaque joueur à un seul club. Si un contrôle échoue, rien n’est publié.")
-            + p("Le match diffusé de chaque journée fait l’objet d’un rapport d’analyse détaillé (tirs, duels, pertes, gardiens), publié tel quel dans la fiche du match.")
+            + p("Le match diffusé de chaque journée fait l’objet d’un rapport d’analyse détaillé (tirs, duels, pertes, gardiens), à retrouver dans l’onglet Analyse de la fiche du match, avec le PDF complet en téléchargement.")
             + p(f"Classement : 3 points la victoire, 1 le nul. Départage par différence de buts puis buts marqués. Les {C.NB_PLAYOFFS} premiers sont qualifiés "
                 f"pour les play-offs, les {C.NB_DESCENTE} derniers descendent en D2.")
             + p("Crédits : clubs, joueurs, FFF. Photos et logos avec l’accord de leurs auteurs.")

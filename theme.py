@@ -53,3 +53,9 @@ CSS += """
 .st-key-bascule button p { font-size: 12px !important; color: #5E574C; text-decoration: underline; }
 </style>
 """
+
+CSS += """
+<style>
+.st-key-rapport-m { padding: 0 16px 8px; }
+</style>
+"""
