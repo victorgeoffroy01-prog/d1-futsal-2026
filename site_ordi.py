@@ -22,6 +22,10 @@ from theme import CR, PAPER, INK, RED, MUTED, LINE, SOFT, SERIF, SANS, COND
 CSS_ORDI = f"""
 <style>
 .block-container, [data-testid="stMainBlockContainer"] {{ max-width: 100% !important; width: 100% !important; padding: 0 40px 110px !important; }}
+/* grands écrans : tout le site est agrandi pour rester lisible */
+@media (min-width: 1500px) {{ [data-testid="stMainBlockContainer"] {{ zoom: 1.12; }} [data-testid="stDataFrame"] {{ zoom: 0.8929; }} }}
+@media (min-width: 1750px) {{ [data-testid="stMainBlockContainer"] {{ zoom: 1.25; }} [data-testid="stDataFrame"] {{ zoom: 0.8; }} }}
+@media (min-width: 2300px) {{ [data-testid="stMainBlockContainer"] {{ zoom: 1.5; }} [data-testid="stDataFrame"] {{ zoom: 0.6667; }} }}
 [class*="st-key-rw-dnav"] {{ gap: 26px !important; border-top: 2px solid {INK}; border-bottom: 1px solid {INK}; margin-top: 18px; }}
 [class*="st-key-rw-dgrid"] {{ gap: 14px !important; margin-top: 12px; }}
 [class*="st-key-rw-dtabs"] {{ gap: 28px !important; border-bottom: 1px solid {INK}; margin-bottom: 24px; }}
@@ -71,13 +75,13 @@ def entete_site(active):
           f'<div style="font-family: {COND}; font-weight: 700; font-size: 13px; letter-spacing: 0.16em; text-transform: uppercase; color: {RED}; margin-top: 8px">'
           f'Le championnat en données</div></div>')
     items = [("une", "La Une", "une"), ("matchs", "Résultats", "matchs"), ("classements", "Classements", "classements"),
-             ("stats", "Statistiques", "joueurs"), ("clubs", "Clubs", "clubs"), ("methodo", "Méthodologie", "methodo")]
+             ("stats", "Statistiques", "joueurs"), ("clubs", "Clubs", "clubs"), ("annuaire", "Joueurs", "joueurs"), ("methodo", "Méthodologie", "methodo")]
     nav_items = []
     for k, lab, cible in items:
         on = k == active
         nav_items.append((f'<div style="padding: 12px 0 10px; border-bottom: 3px solid {RED if on else "transparent"}; font-family: {COND}; '
                           f'font-weight: 700; font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap">{lab}</div>',
-                          cible, {}, "content"))
+                          cible, {"vue": "annuaire"} if k == "annuaire" else {}, "content"))
     o.rangee(nav_items, style="dnav")
     o.fin()
 
@@ -452,10 +456,65 @@ def _sous_base(base, j1, j2, lieu, groupe):
     return data.Base(buts=b, matchs=m, joueurs=base.joueurs, clubs=base.clubs, compos=base.compos)
 
 
+def page_annuaire():
+    """Onglet Joueurs : tous les joueurs du championnat, par club, avec recherche. Un clic ouvre la fiche."""
+    entete_site("annuaire")
+    N = X["noms"]
+    J = X["joueurs"].drop_duplicates("id_joueur")
+    st_ = X["stats"].set_index("id_joueur")
+    vus = {jr.get("id") for r in X["analyses"].values() for k in (0, 1) for jr in r["joueurs"][k]}
+    clubs = sorted(N, key=lambda c: N[c])
+    club = X["choix"]("club", ["tous"] + clubs, "tous")
+    o = Sortie()
+    o.add(f'<div style="height: 24px"></div><div style="font-family: {COND}; font-weight: 700; font-size: 12px; letter-spacing: 0.14em; color: {RED}">JOUEURS · {len(J)} FICHES</div>'
+          f'<h1 style="margin: 6px 0 0; font-family: {SERIF}; font-weight: 400; font-size: 44px; line-height: 1">Tous les joueurs de D1</h1>')
+    o.rangee([(ui.pill_item("Tous", club == "tous"), "joueurs", {"vue": "annuaire"}, "content")]
+             + [(ui.pill_item(C.ABREV_CLUBS.get(c, c), c == club), "joueurs", {"vue": "annuaire", "club": c}, "content") for c in clubs], style="pills")
+    o.fin()
+    with st.container(horizontal=True, key="filtres"):
+        q = st.text_input("Rechercher un joueur", placeholder="Nom, prénom ou surnom…")
+    if q:
+        t = q.strip()
+        J = J[J.nom_affiche.astype(str).str.contains(t, case=False, regex=False) | J.nom_base.astype(str).str.contains(t, case=False, regex=False)]
+    elif club != "tous":
+        J = J[J.club_court == club]
+
+    def carte(r):
+        b, p_ = int(st_.Buts.get(r.id_joueur, 0)), int(st_.Passes.get(r.id_joueur, 0))
+        num = f"N° {str(r.numero).replace('.0', '')}" if pd.notna(getattr(r, "numero", None)) else None
+        poste = r.poste if isinstance(getattr(r, "poste", None), str) else None
+        sous = " · ".join(x for x in [num, poste, "match analysé" if r.id_joueur in vus else None] if x) or "Fiche à compléter"
+        return (f'<div style="height: 100%; box-sizing: border-box; display: flex; gap: 12px; align-items: center; padding: 10px 12px; background: {PAPER}; '
+                f'border: 1.5px solid {INK}; border-radius: 12px">{ui.photo(r.id_joueur, 46, 56)}<div style="flex: 1; min-width: 0">'
+                f'<div style="font-weight: 700; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{e(r.nom_affiche)}</div>'
+                f'<div style="font-size: 12px; color: {MUTED}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{e(sous)}</div></div>'
+                f'<div style="text-align: right; font-family: {COND}; font-weight: 700; white-space: nowrap"><span style="font-family: {SERIF}; font-weight: 400; font-size: 22px; color: {RED if b else MUTED}">{b}</span> b'
+                f'<span style="font-family: {SERIF}; font-weight: 400; font-size: 22px; margin-left: 8px; color: {INK if p_ else MUTED}">{p_}</span> p</div></div>')
+
+    o = Sortie()
+    if J.empty:
+        o.add(ui.empty("Aucun joueur trouvé."))
+    for c in [c for c in clubs if c in set(J.club_court)]:
+        eff = J[J.club_court == c].copy()
+        eff["_bp"] = [int(st_["B+P"].get(i, 0)) for i in eff.id_joueur]
+        lst = list(eff.sort_values(["_bp", "nom_affiche"], ascending=[False, True]).itertuples())
+        o.lien(f'<div style="display: flex; align-items: center; gap: 10px; margin-top: 26px; padding-bottom: 8px; border-bottom: 2px solid {INK}">{ui.logo_or_badge(c, 30, 10)}'
+               f'<span style="font-family: {SERIF}; font-size: 26px">{e(N[c])}</span>'
+               f'<span style="margin-left: auto; font-family: {COND}; font-size: 13px; color: {MUTED}">{len(lst)} joueur{"s" if len(lst) > 1 else ""} · voir le club</span></div>', "club", id=c)
+        for k in range(0, len(lst), 4):
+            ligne = [(carte(r), "joueur", {"id": r.id_joueur}) for r in lst[k:k + 4]]
+            ligne += [("<div></div>", None, {})] * (4 - len(ligne))
+            o.rangee(ligne, style="dgrid")
+    o.fin()
+    pied()
+
+
 def page_joueurs():
-    entete_site("stats")
     base, N = X["base"], X["noms"]
-    vue = X["choix"]("vue", ["tableau", "comparer"], "tableau")
+    vue = X["choix"]("vue", ["tableau", "comparer", "annuaire"], "tableau")
+    if vue == "annuaire":
+        return page_annuaire()
+    entete_site("stats")
     o = Sortie()
     o.add(f'<div style="height: 24px"></div><div style="font-family: {COND}; font-weight: 700; font-size: 12px; letter-spacing: 0.14em; color: {RED}">STATISTIQUES · JOUEURS</div>'
           f'<h1 style="margin: 6px 0 0; font-family: {SERIF}; font-weight: 400; font-size: 44px; line-height: 1">Tous les buteurs et passeurs de D1</h1>')
