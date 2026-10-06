@@ -61,7 +61,6 @@ qp = st.query_params
 
 NOMS = {r.club_court: (r.nom_affiche if isinstance(getattr(r, "nom_affiche", None), str) and r.nom_affiche
                        else C.NOMS_CLUBS.get(r.club_court, r.club_court)) for r in base.clubs.itertuples()}
-JREF = base.joueurs.drop_duplicates("id_joueur").set_index("id_joueur")
 CLASSEMENT = base.classement()
 STATS = base.stats_joueurs()
 DERNIERE = max(base.journees) if base.journees else 1
@@ -74,8 +73,11 @@ def _analyses(_cle):
 
 
 # chiffres lus dans les rapports PDF (recalculés seulement si un fichier change)
-ANALYSES, _anom = _analyses((_empreinte(), tuple((p, os.path.getmtime(p)) for p in sorted(RAPPORTS.values()))))
+ANALYSES, _anom, _sans_fiche = _analyses((_empreinte(), tuple((p, os.path.getmtime(p)) for p in sorted(RAPPORTS.values()))))
 ANOM_RAPPORTS = ANOM_RAPPORTS + _anom
+# tous les joueurs du site : fiches + buteurs/passeurs + joueurs vus seulement dans un rapport de match
+JOUEURS = pd.concat([base.joueurs, pd.DataFrame(_sans_fiche)], ignore_index=True) if _sans_fiche else base.joueurs
+JREF = JOUEURS.drop_duplicates("id_joueur").set_index("id_joueur")
 
 
 @st.cache_data(show_spinner=False)
@@ -414,7 +416,7 @@ def page_club():
         st_ = STATS.set_index("id_joueur")
         o.add(ui.section(ui.kicker("Effectif") + f'<div style="display: grid; grid-template-columns: 30px minmax(0,1fr) 34px 34px; gap: 8px; padding: 10px 0 6px; border-bottom: 2px solid {INK}; '
                          f'font-family: {COND}; font-weight: 700; font-size: 11px; color: {MUTED}"><span>N°</span><span>JOUEUR</span><span style="text-align:center">B</span><span style="text-align:center">P</span></div>', pad="16px 16px 0"))
-        for r in base.joueurs[base.joueurs.club_court == club].itertuples():
+        for r in JOUEURS[JOUEURS.club_court == club].itertuples():
             bts, pas = int(st_.Buts.get(r.id_joueur, 0)), int(st_.Passes.get(r.id_joueur, 0))
             poste = r.poste if isinstance(getattr(r, "poste", None), str) else ""
             num = str(r.numero).replace(".0", "") if pd.notna(getattr(r, "numero", None)) else ""
@@ -462,7 +464,13 @@ def page_joueurs():
     entete(o, "Joueurs", "Recherche")
     o.flush()
     q = st.text_input("Rechercher un joueur", placeholder="Nom, prénom ou surnom…")
-    d = STATS[STATS.joueur.str.contains(q.strip(), case=False, regex=False)] if q else STATS.sort_values(["B+P", "Buts"], ascending=False).head(30)
+    if q:      # la recherche couvre tous les joueurs, y compris ceux sans but ni passe
+        tous = JREF.reset_index()[["id_joueur", "nom_affiche", "club_court"]].rename(columns={"nom_affiche": "joueur", "club_court": "club"})
+        tous = tous.merge(STATS[["id_joueur", "Buts", "Passes", "B+P"]], on="id_joueur", how="left").fillna({"Buts": 0, "Passes": 0, "B+P": 0})
+        tous[["Buts", "Passes", "B+P"]] = tous[["Buts", "Passes", "B+P"]].astype(int)
+        d = tous[tous.joueur.astype(str).str.contains(q.strip(), case=False, regex=False)].sort_values(["B+P", "joueur"], ascending=[False, True])
+    else:
+        d = STATS.sort_values(["B+P", "Buts"], ascending=False).head(30)
     o.add(ui.section(ui.kicker("Résultats" if q else "Les plus décisifs"), pad="10px 16px 6px"))
     for i, (_, r) in enumerate(d.iterrows(), 1):
         o.lien(ui.rank_row(i, r.joueur, f"{NOMS.get(r.club, r.club)} · {r.Buts} b · {r.Passes} p", r["B+P"]), "joueur", id=r.id_joueur)
@@ -591,7 +599,7 @@ if base.bloquant:
     # aucune donnée publiée tant qu'un contrôle bloquant n'est pas levé (sauf la page contrôle)
     DEFS = [(n, f if n == "controle" else page_maintenance, t, u) for n, f, t, u in DEFS]
 
-site_ordi.init(base=base, textes=TEXTES, noms=NOMS, jref=JREF, classement=CLASSEMENT, stats=STATS, derniere=DERNIERE,
+site_ordi.init(base=base, joueurs=JOUEURS, textes=TEXTES, noms=NOMS, jref=JREF, classement=CLASSEMENT, stats=STATS, derniere=DERNIERE,
                journees=base.journees, rapports=RAPPORTS, analyses=ANALYSES, bouton_pdf=bouton_pdf, section_analyses=section_analyses, orig=ORIG, param=param_int, choix=param_choix,
                afficher_rapport=afficher_rapport, bascule=bascule)
 

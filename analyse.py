@@ -8,6 +8,7 @@ import re
 import unicodedata
 
 import controles
+import data
 import rapport_stats
 import rapports
 from components import e
@@ -49,11 +50,13 @@ def _id_joueur(nom, effectif):
 
 
 def preparer(base, fichiers: dict) -> tuple[dict, list]:
-    """{(journee, dom): analyse} + anomalies. `fichiers` vient de rapports.lister()."""
+    """{(journee, dom): analyse} + anomalies + joueurs sans fiche. `fichiers` vient de rapports.lister()."""
     out, anomalies = {}, []
     clubs = set(base.clubs.club_court)
+    connus = set(base.joueurs.id_joueur)
+    nouveaux = {}        # joueurs vus dans un rapport mais ni dans les fiches, ni buteurs, ni passeurs
     for (j, dom), chemin in fichiers.items():
-        nom = os.path.basename(chemin)
+        nom_f = nom = os.path.basename(chemin)
         m = base.matchs[(base.matchs.journee == j) & (base.matchs.dom == dom)].iloc[0]
         try:
             r = rapport_stats.lire(chemin)
@@ -79,8 +82,22 @@ def preparer(base, fichiers: dict) -> tuple[dict, list]:
             eff = base.joueurs[base.joueurs.club_court == club]
             for jr in r["joueurs"][k]:
                 jr["id"] = _id_joueur(jr["nom"], eff)
+                if jr["id"] is None:
+                    # pas de fiche : on en crée une provisoire pour que le joueur soit quand même cliquable
+                    i = data.slug(jr["nom"])
+                    if not i:
+                        continue
+                    if i in connus or any(c != club for (c, x) in nouveaux if x == i):
+                        i = data.slug(f"{club} {jr['nom']}")
+                    if (club, i) not in nouveaux:
+                        nom = re.sub(r"\.(?=\S)", ". ", str(jr["nom"]))
+                        nouveaux[(club, i)] = dict(id_joueur=i, nom_base=nom.upper(), club_court=club, id_auto=True,
+                                                   nom_affiche=data.nom_affiche(nom), absent_fiches=True)
+                        anomalies.append(controles.Anomalie(controles.ALERTE, "fiches", f"{jr['nom']} ({club}) : vu dans {nom_f}, absent des fiches. "
+                                                            f"Fiche provisoire créée, à compléter dans le fichier fiches."))
+                    jr["id"] = i
         out[(j, dom)] = r
-    return out, anomalies
+    return out, anomalies, list(nouveaux.values())
 
 
 def lignes_joueur(analyses: dict, id_joueur: str) -> list:

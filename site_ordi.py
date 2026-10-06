@@ -591,7 +591,7 @@ def page_club():
         st.html(kick(f"Profil offensif : {N[club]} vs moyenne D1", mt=28) + sous_titre("Barre noire : part des buts du club. Trait rouge : moyenne de la ligue.")
                 + card(f'<div style="display: flex; flex-direction: column; gap: 12px">{cmp}</div>', 18))
         st_ = X["stats"].set_index("id_joueur")
-        eff = base.joueurs[base.joueurs.club_court == club]
+        eff = X["joueurs"][X["joueurs"].club_court == club]
         tpl = "grid-template-columns: 44px minmax(0,1fr) 110px 54px 54px 54px 60px"
         cols = [("N°", "left"), ("Joueur", "left"), ("Poste", "left"), ("Buts", "center"), ("Passes", "center"), ("B+P", "center"), ("% club", "right")]
         rows, ids = [], []
