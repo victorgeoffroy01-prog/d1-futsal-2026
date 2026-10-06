@@ -73,7 +73,11 @@ def _analyses(_cle):
 
 
 # chiffres lus dans les rapports PDF (recalculés seulement si un fichier change)
-ANALYSES, _anom, _sans_fiche = _analyses((_empreinte(), tuple((p, os.path.getmtime(p)) for p in sorted(RAPPORTS.values()))))
+_res = _analyses((_empreinte(), tuple((p, os.path.getmtime(p)) for p in sorted(RAPPORTS.values()))))
+if len(_res) != 3:      # résultat gardé en mémoire par une ancienne version du code : on recalcule
+    _analyses.clear()
+    _res = _analyses((_empreinte(), tuple((p, os.path.getmtime(p)) for p in sorted(RAPPORTS.values()))))
+ANALYSES, _anom, _sans_fiche = _res
 ANOM_RAPPORTS = ANOM_RAPPORTS + _anom
 # tous les joueurs du site : fiches + buteurs/passeurs + joueurs vus seulement dans un rapport de match
 JOUEURS = pd.concat([base.joueurs, pd.DataFrame(_sans_fiche)], ignore_index=True) if _sans_fiche else base.joueurs
