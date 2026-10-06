@@ -29,7 +29,9 @@ a:focus-visible, button:focus-visible {{ outline: 3px solid {RED}; outline-offse
 /* champ de recherche */
 [data-testid="stTextInput"] {{ padding: 12px 16px 4px; }}
 [data-testid="stTextInput"] input {{ background: {PAPER}; border: 1.5px solid {INK}; border-radius: 999px;
-  height: 44px; padding: 0 16px; font-family: {SANS}; font-size: 15px; }}
+  height: 44px; padding: 0 16px; font-family: {SANS}; font-size: 15px; color: {INK} !important; -webkit-text-fill-color: {INK} !important; caret-color: {INK}; }}
+[data-testid="stTextInput"] input::placeholder {{ color: {MUTED} !important; -webkit-text-fill-color: {MUTED} !important; }}
+[data-testid="stTextInput"] div {{ background: transparent !important; border-color: transparent !important; overflow: visible !important; height: auto !important; }}
 [data-testid="stTextInput"] label {{ display: none; }}
 @media (prefers-reduced-motion: reduce) {{ * {{ transition: none !important; }} }}
 </style>
@@ -78,5 +80,11 @@ CSS += """
 .st-key-editeur [data-testid="stExpander"] details { background: #FBF8F2 !important; border: 1px solid #D6CDBD !important; }
 .st-key-editeur [data-testid="stCheckbox"] span:first-child { border-color: #111 !important; }
 .st-key-editeur [data-testid="stVerticalBlockBorderWrapper"] { background: #FFFFFF55; border-color: #111 !important; }
+</style>
+"""
+
+CSS += """
+<style>
+[data-testid="InputInstructions"] { display: none !important; }
 </style>
 """

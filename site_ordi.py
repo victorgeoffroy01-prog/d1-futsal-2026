@@ -30,6 +30,10 @@ CSS_ORDI = f"""
 [class*="st-key-rw-dgrid"] {{ gap: 14px !important; margin-top: 12px; }}
 [class*="st-key-rw-dtabs"] {{ gap: 28px !important; border-bottom: 1px solid {INK}; margin-bottom: 24px; }}
 [class*="st-key-rw-pills"] {{ padding: 12px 0 !important; }}
+[class*="st-key-rw-pillsw"] {{ flex-wrap: wrap !important; row-gap: 8px !important; }}
+/* champs de saisie : texte toujours noir sur fond clair */
+[data-testid="stTextInput"] input, [data-testid="stTextArea"] textarea {{ color: {INK} !important; -webkit-text-fill-color: {INK} !important; caret-color: {INK}; background: {PAPER} !important; }}
+[data-testid="stTextInput"] input::placeholder {{ color: {MUTED} !important; -webkit-text-fill-color: {MUTED} !important; }}
 [class*="st-key-rw-seg"] {{ margin: 12px 0 0 !important; width: 100% !important; }}
 [data-testid="stSelectbox"], [data-testid="stMultiSelect"], [data-testid="stSlider"], [data-testid="stRadio"] {{ padding: 0 !important; }}
 [data-testid="stDataFrame"] {{ border: 1.5px solid {INK}; border-radius: 10px; overflow: hidden; }}
@@ -220,10 +224,10 @@ def top_liste(df, col, n=10, sous=lambda r: ""):
     rang, prev = 0, None
     for i, (_, r) in enumerate(df.head(n).iterrows(), 1):
         v = int(r[col]); rang = i if v != prev else rang; prev = v
-        o.lien(f'<div style="display: grid; grid-template-columns: 24px minmax(0,1fr) 50px 34px; gap: 8px; align-items: center; padding: 8px 0; border-bottom: 1px solid {LINE}">'
+        o.lien(f'<div style="display: grid; grid-template-columns: 24px minmax(0,1fr) auto 34px; gap: 8px; align-items: center; padding: 8px 0; border-bottom: 1px solid {LINE}">'
                f'<span style="font-family: {COND}; font-weight: 700; color: {RED if rang == 1 else MUTED}">{rang}</span>'
                f'<span style="font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{e(r.joueur)}</span>'
-               f'<span style="font-family: {COND}; font-size: 12px; color: {MUTED}">{C.ABREV_CLUBS.get(r.club, r.club)}</span>{chiffre(v, 18)}</div>',
+               f'<span style="font-family: {COND}; font-size: 12px; color: {MUTED}; white-space: nowrap">{e(X["noms"].get(r.club, r.club))}</span>{chiffre(v, 18)}</div>',
                "joueur", id=r.id_joueur)
     o.fin()
 
@@ -354,9 +358,9 @@ def page_match():
                              f'<div style="font-size: 14px; margin-top: 6px">Tirs, duels, pertes, gardiens, joueur par joueur : voir l’onglet Analyse du match.</div>', 14)
                         .replace(f"background: {PAPER}", f"background: {PAPER}; margin-top: 20px"))
     elif onglet == "timeline":
-        tpl = "grid-template-columns: 44px 70px minmax(0,1fr) minmax(0,1fr) 150px 60px"
+        tpl = "grid-template-columns: 44px 120px minmax(0,1fr) minmax(0,1fr) 150px 60px"
         cols = [("Min.", "left"), ("Équipe", "left"), ("Buteur", "left"), ("Passeur", "left"), ("Origine", "left"), ("Score", "right")]
-        rows = [[f'<span style="font-family: {COND}; font-weight: 700; color: {RED}">{r.minute}’</span>', cond(C.ABREV_CLUBS.get(r.club_marque, r.club_marque), MUTED),
+        rows = [[f'<span style="font-family: {COND}; font-weight: 700; color: {RED}">{r.minute}’</span>', cond(e(X["noms"].get(r.club_marque, r.club_marque)), MUTED),
                  f'<span style="font-weight: 600">{e(r.buteur)}</span>', e(r.passeur) if isinstance(r.passeur, str) else f'<span style="color: {MUTED}">sans passe</span>',
                  f'<span style="font-size: 13px">{e(X["orig"].get(r.origine_but, str(r.origine_but)))}</span>', chiffre(f"{r.score_dom_apres}-{r.score_ext_apres}", 18)]
                 for r in b.itertuples()]
@@ -473,7 +477,7 @@ def page_annuaire():
     o.add(f'<div style="height: 24px"></div><div style="font-family: {COND}; font-weight: 700; font-size: 12px; letter-spacing: 0.14em; color: {RED}">JOUEURS · {len(J)} FICHES</div>'
           f'<h1 style="margin: 6px 0 0; font-family: {SERIF}; font-weight: 400; font-size: 44px; line-height: 1">Tous les joueurs de D1</h1>')
     o.rangee([(ui.pill_item("Tous", club == "tous"), "joueurs", {"vue": "annuaire"}, "content")]
-             + [(ui.pill_item(C.ABREV_CLUBS.get(c, c), c == club), "joueurs", {"vue": "annuaire", "club": c}, "content") for c in clubs], style="pills")
+             + [(ui.pill_item(N[c], c == club), "joueurs", {"vue": "annuaire", "club": c}, "content") for c in clubs], style="pillsw")
     o.fin()
     with st.container(horizontal=True, key="filtres"):
         q = st.text_input("Rechercher un joueur", placeholder="Nom, prénom ou surnom…")
