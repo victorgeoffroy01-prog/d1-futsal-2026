@@ -77,6 +77,10 @@ def entete_site(active):
     items = [("une", "La Une", "une"), ("matchs", "Résultats", "matchs"), ("classements", "Classements", "classements"),
              ("stats", "Statistiques", "joueurs"), ("clubs", "Clubs", "clubs"), ("annuaire", "Joueurs", "joueurs"), ("methodo", "Méthodologie", "methodo")]
     nav_items = []
+    for sens in (-1, +1):
+        v = nav.voisin(sens)
+        nav_items.append((f'<div style="padding-top: 7px; margin-right: {-14 if sens < 0 else 0}px">{ui.fleche(sens, bool(v), 32)}</div>',
+                          v[0] if v else None, v[1] if v else None, "content"))
     for k, lab, cible in items:
         on = k == active
         nav_items.append((f'<div style="padding: 12px 0 10px; border-bottom: 3px solid {RED if on else "transparent"}; font-family: {COND}; '

@@ -136,10 +136,11 @@ def topnav(active):
 
 def entete(o: Sortie, titre, sous=None, retour=None):
     """Titre de page, avec flèche retour cliquable si `retour` = (page, params)."""
-    items = []
-    if retour:
-        items.append((ui.back_btn(), retour[0], retour[1], "content"))
-    items.append((ui.titre_bar(titre, sous), None, None, "stretch"))
+    avant = nav.voisin(-1) or retour          # page précédente, sinon la page parente
+    apres = nav.voisin(+1)
+    items = [(f'<div style="margin-right: 10px">{ui.fleche(-1, bool(avant), 36)}</div>', avant[0] if avant else None, avant[1] if avant else None, "content"),
+             (ui.titre_bar(titre, sous), None, None, "stretch"),
+             (ui.fleche(+1, bool(apres), 36), apres[0] if apres else None, apres[1] if apres else None, "content")]
     o.rangee(items, style="bar")
 
 
@@ -575,14 +576,13 @@ def page_controle():
                      + ui.kicker(f"Rapports publiés : {len(RAPPORTS)}", mt=22) + "".join(
                          f'<div style="padding: 6px 0; font-size: 13px">J{k[0]} · {e(NOMS[k[1]])} · {e(os.path.basename(v))}</div>' for k, v in sorted(RAPPORTS.items())),
                      pad="16px 16px 0"))
-    o.add(ui.section(ui.kicker("Textes à valider") + f'<p style="font-size: 13px; color: {MUTED}">Télécharge le fichier, relis, corrige dans texte_valide si besoin, '
-                     f'mets OK dans statut, puis dépose-le dans le dépôt avec tes données. Les textes déjà validés sont conservés.</p>'))
+    o.add(ui.section(ui.kicker("Textes à valider") + f'<p style="font-size: 13px; color: {MUTED}">Relis, corrige directement dans la case, '
+                     f'coche « Publier » pour les textes que tu acceptes, puis enregistre. Un texte non coché n\u2019est jamais affiché.</p>'))
     o.flush()
     if not base.bloquant:
-        import generer_textes
-        jt = st.selectbox("Journée", base.journees[::-1], format_func=lambda x: f"J{x}")
-        st.download_button("Télécharger textes_journee.xlsx", generer_textes.fichier_pour_telechargement(base, jt),
-                           file_name="textes_journee.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        import editeur_textes
+        with st.container(key="editeur"):
+            editeur_textes.editeur(base, lambda j: base.classement(jusqua=j))
     o.fin()
 
 
@@ -611,6 +611,8 @@ site_ordi.init(base=base, joueurs=JOUEURS, textes=TEXTES, noms=NOMS, jref=JREF, 
 def _version(nom, fonction):
     """Même adresse pour les deux versions : la page ordinateur si elle existe, sinon la page mobile."""
     def page():
+        if nom != "controle":
+            nav.suivre(nom, dict(qp))
         if ORDI and not base.bloquant and nom in site_ordi.PAGES_ORDI:
             site_ordi.PAGES_ORDI[nom]()
         else:

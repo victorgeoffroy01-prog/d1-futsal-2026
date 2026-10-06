@@ -136,6 +136,14 @@ def back_btn():
     return f'<div style="display: flex; width: 40px; height: 44px; align-items: center; margin-left: -8px">{icon("back", 24)}</div>'
 
 
+def fleche(sens, actif, taille=40):
+    """Bouton rond précédent (-1) / suivant (+1), grisé s'il n'y a nulle part où aller."""
+    return (f'<div title="{"Page précédente" if sens < 0 else "Page suivante"}" style="display: flex; width: {taille}px; height: {taille}px; '
+            f'align-items: center; justify-content: center; border-radius: 999px; border: 1.5px solid {INK if actif else LINE}; '
+            f'background: {PAPER}; opacity: {1 if actif else 0.45}; box-sizing: border-box">'
+            f'{icon("back" if sens < 0 else "chev", int(taille * 0.5), INK if actif else MUTED, 2.2)}</div>')
+
+
 def tab_item(lab, on):
     st_ = (f"border-bottom: 3px solid {RED}; color: {INK}; font-weight: 700" if on
            else f"border-bottom: 3px solid transparent; color: {MUTED}; font-weight: 600")

@@ -227,7 +227,7 @@ class Base:
         b = self.buts
         marques = b[b.club_marque == club]
         encaisses = b[b.club_encaisse == club]
-        tr = lambda d: pd.cut(d.minute, bins=C.TRANCHES, labels=[f"{a}-{a+5}" for a in C.TRANCHES[:-1]]).value_counts().sort_index()
+        tr = lambda d: pd.cut(d.minute, bins=C.TRANCHES, labels=[f"{a+1}-{a+5}" for a in C.TRANCHES[:-1]]).value_counts().sort_index()
         return {
             "classement": self.classement().set_index("club").loc[club].to_dict(),
             "tranches_marques": tr(marques).to_dict(),
@@ -245,7 +245,7 @@ class Base:
             "nb_buts": len(b), "nb_matchs": len(self.matchs),
             "buts_par_match": round(len(b) / max(len(self.matchs), 1), 2),
             "origines": b.origine_but.value_counts().to_dict(),
-            "tranches": pd.cut(b.minute, bins=C.TRANCHES, labels=[f"{a}-{a+5}" for a in C.TRANCHES[:-1]]).value_counts().sort_index().to_dict(),
+            "tranches": pd.cut(b.minute, bins=C.TRANCHES, labels=[f"{a+1}-{a+5}" for a in C.TRANCHES[:-1]]).value_counts().sort_index().to_dict(),
             "part_avec_passe": round(100 * b.id_passeur.notna().mean()),
         }
 

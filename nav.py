@@ -90,3 +90,29 @@ class Sortie:
 
     def fin(self):
         self.flush()
+
+
+# ------------------------------------------------------------------ historique (flèches précédent / suivant)
+def suivre(nom: str, params: dict) -> None:
+    """Note la page affichée. Un retour ou une avance déplace le curseur, toute autre page s'ajoute à la suite."""
+    ici = (nom, {k: str(v) for k, v in params.items()})
+    h = st.session_state.setdefault("hist", [])
+    p = st.session_state.get("hist_pos", -1)
+    if h and 0 <= p < len(h) and h[p] == ici:
+        return
+    if p > 0 and h[p - 1] == ici:
+        st.session_state["hist_pos"] = p - 1
+    elif 0 <= p < len(h) - 1 and h[p + 1] == ici:
+        st.session_state["hist_pos"] = p + 1
+    else:
+        del h[p + 1:]
+        h.append(ici)
+        del h[:-50]
+        st.session_state["hist_pos"] = len(h) - 1
+
+
+def voisin(sens: int):
+    """(page, params) de la page précédente (-1) ou suivante (+1), ou None."""
+    h, p = st.session_state.get("hist", []), st.session_state.get("hist_pos", -1)
+    return h[p + sens] if 0 <= p + sens < len(h) else None
+

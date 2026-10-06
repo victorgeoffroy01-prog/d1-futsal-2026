@@ -59,3 +59,10 @@ CSS += """
 .st-key-rapport-m { padding: 0 16px 8px; }
 </style>
 """
+
+CSS += """
+<style>
+.st-key-editeur { padding: 0 16px 16px; }
+.st-key-editeur [data-testid="stSelectbox"], .st-key-editeur [data-testid="stDownloadButton"] { padding: 0; }
+</style>
+"""

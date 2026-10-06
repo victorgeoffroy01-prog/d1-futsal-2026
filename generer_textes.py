@@ -11,6 +11,7 @@ Usage :
 Le fichier textes_journee.xlsx est mis à jour sans écraser ce qui est déjà validé.
 """
 from __future__ import annotations
+import re
 import sys
 from io import BytesIO
 
@@ -233,7 +234,16 @@ def propositions(base, j) -> pd.DataFrame:
             rows.append(dict(cible=f"une:J{j}", journee=j, type="Titre de La Une", match=etiquette, texte_propose=t, faits=" ; ".join(fa)))
         t, fa = essentiel(base, f)
         rows.append(dict(cible=f"match:J{j}:{m.dom}", journee=j, type="Essentiel du match", match=etiquette, texte_propose=t, faits=" ; ".join(fa)))
-    return pd.DataFrame(rows)
+    df = pd.DataFrame(rows)
+    df["texte_propose"] = df.texte_propose.map(_contracter)
+    return df
+
+
+def _contracter(t: str) -> str:
+    """« face à le Sporting » -> « face au Sporting », « de les Artistes » -> « des Artistes »."""
+    for a, b in (("à le ", "au "), ("à les ", "aux "), ("de le ", "du "), ("de les ", "des ")):
+        t = re.sub(rf"\b{a}", b, t)
+    return t
 
 
 def fusionner(existant: pd.DataFrame | None, nouveau: pd.DataFrame) -> pd.DataFrame:
