@@ -167,7 +167,11 @@ def footer():
 
 
 # ------------------------------------------------------------- lignes de listes
-def match_row(m, noms):
+BADGE_ANALYSE = (f'<span title="Match analysé : rapport disponible" style="display: inline-block; background: {RED}; color: #fff; border-radius: 3px; '
+                 f'padding: 2px 5px; font-family: {COND}; font-weight: 700; font-size: 9px; letter-spacing: 0.06em">ANALYSÉ</span>')
+
+
+def match_row(m, noms, analyse=False):
     wd, we = m.bd > m.be, m.be > m.bd
 
     def side(club, s, win):
@@ -175,8 +179,8 @@ def match_row(m, noms):
                 f'<span style="flex: 1; font-weight: {700 if win else 500}; font-size: 15px">{e(noms[club])}</span>'
                 f'<span style="font-family: {SERIF}; font-size: 20px; line-height: 1; color: {INK if win or not (wd or we) else MUTED}">{s}</span></div>')
     return (f'<div style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; '
-            f'border-bottom: 1px solid {LINE}; background: {PAPER}"><div style="width: 30px; font-family: {COND}; font-weight: 700; '
-            f'font-size: 11px; color: {MUTED}">TER</div><div style="flex: 1; display: flex; flex-direction: column; gap: 8px">'
+            f'border-bottom: 1px solid {LINE}; background: {PAPER}"><div style="width: 58px; display: flex; flex-direction: column; align-items: flex-start; gap: 5px; font-family: {COND}; font-weight: 700; '
+            f'font-size: 11px; color: {MUTED}">TER{BADGE_ANALYSE if analyse else ""}</div><div style="flex: 1; display: flex; flex-direction: column; gap: 8px">'
             f'{side(m.dom, m.bd, wd)}{side(m.ext, m.be, we)}</div>{icon("chev", 18, MUTED)}</div>')
 
 

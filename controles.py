@@ -92,7 +92,9 @@ def controle_buts(g: pd.DataFrame, clubs: pd.DataFrame) -> list[Anomalie]:
     for _, r in g[g.duplicated(subset=CLE, keep=False)].iterrows():
         out.append(Anomalie(BLOQUANT, src, f"{_ou(r)} : but en double."))
 
-    # global vs onglets clubs
+    # global vs onglets clubs (seulement si des onglets clubs sont fournis)
+    if clubs.empty:
+        return out
     k = ["journee", "equipe_marque", "minute", "joueur"]
     a = g.groupby(k).size(); b = clubs.groupby(k).size()
     diff = pd.concat([a, b], axis=1, keys=["glob", "club"]).fillna(0)
@@ -135,7 +137,9 @@ def controle_passes(pg: pd.DataFrame, pc: pd.DataFrame, bg: pd.DataFrame) -> lis
             out.append(Anomalie(BLOQUANT, src, f"{loc} : passeur sur un CSC."))
     for k in set(map(tuple, bg[CLE].values.tolist())) - vus:
         out.append(Anomalie(BLOQUANT, src, f"But sans ligne de passe : J{k[0]} {k[1]}-{k[2]} ({k[3]}-{k[4]})."))
-    # global vs clubs
+    # global vs clubs (seulement si des onglets clubs sont fournis)
+    if pc.empty:
+        return out
     a = pg.set_index(CLE).joueur.str.upper(); b = pc.set_index(CLE).joueur.str.upper()
     j = pd.concat([a, b], axis=1, keys=["glob", "club"])
     for idx, r in j[j.glob.fillna("") != j.club.fillna("")].iterrows():

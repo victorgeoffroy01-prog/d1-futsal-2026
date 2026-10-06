@@ -13,7 +13,11 @@ import streamlit as st
 
 import config as C
 import data
+import re
+
 import nav
+import rapports
+import site_ordi
 from nav import Sortie
 from textes import charger_textes
 import components as ui
@@ -21,8 +25,19 @@ from components import e, fr
 from theme import CSS, PAPER, INK, RED, MUTED, LINE, SERIF, COND
 
 st.set_page_config(page_title="D1 Futsal", page_icon="⚽", layout="centered", initial_sidebar_state="collapsed")
-st.html(CSS + nav.CSS_NAV)
 nav.reset()
+
+
+def est_ordi() -> bool:
+    """Ordinateur ou téléphone : choix manuel s'il existe, sinon d'après le navigateur."""
+    if "mode" in st.session_state:
+        return st.session_state.mode == "ordi"
+    ua = (st.context.headers.get("User-Agent") or "") if hasattr(st, "context") else ""
+    return not re.search(r"Mobi|Android|iPhone|iPad|iPod", ua)
+
+
+ORDI = est_ordi()
+st.html(CSS + nav.CSS_NAV + (site_ordi.CSS_ORDI if ORDI else ""))
 
 ORIG = {"attaque placée": "Attaque placée", "attaque rapide": "Attaque rapide", "transition off": "Transition off",
         "corner": "Corner", "touche off": "Touche off", "touche def": "Touche déf.", "coup franc": "Coup franc",
@@ -49,6 +64,33 @@ JREF = base.joueurs.drop_duplicates("id_joueur").set_index("id_joueur")
 CLASSEMENT = base.classement()
 STATS = base.stats_joueurs()
 DERNIERE = max(base.journees) if base.journees else 1
+RAPPORTS, ANOM_RAPPORTS = rapports.lister(base)
+
+
+@st.cache_data(show_spinner=False)
+def _pages_rapport(chemin, mtime, largeur):
+    return rapports.pages_png(chemin, largeur)
+
+
+def afficher_rapport(chemin, colonnes=1, largeur=900):
+    """Bouton de téléchargement + aperçu des pages du rapport PDF."""
+    with open(chemin, "rb") as f:
+        st.download_button("Télécharger le rapport complet (PDF)", f.read(), file_name=os.path.basename(chemin), mime="application/pdf", type="primary")
+    pages = _pages_rapport(chemin, os.path.getmtime(chemin), largeur)
+    for k in range(0, len(pages), colonnes):
+        cols = st.columns(colonnes) if colonnes > 1 else [st.container()]
+        for c, img in zip(cols, pages[k:k + colonnes]):
+            with c:
+                st.image(img, use_container_width=True)
+
+
+def bascule():
+    """Lien pour forcer l'autre version (mobile / ordinateur)."""
+    lib = "Passer à la version mobile" if ORDI else "Passer à la version ordinateur"
+    with st.container(key="bascule"):
+        if st.button(lib, type="tertiary"):
+            st.session_state.mode = "mobile" if ORDI else "ordi"
+            st.rerun()
 
 
 def param_int(nom, defaut):
@@ -88,6 +130,7 @@ def pieds(o: Sortie):
     o.add(ui.footer())
     o.lien(f'<div style="padding: 0 16px 8px; font-size: 11px; color: {MUTED}; text-decoration: underline">Méthodologie et sources</div>', "methodo")
     o.fin()
+    bascule()
 
 
 # ================================================================== LA UNE
@@ -118,7 +161,7 @@ def page_une():
           ui.tile(f"{max(ecart.bd, ecart.be)}-{min(ecart.bd, ecart.be)}", "plus large écart"), mt=10) + "</div>")
     o.add(f'<div style="padding: 22px 16px 8px">{ui.kicker(f"Résultats · J{j}")}</div><div style="border-top: 1px solid {LINE}"></div>')
     for r in m.sort_values("nb_buts", ascending=False).itertuples():
-        o.lien(ui.match_row(r, NOMS), "match", j=r.journee, dom=r.dom)
+        o.lien(ui.match_row(r, NOMS, (r.journee, r.dom) in RAPPORTS), "match", j=r.journee, dom=r.dom)
 
     def podium(df, col, titre, vue):
         o.add(ui.section(ui.kicker(titre) + '<div style="height: 12px"></div>'))
@@ -156,7 +199,7 @@ def page_matchs():
     o.rangee([(ui.pill_item(f"J{x}", x == j), "matchs", {"j": x}, "content") for x in base.journees], style="pills")
     o.add(f'<div style="border-top: 1px solid {LINE}"></div>')
     for r in base.matchs[base.matchs.journee == j].itertuples():
-        o.lien(ui.match_row(r, NOMS), "match", j=r.journee, dom=r.dom)
+        o.lien(ui.match_row(r, NOMS, (r.journee, r.dom) in RAPPORTS), "match", j=r.journee, dom=r.dom)
     pieds(o)
 
 
@@ -169,7 +212,8 @@ def page_match():
         entete(o, "Match", retour=("matchs", {})); o.add(ui.section(ui.empty("Match introuvable."))); o.fin(); return
     m = mm.iloc[0]
     b = base.match(j, dom)
-    onglet = param_choix("onglet", ["resume", "timeline", "stats", "compos"], "resume")
+    rapport = RAPPORTS.get((j, dom))
+    onglet = param_choix("onglet", ["resume", "timeline", "stats"] + (["rapport"] if rapport else []), "resume")
 
     def buteurs(club, align):
         d = b[b.club_marque == club]
@@ -186,7 +230,8 @@ def page_match():
         o.add(f'<div style="display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 12px; padding: 12px 16px 14px; font-size: 12px; color: {MUTED}">'
               f'{buteurs(m.dom, "right")}{buteurs(m.ext, "left")}</div>')
         o.flush()
-    onglets(o, "match", {"j": j, "dom": dom}, [("resume", "Résumé"), ("timeline", "Timeline"), ("stats", "Stats"), ("compos", "Compos")], onglet)
+    onglets(o, "match", {"j": j, "dom": dom}, [("resume", "Résumé"), ("timeline", "Timeline"), ("stats", "Stats")]
+            + ([("rapport", "Rapport")] if rapport else []), onglet)
     if onglet == "resume":
         txt = TEXTES.get(f"match:J{j}:{dom}")
         n_d = b[(b.club_marque == m.dom) & b.id_buteur.notna()].id_buteur.nunique()
@@ -227,9 +272,14 @@ def page_match():
                        ("Buts 5 dernières min.", lambda d: (d.minute > 35).sum())]:
             rows.append((lab, int(f(b[b.club_marque == m.dom])), int(f(b[b.club_marque == m.ext]))))
         o.add(ui.section(ui.kicker("Face-à-face") + '<div style="margin-top: 10px">' + ui.mirror(rows, NOMS[m.dom], NOMS[m.ext], mid_w=130) + "</div>", pad="16px 16px 0"))
-        o.add(ui.section(ui.empty("Stats détaillées (tirs, duels, pertes, gardiens) disponibles quand le match est analysé.")))
+        o.add(ui.section(ui.empty("Stats détaillées (tirs, duels, pertes, gardiens) : voir l’onglet Rapport." if rapport
+                                  else "Stats détaillées (tirs, duels, pertes, gardiens) disponibles quand le match est analysé.")))
     else:
-        o.add(ui.section(ui.empty("Compositions à venir."), pad="16px 16px 0"))
+        o.add(ui.section(ui.kicker("Rapport d’analyse") + f'<div style="font-size: 13px; color: {MUTED}; margin-top: 8px">'
+                         f'Tirs, duels, pertes, gardiens : le rapport complet du match diffusé.</div>', pad="16px 16px 10px"))
+        o.fin()
+        with st.container(key="rapport-m"):
+            afficher_rapport(rapport, colonnes=1, largeur=700)
     pieds(o)
 
 
@@ -451,9 +501,12 @@ def page_controle():
     if not cle or qp.get("cle") != cle:
         entete(o, "Accès refusé"); o.fin(); return
     rows = "".join(f'<div style="padding: 8px 0; border-bottom: 1px solid {LINE}; font-size: 13px"><b style="color: {RED if a.niveau == "BLOQUANT" else INK}">{a.niveau}</b> · {e(a.source)} · {e(a.message)}</div>'
-                   for a in base.anomalies) or ui.empty("Aucune anomalie.")
+                   for a in base.anomalies + ANOM_RAPPORTS) or ui.empty("Aucune anomalie.")
     entete(o, "Contrôle des données")
-    o.add(ui.section(ui.kicker(f"{len(base.anomalies)} anomalie(s)") + rows, pad="16px 16px 0"))
+    o.add(ui.section(ui.kicker(f"{len(base.anomalies) + len(ANOM_RAPPORTS)} anomalie(s)") + rows
+                     + ui.kicker(f"Rapports publiés : {len(RAPPORTS)}", mt=22) + "".join(
+                         f'<div style="padding: 6px 0; font-size: 13px">J{k[0]} · {e(NOMS[k[1]])} · {e(os.path.basename(v))}</div>' for k, v in sorted(RAPPORTS.items())),
+                     pad="16px 16px 0"))
     o.add(ui.section(ui.kicker("Textes à valider") + f'<p style="font-size: 13px; color: {MUTED}">Télécharge le fichier, relis, corrige dans texte_valide si besoin, '
                      f'mets OK dans statut, puis dépose-le dans le dépôt avec tes données. Les textes déjà validés sont conservés.</p>'))
     o.flush()
@@ -482,8 +535,24 @@ if base.bloquant:
     # aucune donnée publiée tant qu'un contrôle bloquant n'est pas levé (sauf la page contrôle)
     DEFS = [(n, f if n == "controle" else page_maintenance, t, u) for n, f, t, u in DEFS]
 
+site_ordi.init(base=base, textes=TEXTES, noms=NOMS, jref=JREF, classement=CLASSEMENT, stats=STATS, derniere=DERNIERE,
+               journees=base.journees, rapports=RAPPORTS, orig=ORIG, param=param_int, choix=param_choix,
+               afficher_rapport=afficher_rapport, bascule=bascule)
+
+
+def _version(nom, fonction):
+    """Même adresse pour les deux versions : la page ordinateur si elle existe, sinon la page mobile."""
+    def page():
+        if ORDI and not base.bloquant and nom in site_ordi.PAGES_ORDI:
+            site_ordi.PAGES_ORDI[nom]()
+        else:
+            fonction()
+    page.__name__ = f"page_{nom}"
+    return page
+
+
 for nom, fonction, titre, chemin in DEFS:
     kwargs = {"default": True} if nom == "une" else {"url_path": chemin}
-    nav.PAGES[nom] = st.Page(fonction, title=f"{titre} · D1 Futsal", **kwargs)
+    nav.PAGES[nom] = st.Page(_version(nom, fonction), title=f"{titre} · D1 Futsal", **kwargs)
 
 st.navigation(list(nav.PAGES.values()), position="hidden").run()

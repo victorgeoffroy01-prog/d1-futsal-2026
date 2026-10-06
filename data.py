@@ -68,24 +68,20 @@ def _lire_table(xl: pd.ExcelFile, onglet: str, ncols: int) -> pd.DataFrame:
 def lire_buts(path=C.FICHIER_BUTS) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Retourne (onglet global, onglets clubs concaténés)."""
     xl = pd.ExcelFile(path)
-    g = _lire_table(xl, _onglet_global(xl), 13)
-    clubs = pd.concat([_lire_table(xl, s, 13) for s in xl.sheet_names[1:]], ignore_index=True)
-    for df in (g, clubs):
-        for c in COLS_BUT[:5] + ["joueur"]:
-            df[c] = nettoie(df[c])
-        if "origine_but" in df:
-            df["origine_but"] = nettoie(df["origine_but"]).str.lower()
-    return g, clubs
+    g = _lire_table(xl, _onglet_global(xl), 13)       # seul l'onglet global fait foi
+    for c in COLS_BUT[:5] + ["joueur"]:
+        g[c] = nettoie(g[c])
+    if "origine_but" in g:
+        g["origine_but"] = nettoie(g["origine_but"]).str.lower()
+    return g, g.iloc[0:0]
 
 
 def lire_passes(path=C.FICHIER_PASSES) -> tuple[pd.DataFrame, pd.DataFrame]:
     xl = pd.ExcelFile(path)
-    g = _lire_table(xl, _onglet_global(xl), 12)
-    clubs = pd.concat([_lire_table(xl, s, 12) for s in xl.sheet_names[1:]], ignore_index=True)
-    for df in (g, clubs):
-        for c in COLS_BUT[:5] + ["joueur"]:
-            df[c] = nettoie(df[c])
-    return g, clubs
+    g = _lire_table(xl, _onglet_global(xl), 12)       # seul l'onglet global fait foi
+    for c in COLS_BUT[:5] + ["joueur"]:
+        g[c] = nettoie(g[c])
+    return g, g.iloc[0:0]
 
 
 def lire_fiches(path=C.FICHIER_FICHES) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
@@ -312,6 +308,13 @@ def charger(f_buts=C.FICHIER_BUTS, f_passes=C.FICHIER_PASSES, f_fiches=C.FICHIER
                              f"{nom} : fiche dans un autre club que {club} (transfert ?)."))
             return ref_nom[nom]
         i = slug(nom)
+        # même nom à l'accent ou au tiret près (RIAÑO / RIANO, EL-FENNI / EL FENNI) : même joueur
+        connu = next((k for (n, c), k in ref.items() if c == club and slug(n) == i), None)
+        if connu:
+            anomalies.append(controles.Anomalie(controles.ALERTE, "orthographe",
+                             f"{nom} ({club}) écrit autrement ailleurs : rattaché au même joueur. Harmoniser l'orthographe dans les fichiers."))
+            ref[(nom, club)] = connu
+            return connu
         nouveaux.append(dict(id_joueur=i, nom_base=nom, club_court=club, id_auto=True,
                              nom_affiche=nom_affiche(nom), absent_fiches=True))
         ref[(nom, club)] = i

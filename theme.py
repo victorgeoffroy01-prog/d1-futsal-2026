@@ -45,3 +45,11 @@ CSS += """
 [data-testid="stSelectbox"], [data-testid="stDownloadButton"] { padding: 4px 16px; }
 </style>
 """
+
+# lien de bascule mobile / ordinateur, en bas de page
+CSS += """
+<style>
+.st-key-bascule { padding: 0 16px 16px; }
+.st-key-bascule button p { font-size: 12px !important; color: #5E574C; text-decoration: underline; }
+</style>
+"""
