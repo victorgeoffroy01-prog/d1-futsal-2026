@@ -119,7 +119,9 @@ def controle_buts(g: pd.DataFrame, clubs: pd.DataFrame) -> list[Anomalie]:
 def controle_passes(pg: pd.DataFrame, pc: pd.DataFrame, bg: pd.DataFrame) -> list[Anomalie]:
     out = []
     src = "passes"
+    source = pg.attrs.get("source")
     pg = _num(pg, src, out); pc = _num(pc, src, out)
+    pg.attrs["source"] = source
     bg = bg.copy()
     for c in NUM:
         bg[c] = pd.to_numeric(bg[c], errors="coerce")
@@ -149,8 +151,9 @@ def controle_passes(pg: pd.DataFrame, pc: pd.DataFrame, bg: pd.DataFrame) -> lis
     for k in set(map(tuple, bg[CLE].values.tolist())) - vus:
         out.append(Anomalie(BLOQUANT, src, f"But sans ligne de passe : J{k[0]} {k[1]}-{k[2]} ({k[3]}-{k[4]})."))
     # Les passeurs viennent des onglets clubs (pg). L'onglet global (pc) ne sert qu'à signaler les écarts.
-    if pc.empty:
+    if pg.attrs.get("source") == "global":
         out.append(Anomalie(ALERTE, src, "Aucun onglet club lisible dans le fichier passes : passeurs lus dans l'onglet global."))
+    if pc.empty:                    # onglet global vidé ou supprimé : rien à comparer
         return out
     cle = lambda d: d[CLE].astype("string").agg("|".join, axis=1)
     pg = pg.assign(_k=cle(pg)).drop_duplicates("_k"); pc = pc.assign(_k=cle(pc)).drop_duplicates("_k")
