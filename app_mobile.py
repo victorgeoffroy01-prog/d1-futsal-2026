@@ -88,6 +88,7 @@ ANOM_RAPPORTS = ANOM_RAPPORTS + _anom
 # tous les joueurs du site : fiches + buteurs/passeurs + joueurs vus seulement dans un rapport de match
 JOUEURS = pd.concat([base.joueurs, pd.DataFrame(_sans_fiche)], ignore_index=True) if _sans_fiche else base.joueurs
 JREF = JOUEURS.drop_duplicates("id_joueur").set_index("id_joueur")
+ui.declarer_images(base.clubs, JOUEURS)      # noms de fichiers des logos et photos saisis dans le fichier fiches
 
 
 @st.cache_data(show_spinner=False)

@@ -74,18 +74,43 @@ def _images(dossier: str, empreinte: tuple) -> dict:
     return out
 
 
-def _image(sous_dossier: str, nom: str) -> str | None:
-    """Image de assets/<sous_dossier> dont le nom correspond (ACASA.png, acasa.PNG, Axel Kirtys Zorohuidi.JPG...)."""
+# Noms de fichiers saisis dans le fichier fiches (colonnes « logo » et « photo »), remplis par app_mobile.py.
+# Ex. LOGOS = {"ACASA": "8.png"} : le site prend alors assets/clubs/8.png pour ACASA.
+LOGOS: dict = {}
+PHOTOS: dict = {}
+
+
+def declarer_images(clubs, joueurs) -> None:
+    """Retient, pour chaque club et chaque joueur, le nom de fichier écrit dans le fichier fiches."""
+    def lire(df, cle, col):
+        if col not in df:
+            return {}
+        return {k: str(v).strip() for k, v in zip(df[cle], df[col]) if isinstance(v, str) and v.strip()}
+    LOGOS.clear(); LOGOS.update(lire(clubs, "club_court", "logo"))
+    PHOTOS.clear(); PHOTOS.update(lire(joueurs, "id_joueur", "photo"))
+
+
+def _sans_extension(nom: str) -> str:
+    p = Path(str(nom))
+    return p.stem if p.suffix.lower() in _MIME else str(nom)
+
+
+def _image(sous_dossier: str, nom: str, saisi: str | None = None) -> str | None:
+    """Image de assets/<sous_dossier>. On cherche d'abord le nom écrit dans le fichier fiches (ex. 8.png),
+    puis le nom du club ou du joueur (ACASA.png, acasa.PNG, Axel Kirtys Zorohuidi.JPG...)."""
     d = C.ASSETS_DIR / sous_dossier
     if not d.is_dir():
         return None
     empreinte = tuple(sorted((p.name, p.stat().st_mtime, p.stat().st_size) for p in d.iterdir() if p.is_file()))
-    return _images(str(d), empreinte).get(_cle_image(nom))
+    dispo = _images(str(d), empreinte)
+    if saisi and _cle_image(_sans_extension(saisi)) in dispo:
+        return dispo[_cle_image(_sans_extension(saisi))]
+    return dispo.get(_cle_image(nom))
 
 
 def logo_or_badge(club: str, size=28, fs=10, dark=True) -> str:
     """Logo du club s'il existe dans assets/clubs, sinon pastille avec l'abréviation."""
-    src = _image("clubs", club)
+    src = _image("clubs", club, LOGOS.get(club))
     if src:
         return f'<img src="{src}" alt="" width="{size}" height="{size}" style="width: {size}px; height: {size}px; object-fit: contain; flex-shrink: 0">'
     bg, fg = (INK, "#fff") if dark else (PAPER, INK)
@@ -95,7 +120,7 @@ def logo_or_badge(club: str, size=28, fs=10, dark=True) -> str:
 
 
 def photo(id_joueur: str, w=96, h=116) -> str:
-    src = _image("joueurs", id_joueur)
+    src = _image("joueurs", id_joueur, PHOTOS.get(id_joueur))
     if src:
         return f'<img src="{src}" alt="" style="width: {w}px; height: {h}px; object-fit: cover; border-radius: 10px; flex-shrink: 0">'
     return (f'<div style="width: {w}px; height: {h}px; flex-shrink: 0; border-radius: 10px; background: {SOFT}; display: flex; '
