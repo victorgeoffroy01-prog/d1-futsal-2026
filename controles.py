@@ -47,8 +47,8 @@ def _num(df: pd.DataFrame, src: str, out: list) -> pd.DataFrame:
 def controle_buts(g: pd.DataFrame, clubs: pd.DataFrame) -> list[Anomalie]:
     out = []
     src = "buts"
-    if "origine_but" not in g:
-        out.append(Anomalie(BLOQUANT, src, "Onglet global sans colonne 'origine_but'. "
+    if "origine_but" not in g:      # les origines viennent des onglets clubs (voir data.lire_buts)
+        out.append(Anomalie(BLOQUANT, src, "Aucun onglet club avec une colonne 'origine_but' : origines des buts introuvables. "
                             "Ce n'est sans doute pas la version de référence du fichier."))
         g = g.assign(origine_but=pd.NA)
     g = _num(g, src, out)
@@ -72,7 +72,7 @@ def controle_buts(g: pd.DataFrame, clubs: pd.DataFrame) -> list[Anomalie]:
         elif (r.minute <= 20) != (r.periode == 1):
             out.append(Anomalie(BLOQUANT, src, f"{loc} : période {r.periode} incohérente avec la minute."))
         if pd.isna(r.origine_but):
-            out.append(Anomalie(ALERTE, src, f"{loc} : origine du but manquante."))
+            out.append(Anomalie(ALERTE, src, f"{loc} : origine du but manquante (but absent des onglets clubs, ou case origine vide)."))
         elif r.origine_but not in C.ORIGINES:
             out.append(Anomalie(BLOQUANT, src, f"{loc} : origine '{r.origine_but}' hors liste."))
 
@@ -95,12 +95,23 @@ def controle_buts(g: pd.DataFrame, clubs: pd.DataFrame) -> list[Anomalie]:
     # global vs onglets clubs (seulement si des onglets clubs sont fournis)
     if clubs.empty:
         return out
-    k = ["journee", "equipe_marque", "minute", "joueur"]
-    a = g.groupby(k).size(); b = clubs.groupby(k).size()
-    diff = pd.concat([a, b], axis=1, keys=["glob", "club"]).fillna(0)
-    for idx, r in diff[diff.glob != diff.club].iterrows():
-        out.append(Anomalie(BLOQUANT, src, f"Global et onglets clubs différents : J{idx[0]} {idx[1]} {idx[2]}' "
-                            f"{idx[3]} (global {int(r.glob)}, clubs {int(r.club)})."))
+    # Le global donne la liste des buts et les buteurs, les onglets clubs donnent les origines : tout écart est signalé.
+    cle = lambda d: d[CLE].astype("string").agg("|".join, axis=1)
+    g = g.assign(_k=cle(g)); clubs = clubs.assign(_k=cle(clubs))
+    for _, m in clubs[clubs.duplicated("_k", keep=False)].groupby("_k"):
+        if m.origine_but.nunique(dropna=False) > 1:
+            out.append(Anomalie(ALERTE, src, f"{_ou(m.iloc[0])} : même but saisi plusieurs fois dans les onglets clubs avec des origines différentes "
+                                f"({', '.join(str(x) for x in m.origine_but.unique())}). La première est utilisée."))
+    clubs = clubs.drop_duplicates("_k")
+    connus = set(g._k)
+    for _, r in clubs[~clubs._k.isin(connus)].iterrows():
+        out.append(Anomalie(ALERTE, src, f"{_ou(r)} : but de {r.joueur} présent dans l'onglet club mais absent de l'onglet global. Il n'est pas compté sur le site."))
+    buteur_club = clubs.set_index("_k").joueur
+    for _, r in g[g._k.isin(buteur_club.index)].iterrows():
+        autre = buteur_club[r._k]
+        if pd.notna(autre) and pd.notna(r.joueur) and str(autre).upper() != str(r.joueur).upper():
+            out.append(Anomalie(ALERTE, src, f"{_ou(r)} : buteur différent entre l'onglet global ({r.joueur}) et l'onglet club ({autre}). "
+                                f"Le site affiche celui de l'onglet global : corriger le fichier."))
     return out
 
 

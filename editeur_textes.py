@@ -49,7 +49,7 @@ def faits_match(base, m, classement) -> str:
     for b in base.match(m.journee, m.dom).itertuples():
         qui = "contre son camp" if b.est_csc else str(b.buteur)
         passe = f", passe de {b.passeur}" if isinstance(b.passeur, str) else ""
-        L.append(f"- {b.minute}{'re' if b.minute == 1 else 'e'} minute, {b.score_dom_apres}-{b.score_ext_apres} : {qui} ({nom(b.club_marque)}){passe}, {b.origine_but}.")
+        L.append(f"- {b.minute}{'re' if b.minute == 1 else 'e'} minute, {b.score_dom_apres}-{b.score_ext_apres} : {qui} ({nom(b.club_marque)}){passe}{', ' + b.origine_but if isinstance(b.origine_but, str) else ''}.")
     return "\n".join(L)
 
 

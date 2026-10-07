@@ -88,3 +88,10 @@ CSS += """
 [data-testid="InputInstructions"] { display: none !important; }
 </style>
 """
+
+# champ de recherche joueur (recherche.py) sur mobile
+CSS += """
+<style>
+.st-key-pad-recherche { padding: 12px 16px 4px; }
+</style>
+"""

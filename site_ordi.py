@@ -14,6 +14,7 @@ import data
 import analyse
 import nav
 import rapports
+import recherche
 from nav import Sortie
 import components as ui
 from components import e, fr, svg_img
@@ -40,6 +41,19 @@ CSS_ORDI = f"""
 [data-testid="stTextInput"] {{ padding: 0 !important; }}
 .st-key-filtres {{ background: {SOFT}; border-radius: 10px; padding: 14px 16px; gap: 14px !important; margin: 10px 0 14px; }}
 .st-key-filtres label p {{ font-family: {COND}; font-weight: 700; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: {MUTED}; }}
+/* filtres des statistiques : mêmes cases que le reste du site (fond papier, filet noir, bords ronds) */
+.st-key-filtres [data-testid="stSelectbox"] > div > div, .st-key-filtres [data-testid="stMultiSelect"] > div > div {{ background: {PAPER} !important;
+  border: 1.5px solid {INK} !important; border-radius: 22px !important; min-height: 44px; padding-left: 8px; font-family: {SANS}; font-size: 15px; box-shadow: none !important; }}
+.st-key-filtres [data-testid="stSelectbox"] input, .st-key-filtres [data-testid="stMultiSelect"] input {{ color: {INK} !important; -webkit-text-fill-color: {INK} !important; }}
+.st-key-filtres [data-testid="stSelectbox"] svg, .st-key-filtres [data-testid="stMultiSelect"] svg {{ color: {INK}; }}
+.st-key-filtres [data-testid="stMultiSelectTagsContainer"] > span > span {{ background: {INK} !important; border-radius: 999px !important; padding: 0 4px 0 10px; }}
+.st-key-filtres [data-testid="stWidgetLabel"] {{ margin-bottom: 6px; min-height: 0; }}
+.st-key-filtres [data-testid="stSlider"] [data-testid="stSliderThumbValue"] {{ font-family: {COND}; font-weight: 700; color: {INK} !important; }}
+.st-key-filtres [data-testid="stSliderTickBar"] {{ font-family: {COND}; color: {MUTED}; }}
+.st-key-export {{ margin-top: 16px; }}
+.st-key-export button {{ background: {PAPER} !important; border: 1.5px solid {INK} !important; border-radius: 999px !important; color: {INK} !important; padding: 8px 18px !important; }}
+.st-key-export button p {{ font-family: {COND}; font-weight: 700; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; }}
+.st-key-export button:hover {{ background: {INK} !important; color: #fff !important; }}
 </style>
 """
 
@@ -89,7 +103,7 @@ def entete_site(active):
         on = k == active
         nav_items.append((f'<div style="padding: 12px 0 10px; border-bottom: 3px solid {RED if on else "transparent"}; font-family: {COND}; '
                           f'font-weight: 700; font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap">{lab}</div>',
-                          cible, {"vue": "annuaire"} if k == "annuaire" else {}, "content"))
+                          cible, {"vue": "annuaire"} if k == "annuaire" else ({"vue": "tableau"} if k == "stats" else {}), "content"))
     o.rangee(nav_items, style="dnav")
     o.fin()
 
@@ -362,7 +376,7 @@ def page_match():
         cols = [("Min.", "left"), ("Équipe", "left"), ("Buteur", "left"), ("Passeur", "left"), ("Origine", "left"), ("Score", "right")]
         rows = [[f'<span style="font-family: {COND}; font-weight: 700; color: {RED}">{r.minute}’</span>', cond(e(X["noms"].get(r.club_marque, r.club_marque)), MUTED),
                  f'<span style="font-weight: 600">{e(r.buteur)}</span>', e(r.passeur) if isinstance(r.passeur, str) else f'<span style="color: {MUTED}">sans passe</span>',
-                 f'<span style="font-size: 13px">{e(X["orig"].get(r.origine_but, str(r.origine_but)))}</span>', chiffre(f"{r.score_dom_apres}-{r.score_ext_apres}", 18)]
+                 f'<span style="font-size: 13px">{e(X["lib_origine"](r.origine_but))}</span>', chiffre(f"{r.score_dom_apres}-{r.score_ext_apres}", 18)]
                 for r in b.itertuples()]
         head, lignes = tableau_html(cols, rows, tpl)
         o = Sortie(); o.add(kick(f"Les {len(b)} buts") + '<div style="height: 8px"></div>' + head)
@@ -446,10 +460,24 @@ def page_classements():
 
 
 # ================================================================== STATISTIQUES (FBref)
-COLS_STATS = {"joueur": "Joueur", "club": "Club", "MJ_club": "MJ", "Buts": "Buts", "Passes": "Passes", "B+P": "B+P",
-              "Buts_par_match": "B/M", "Buts_1MT": "1re MT", "Buts_2MT": "2e MT", "Buts_dom": "Dom", "Buts_ext": "Ext",
+# Pas de stat « par match » : le nombre de matchs joués par joueur n'est pas encore saisi.
+COLS_STATS = {"joueur": "Joueur", "club": "Club", "Buts": "Buts", "Passes": "Passes", "B+P": "B+P",
+              "Buts_1MT": "1re MT", "Buts_2MT": "2e MT", "Buts_dom": "Dom", "Buts_ext": "Ext",
               "Att_placee": "Att. placée", "Transition": "Transition", "Att_rapide": "Att. rapide", "CPA": "CPA",
               "Power_play": "Power play", "Penalty": "Penalty", "Buts_ouverture": "1er but", "Pct_buts_club": "% club"}
+# en-têtes courts du tableau à l'écran (l'export CSV garde les libellés complets)
+TETES_STATS = {"joueur": "Joueur", "club": "Club", "Buts": "Buts", "Passes": "Passes", "B+P": "B+P", "Buts_1MT": "1re MT", "Buts_2MT": "2e MT",
+               "Buts_dom": "Dom", "Buts_ext": "Ext", "Att_placee": "Placée", "Transition": "Transit.", "Att_rapide": "Rapide", "CPA": "CPA",
+               "Power_play": "P. play", "Penalty": "Pen.", "Buts_ouverture": "1er but", "Pct_buts_club": "% club"}
+TPL_STATS = "grid-template-columns: 30px minmax(170px, 2.3fr) minmax(110px, 1.1fr) repeat(15, minmax(34px, 0.5fr))"
+CSS_STATS = f"""
+<style>
+/* en-tête triable : mêmes colonnes que les lignes du tableau */
+[class*="st-key-rw-thead"] {{ display: grid !important; {TPL_STATS}; gap: 6px !important; padding: 0 10px; border-bottom: 2px solid {INK};
+  align-items: end !important; overflow: visible !important; }}
+[class*="st-key-rw-thead"] > div {{ width: auto !important; min-width: 0 !important; max-width: none !important; flex: none !important; }}
+</style>
+"""
 
 
 def _sous_base(base, j1, j2, lieu, groupe):
@@ -479,11 +507,12 @@ def page_annuaire():
     o.rangee([(ui.pill_item("Tous", club == "tous"), "joueurs", {"vue": "annuaire"}, "content")]
              + [(ui.pill_item(N[c], c == club), "joueurs", {"vue": "annuaire", "club": c}, "content") for c in clubs], style="pillsw")
     o.fin()
-    with st.container(horizontal=True, key="filtres"):
-        q = st.text_input("Rechercher un joueur", placeholder="Nom, prénom ou surnom…")
-    if q:
-        t = q.strip()
-        J = J[J.nom_affiche.astype(str).str.contains(t, case=False, regex=False) | J.nom_base.astype(str).str.contains(t, case=False, regex=False)]
+    J = J.assign(_bp=[int(st_["B+P"].get(i, 0)) for i in J.id_joueur], txt=J.nom_affiche.astype(str) + " " + J.nom_base.astype(str))
+    with st.container(key="filtres"):
+        q = recherche.champ([(r.nom_affiche, N.get(r.club_court, r.club_court), r.txt)
+                             for r in J.sort_values(["_bp", "nom_affiche"], ascending=[False, True]).itertuples()], key="rech-annuaire", label="Rechercher un joueur")
+    if q:      # la recherche couvre tous les clubs
+        J = J[[recherche.correspond(q, t) for t in J.txt]]
     elif club != "tous":
         J = J[J.club_court == club]
 
@@ -503,8 +532,7 @@ def page_annuaire():
     if J.empty:
         o.add(ui.empty("Aucun joueur trouvé."))
     for c in [c for c in clubs if c in set(J.club_court)]:
-        eff = J[J.club_court == c].copy()
-        eff["_bp"] = [int(st_["B+P"].get(i, 0)) for i in eff.id_joueur]
+        eff = J[J.club_court == c]
         lst = list(eff.sort_values(["_bp", "nom_affiche"], ascending=[False, True]).itertuples())
         o.lien(f'<div style="display: flex; align-items: center; gap: 10px; margin-top: 26px; padding-bottom: 8px; border-bottom: 2px solid {INK}">{ui.logo_or_badge(c, 30, 10)}'
                f'<span style="font-family: {SERIF}; font-size: 26px">{e(N[c])}</span>'
@@ -530,36 +558,65 @@ def page_joueurs():
     o.fin()
     js = X["journees"]
     if vue == "tableau":
+        ref = X["stats"]
         with st.container(horizontal=True, key="filtres"):
-            q = st.text_input("Joueur", placeholder="Rechercher…")
-            clubs = st.multiselect("Clubs", sorted(N), format_func=lambda c: N[c], placeholder="Tous")
-            j1, j2 = st.select_slider("Journées", options=js, value=(js[0], js[-1]), format_func=lambda x: f"J{x}") if len(js) > 1 else (js[0], js[0])
-            lieu = st.selectbox("Lieu", ["Tous", "Domicile", "Extérieur"])
-            groupe = st.selectbox("Phase de jeu", ["Toutes", "Attaque placée", "Transition off", "Attaque rapide", "CPA", "Power play", "Penalty"])
-            mode = st.radio("Valeurs", ["Totaux", "Par match"], horizontal=True)
+            q = recherche.champ([(r.joueur, N.get(r.club, r.club), r.joueur) for r in ref.sort_values(["B+P", "Buts", "joueur"], ascending=[False, False, True]).itertuples()],
+                                key="rech-stats", label="Joueur", placeholder="Rechercher…")
+            clubs = st.multiselect("Clubs", sorted(N, key=lambda c: N[c]), format_func=lambda c: N[c], placeholder="Tous", key="st-clubs")
+            j1, j2 = st.select_slider("Journées", options=js, value=(js[0], js[-1]), format_func=lambda x: f"J{x}", key="st-journees") if len(js) > 1 else (js[0], js[0])
+            lieu = st.selectbox("Lieu", ["Tous", "Domicile", "Extérieur"], key="st-lieu")
+            groupe = st.selectbox("Phase de jeu", ["Toutes", "Attaque placée", "Transition off", "Attaque rapide", "CPA", "Power play", "Penalty"], key="st-phase")
         sb = _sous_base(base, j1, j2, lieu, groupe)
         s = sb.stats_joueurs() if len(sb.buts) else pd.DataFrame(columns=["id_joueur"] + list(COLS_STATS))
         if clubs:
             s = s[s.club.isin(clubs)]
         if q:
-            s = s[s.joueur.str.contains(q.strip(), case=False, regex=False)]
-        s = s[(s.Buts > 0) | (s.Passes > 0)].reset_index(drop=True)
-        aff = s.copy()
-        aff["club"] = aff.club.map(lambda c: N.get(c, c))
-        if mode == "Par match":
-            for c in ["Buts", "Passes", "B+P", "Buts_1MT", "Buts_2MT", "Buts_dom", "Buts_ext", "Att_placee", "Transition", "Att_rapide", "CPA", "Power_play", "Penalty", "Buts_ouverture"]:
-                aff[c] = (aff[c] / aff.MJ_club.where(aff.MJ_club > 0)).round(2)
-        aff = aff[list(COLS_STATS)].rename(columns=COLS_STATS)
-        st.html(f'<div style="font-size: 13px; color: {MUTED}; margin-bottom: 8px">{len(aff)} joueurs · cliquer un en-tête pour trier, une ligne pour ouvrir la fiche du joueur.</div>')
-        cfg = {"Buts": st.column_config.NumberColumn(width="small"), "Joueur": st.column_config.TextColumn(width="large"),
-               "% club": st.column_config.NumberColumn(format="%d %%")}
-        ev = st.dataframe(aff, hide_index=True, use_container_width=True, height=min(38 * (len(aff) + 1) + 4, 760),
-                          column_config=cfg, on_select="rerun", selection_mode="single-row", key="tab_stats")
-        if ev and ev.selection.rows:
-            st.switch_page(nav.PAGES["joueur"], query_params={"id": s.iloc[ev.selection.rows[0]].id_joueur})
-        st.download_button("Exporter en CSV", aff.to_csv(index=False, sep=";").encode("utf-8-sig"), file_name="d1futsal_stats_joueurs.csv", mime="text/csv")
-        st.html(f'<div style="font-size: 12px; color: {MUTED}; line-height: 1.6; margin-top: 10px">MJ : matchs joués par l’équipe. B/M : buts par match. '
-                f'CPA : corner, touche, coup franc, jet franc. 1er but : buts d’ouverture du score. % club : part des buts de son équipe. '
+            s = s[[recherche.correspond(q, t) for t in s.joueur]]
+        s = s[(s.Buts > 0) | (s.Passes > 0)]
+        # tri : clic sur un en-tête (2e clic = sens inverse)
+        tri = X["choix"]("tri", list(COLS_STATS), "Buts")
+        texte = tri in ("joueur", "club")
+        sens = X["choix"]("sens", ["asc", "desc"], "asc" if texte else "desc")
+        s = s.assign(_club=s.club.map(lambda c: N.get(c, c)), _nom=s.joueur.map(recherche.norm))
+        cle = {"joueur": "_nom", "club": "_club"}.get(tri, tri)
+        s = s.sort_values(["Buts", "B+P", "_nom"], ascending=[False, False, True]).sort_values(cle, ascending=sens == "asc", kind="stable").reset_index(drop=True)
+        st.html(CSS_STATS + f'<div style="font-size: 13px; color: {MUTED}; margin-bottom: 8px">{len(s)} joueur{"s" if len(s) > 1 else ""} · '
+                f'cliquer un en-tête pour trier, une ligne pour ouvrir la fiche du joueur.</div>')
+        o = Sortie()
+        tetes = [(f'<div style="padding: 8px 0; font-family: {COND}; font-weight: 700; font-size: 11px; letter-spacing: 0.08em; color: {MUTED}">#</div>', None, None)]
+        for c, lab in TETES_STATS.items():
+            on = c == tri
+            suivant = ("desc" if sens == "asc" else "asc") if on else ("asc" if c in ("joueur", "club") else "desc")
+            fleche = (" ▲" if sens == "asc" else " ▼") if on else ""
+            tetes.append((f'<div title="{e(COLS_STATS[c])}" style="padding: 8px 0; font-family: {COND}; font-weight: 700; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; '
+                          f'line-height: 1.15; color: {RED if on else MUTED}; text-align: {"left" if c in ("joueur", "club") else "center"}">{e(lab)}{fleche}</div>',
+                          "joueurs", {"vue": "tableau", "tri": c, "sens": suivant}))
+        o.rangee(tetes, style="thead")
+        if s.empty:
+            o.add(ui.empty("Aucun joueur ne correspond à ces filtres."))
+        nums = [c for c in COLS_STATS if c not in ("joueur", "club")]
+        for i, r in enumerate(s.to_dict("records"), 1):
+            cell = ""
+            for c in nums:
+                v = int(r[c])
+                txt = f"{v} %" if c == "Pct_buts_club" else str(v)
+                if c == tri:
+                    cell += f'<span style="text-align: center; font-family: {SERIF}; font-size: 18px; color: {RED if v else LINE}">{txt}</span>'
+                else:
+                    cell += f'<span style="text-align: center; font-family: {COND}; font-size: 15px; font-weight: {700 if c == "Buts" else 500}; color: {INK if v else "#B5AB99"}">{txt}</span>'
+            o.lien(f'<div style="display: grid; {TPL_STATS}; gap: 6px; align-items: center; padding: 7px 10px; border-bottom: 1px solid {LINE}; background: {PAPER if i % 2 else CR}">'
+                   f'<span style="font-family: {COND}; font-weight: 700; color: {MUTED}">{i}</span>'
+                   f'<span style="font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{e(r["joueur"])}</span>'
+                   f'<span style="display: flex; align-items: center; gap: 8px; min-width: 0">{ui.logo_or_badge(r["club"], 22, 8)}'
+                   f'<span style="font-size: 13px; color: {MUTED}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{e(r["_club"])}</span></span>{cell}</div>',
+                   "joueur", id=r["id_joueur"])
+        o.fin()
+        aff = s.assign(club=s._club)[list(COLS_STATS)].rename(columns=COLS_STATS)
+        with st.container(key="export"):
+            st.download_button("Exporter en CSV", aff.to_csv(index=False, sep=";").encode("utf-8-sig"), file_name="d1futsal_stats_joueurs.csv", mime="text/csv")
+        st.html(f'<div style="font-size: 12px; color: {MUTED}; line-height: 1.6; margin-top: 10px">1re MT, 2e MT : buts par mi-temps. Dom, Ext : buts à domicile, à l’extérieur. '
+                f'Placée : attaque placée. Transit. : transition offensive. Rapide : attaque rapide. CPA : corner, touche, coup franc, jet franc. P. play : power play. Pen. : penalty. '
+                f'1er but : buts d’ouverture du score. % club : part des buts de son équipe. '
                 f'Les filtres Lieu et Phase de jeu s’appliquent aux buts et aux passes.</div>')
     else:
         s = X["stats"]
@@ -578,7 +635,7 @@ def page_joueurs():
                 st.html(card(f'<div style="display: flex; gap: 16px; align-items: center">{ui.photo(J.name, 80, 96)}<div>'
                              f'<div style="font-family: {SERIF}; font-size: 28px; line-height: 1.05">{e(J.joueur)}</div>'
                              f'<div style="font-weight: 600; margin-top: 6px">{e(N.get(J.club, J.club))}</div></div></div>'
-                             + ui.tiles(ui.tile(int(J.Buts), "buts", "red"), ui.tile(int(J.Passes), "passes", "dark"), ui.tile(fr(J.Buts_par_match, 2) if pd.notna(J.Buts_par_match) else "-", "buts / match")), 18))
+                             + ui.tiles(ui.tile(int(J.Buts), "buts", "red"), ui.tile(int(J.Passes), "passes", "dark"), ui.tile(int(J["B+P"]), "buts + passes")), 18))
         st.html('<div style="height: 22px"></div>' + kick("Face-à-face") + '<div style="height: 12px"></div>'
                 + card(ui.mirror(rows, A.joueur, B.joueur, mid_w=160), 20))
     pied()
@@ -722,8 +779,8 @@ def page_joueur():
         o.add(f'<div style="display: flex; align-items: flex-end; gap: 16px; margin-top: 20px"><div style="font-family: {SERIF}; font-size: 110px; line-height: 0.85; color: {RED}">{nb}</div>'
               f'<div style="padding-bottom: 8px"><div style="font-family: {COND}; font-weight: 700; font-size: 18px; letter-spacing: 0.1em">BUT{"S" if nb > 1 else ""}</div>'
               f'<div style="font-size: 14px; color: {MUTED}">{"Meilleur buteur de D1" if rang == 1 and nb else (f"{rang}e buteur de D1" if nb else "Pas encore buteur")}</div></div></div>'
-              + ui.tiles(ui.tile(npas, "passes déc.", "dark"), ui.tile(nb + npas, "buts + passes"), ui.tile(fr(nb / mj, 2) if mj else "-", "buts / match"), mt=16)
-              + ui.tiles(ui.tile(int(s.Pct_buts_club) if s is not None else 0, "% buts du club"), ui.tile(int(bj.ouverture.sum()), "buts d’ouverture"),
+              + ui.tiles(ui.tile(npas, "passes déc.", "dark"), ui.tile(nb + npas, "buts + passes"), ui.tile(int(s.Pct_buts_club) if s is not None else 0, "% buts du club"), mt=16)
+              + ui.tiles(ui.tile(int(bj.ouverture.sum()), "buts d’ouverture"),
                          ui.tile(f"{int((bj.periode == 1).sum())}/{int((bj.periode == 2).sum())}", "1re / 2e MT"), mt=8))
         o.fin()
     with d:
@@ -753,7 +810,7 @@ def page_joueur():
                 opp = r.club_ext if r.club_marque == r.club_dom else r.club_dom
                 autre = (r.passeur if isinstance(r.passeur, str) else "sans passe") if mode == "buts" else r.buteur
                 rows.append([cond(f"J{r.journee}", MUTED), f'<span style="font-family: {COND}; font-weight: 700; color: {RED}">{r.minute}’</span>',
-                             f'<span><b>{e(N[opp])}</b><br><span style="font-size: 12px; color: {MUTED}">{e(X["orig"].get(r.origine_but, str(r.origine_but)))}</span></span>',
+                             f'<span><b>{e(N[opp])}</b><br><span style="font-size: 12px; color: {MUTED}">{e(X["lib_origine"](r.origine_but))}</span></span>',
                              f'<span style="font-size: 13px">{e(autre)}</span>', chiffre(f"{r.score_dom_apres}-{r.score_ext_apres}", 18)])
             head, lignes = tableau_html(cols, rows, tpl)
             o = Sortie(); o.add(kick(titre) + '<div style="height: 8px"></div>' + (head if rows else ui.empty("Rien pour l’instant.")))

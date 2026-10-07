@@ -18,6 +18,7 @@ import re
 import nav
 import analyse
 import rapports
+import recherche
 import site_ordi
 from nav import Sortie
 from textes import charger_textes
@@ -43,6 +44,11 @@ st.html(CSS + nav.CSS_NAV + (site_ordi.CSS_ORDI if ORDI else ""))
 ORIG = {"attaque placée": "Attaque placée", "attaque rapide": "Attaque rapide", "transition off": "Transition off",
         "corner": "Corner", "touche off": "Touche off", "touche def": "Touche déf.", "coup franc": "Coup franc",
         "jet franc": "Jet franc", "power play": "Power play", "penalty": "Penalty", "csc": "CSC"}
+
+
+def lib_origine(v) -> str:
+    """Libellé d'une origine de but. Une origine pas encore saisie s'affiche proprement."""
+    return "Origine à préciser" if pd.isna(v) else ORIG.get(v, str(v))
 
 
 # ------------------------------------------------------------------ données (cache invalidé si un fichier change)
@@ -278,7 +284,7 @@ def page_match():
             passe = f'<span style="font-size: 12px">passe {e(r.passeur)}</span>' if isinstance(r.passeur, str) else ""
             card = (f'<div style="display: flex; flex-direction: column; gap: 2px; {"align-items: flex-end; text-align: right" if home else ""}">'
                     f'<span style="font-weight: 700; font-size: 14px">{e(r.buteur)}</span>{passe}'
-                    f'<span style="font-family: {COND}; font-weight: 600; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: {MUTED}">{e(ORIG.get(r.origine_but, str(r.origine_but)))}</span></div>')
+                    f'<span style="font-family: {COND}; font-weight: 600; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: {MUTED}">{e(lib_origine(r.origine_but))}</span></div>')
             mid = (f'<div style="display: flex; flex-direction: column; align-items: center"><span style="font-family: {COND}; font-weight: 700; font-size: 12px; color: {RED}">{r.minute}\u2019</span>'
                    f'<span style="font-family: {SERIF}; font-size: 17px; line-height: 1.1">{r.score_dom_apres}-{r.score_ext_apres}</span></div>')
             ligne = (f'<div style="display: grid; grid-template-columns: minmax(0,1fr) 58px minmax(0,1fr); align-items: center; gap: 6px; padding: 8px 16px; border-bottom: 1px dashed {LINE}">'
@@ -468,12 +474,16 @@ def page_joueurs():
     o = Sortie()
     entete(o, "Joueurs", "Recherche")
     o.flush()
-    q = st.text_input("Rechercher un joueur", placeholder="Nom, prénom ou surnom…")
-    if q:      # la recherche couvre tous les joueurs, y compris ceux sans but ni passe
-        tous = JREF.reset_index()[["id_joueur", "nom_affiche", "club_court"]].rename(columns={"nom_affiche": "joueur", "club_court": "club"})
-        tous = tous.merge(STATS[["id_joueur", "Buts", "Passes", "B+P"]], on="id_joueur", how="left").fillna({"Buts": 0, "Passes": 0, "B+P": 0})
-        tous[["Buts", "Passes", "B+P"]] = tous[["Buts", "Passes", "B+P"]].astype(int)
-        d = tous[tous.joueur.astype(str).str.contains(q.strip(), case=False, regex=False)].sort_values(["B+P", "joueur"], ascending=[False, True])
+    # la recherche couvre tous les joueurs, y compris ceux sans but ni passe
+    tous = JREF.reset_index()[["id_joueur", "nom_affiche", "nom_base", "club_court"]].rename(columns={"nom_affiche": "joueur", "club_court": "club"})
+    tous = tous.merge(STATS[["id_joueur", "Buts", "Passes", "B+P"]], on="id_joueur", how="left").fillna({"Buts": 0, "Passes": 0, "B+P": 0})
+    tous[["Buts", "Passes", "B+P"]] = tous[["Buts", "Passes", "B+P"]].astype(int)
+    tous["texte"] = tous.joueur.astype(str) + " " + tous.nom_base.astype(str)
+    tous = tous.sort_values(["B+P", "joueur"], ascending=[False, True])
+    with st.container(key="pad-recherche"):
+        q = recherche.champ([(r.joueur, NOMS.get(r.club, r.club), r.texte) for r in tous.itertuples()], key="rech-mobile")
+    if q:
+        d = tous[[recherche.correspond(q, t) for t in tous.texte]]
     else:
         d = STATS.sort_values(["B+P", "Buts"], ascending=False).head(30)
     o.add(ui.section(ui.kicker("Résultats" if q else "Les plus décisifs"), pad="10px 16px 6px"))
@@ -513,8 +523,8 @@ def page_joueur():
         o.add(ui.section(f'<div style="display: flex; align-items: flex-end; gap: 14px"><div style="font-family: {SERIF}; font-size: 96px; line-height: 0.85; color: {RED}">{nb}</div>'
                          f'<div style="padding-bottom: 6px"><div style="font-family: {COND}; font-weight: 700; font-size: 16px; letter-spacing: 0.1em">BUT{"S" if nb > 1 else ""}</div>'
                          f'<div style="font-size: 13px; color: {MUTED}">{"Meilleur buteur de D1" if rang == 1 and nb else (f"{rang}e buteur de D1" if nb else "Pas encore buteur")}</div></div></div>'
-                         + ui.tiles(ui.tile(npas, "passes déc.", "dark"), ui.tile(nb + npas, "buts + passes"), ui.tile(fr(nb / mj, 2) if mj else "-", "buts / match"))
-                         + ui.tiles(ui.tile(int(s.Pct_buts_club) if s is not None else 0, "% buts du club"), ui.tile(int(bj.ouverture.sum()), "buts d\u2019ouverture"),
+                         + ui.tiles(ui.tile(npas, "passes déc.", "dark"), ui.tile(nb + npas, "buts + passes"), ui.tile(int(s.Pct_buts_club) if s is not None else 0, "% buts du club"))
+                         + ui.tiles(ui.tile(int(bj.ouverture.sum()), "buts d\u2019ouverture"),
                                     ui.tile(f"{int((bj.periode == 1).sum())}/{int((bj.periode == 2).sum())}", "1re / 2e MT"), mt=8), pad="16px 16px 0"))
         if nb:
             o.add(ui.section(ui.kicker("Quand il marque") + f'<div style="margin-top: 10px">{ui.frise([(r.minute, f"{r.minute}’") for r in bj.itertuples()])}</div>'))
@@ -535,7 +545,7 @@ def page_joueur():
             detail = (f"passe {r.passeur}" if isinstance(r.passeur, str) else "sans passe") if onglet == "buts" else f"but de {r.buteur}"
             o.lien(f'<div style="display: grid; grid-template-columns: 30px 38px minmax(0,1fr) 44px; align-items: center; gap: 8px; padding: 10px 16px; border-bottom: 1px solid {LINE}">'
                    f'<span style="font-family: {COND}; font-weight: 700; color: {MUTED}">J{r.journee}</span><span style="font-family: {COND}; font-weight: 700; color: {RED}">{r.minute}\u2019</span>'
-                   f'<span><span style="display: block; font-weight: 600">vs {e(NOMS[opp])}</span><span style="font-size: 12px; color: {MUTED}">{e(ORIG.get(r.origine_but, str(r.origine_but)))} · {e(detail)}</span></span>'
+                   f'<span><span style="display: block; font-weight: 600">vs {e(NOMS[opp])}</span><span style="font-size: 12px; color: {MUTED}">{e(lib_origine(r.origine_but))} · {e(detail)}</span></span>'
                    f'<span style="font-family: {SERIF}; font-size: 17px; text-align: right">{r.score_dom_apres}-{r.score_ext_apres}</span></div>', "match", j=r.journee, dom=r.club_dom)
         if d.empty:
             o.add(ui.section(ui.empty("Rien pour l\u2019instant.")))
@@ -604,13 +614,16 @@ if base.bloquant:
     DEFS = [(n, f if n == "controle" else page_maintenance, t, u) for n, f, t, u in DEFS]
 
 site_ordi.init(base=base, joueurs=JOUEURS, textes=TEXTES, noms=NOMS, jref=JREF, classement=CLASSEMENT, stats=STATS, derniere=DERNIERE,
-               journees=base.journees, rapports=RAPPORTS, analyses=ANALYSES, bouton_pdf=bouton_pdf, section_analyses=section_analyses, orig=ORIG, param=param_int, choix=param_choix,
+               journees=base.journees, rapports=RAPPORTS, analyses=ANALYSES, bouton_pdf=bouton_pdf, section_analyses=section_analyses, orig=ORIG, lib_origine=lib_origine, param=param_int, choix=param_choix,
                afficher_rapport=afficher_rapport, bascule=bascule)
 
 
 def _version(nom, fonction):
     """Même adresse pour les deux versions : la page ordinateur si elle existe, sinon la page mobile."""
     def page():
+        # Un lien vers la même page (onglet, pastille, tri) ne met pas l'adresse à jour : on la réécrit,
+        # sinon la première saisie dans un champ repart des anciens paramètres (ex. Statistiques -> Joueurs).
+        st.query_params.from_dict(dict(qp))
         if nom != "controle":
             nav.suivre(nom, dict(qp))
         if ORDI and not base.bloquant and nom in site_ordi.PAGES_ORDI:

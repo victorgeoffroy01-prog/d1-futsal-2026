@@ -3,7 +3,8 @@ import os
 import sys
 from playwright.sync_api import sync_playwright
 
-URL = os.environ.get("https://d1-futsal.streamlit.app", "").strip()
+# L'adresse du site se règle dans .github/workflows/reveil.yml (ligne APP_URL), pas ici.
+URL = os.environ.get("APP_URL", "").strip()
 if not URL:
     sys.exit("APP_URL manquante")
 

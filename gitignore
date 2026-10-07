@@ -1,0 +1,8 @@
+__pycache__/
+.streamlit/secrets.toml
+export_verification.xlsx
+desktop.ini
+*.zip
+
+# fichiers verrou LibreOffice (fichier ouvert pendant un Commit)
+.~lock.*

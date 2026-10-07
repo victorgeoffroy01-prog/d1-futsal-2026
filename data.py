@@ -65,15 +65,38 @@ def _lire_table(xl: pd.ExcelFile, onglet: str, ncols: int) -> pd.DataFrame:
 
 
 # ----------------------------------------------------------------- lecture
+def _cle_but(df: pd.DataFrame) -> pd.Series:
+    """Clé unique d'un but (match + score après le but), identique dans l'onglet global et les onglets clubs."""
+    n = lambda c: pd.to_numeric(df[c], errors="coerce").astype("Int64").astype("string")
+    return n("journee") + "|" + df.equipe_domicile + "|" + df.equipe_exterieure + "|" + n("score_dom_apres") + "|" + n("score_ext_apres")
+
+
 def lire_buts(path=C.FICHIER_BUTS) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """Retourne (onglet global, onglets clubs concaténés)."""
+    """Retourne (onglet global, onglets clubs concaténés).
+    La liste des buts (match, minute, score, buteur) vient de l'onglet global.
+    L'origine de chaque but vient UNIQUEMENT des onglets clubs, vérifiés par Victor :
+    une éventuelle colonne origine_but de l'onglet global est ignorée."""
     xl = pd.ExcelFile(path)
-    g = _lire_table(xl, _onglet_global(xl), 13)       # seul l'onglet global fait foi
+    g = _lire_table(xl, _onglet_global(xl), 12)
     for c in COLS_BUT[:5] + ["joueur"]:
         g[c] = nettoie(g[c])
-    if "origine_but" in g:
-        g["origine_but"] = nettoie(g["origine_but"]).str.lower()
-    return g, g.iloc[0:0]
+    morceaux = []
+    for onglet in xl.sheet_names[1:]:
+        try:
+            t = _lire_table(xl, onglet, 13)
+        except ValueError:          # onglet sans tableau de buts (notes, modèle...)
+            continue
+        if "origine_but" in t and all(c in t for c in COLS_BUT):
+            morceaux.append(t)
+    if not morceaux:                # pas d'onglets clubs : le contrôle bloque la publication
+        return g, g.iloc[0:0]
+    c = pd.concat(morceaux, ignore_index=True)
+    for col in COLS_BUT[:5] + ["joueur"]:
+        c[col] = nettoie(c[col])
+    c["origine_but"] = nettoie(c["origine_but"]).str.lower()
+    origines = c.assign(_k=_cle_but(c)).dropna(subset=["_k", "origine_but"]).drop_duplicates("_k").set_index("_k").origine_but
+    g["origine_but"] = _cle_but(g).map(origines).astype("string")
+    return g, c
 
 
 def lire_passes(path=C.FICHIER_PASSES) -> tuple[pd.DataFrame, pd.DataFrame]:
