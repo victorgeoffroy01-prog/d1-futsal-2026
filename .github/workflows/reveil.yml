@@ -17,4 +17,4 @@ jobs:
       - run: pip install playwright && python -m playwright install --with-deps chromium
       - run: python reveil.py
         env:
-          APP_URL: https://d1futsal.streamlit.app    # <- remplacer par l'adresse exacte de l'appli
+          APP_URL: https://d1-futsal.streamlit.app    # adresse exacte du site

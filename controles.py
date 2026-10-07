@@ -124,7 +124,7 @@ def controle_passes(pg: pd.DataFrame, pc: pd.DataFrame, bg: pd.DataFrame) -> lis
     for c in NUM:
         bg[c] = pd.to_numeric(bg[c], errors="coerce")
     if len(pg) != len(bg):
-        out.append(Anomalie(BLOQUANT, src, f"{len(pg)} lignes de passes pour {len(bg)} buts : il faut une ligne par but ('x' si pas de passeur)."))
+        out.append(Anomalie(BLOQUANT, src, f"{len(pg)} lignes de passes pour {len(bg)} buts : il faut une ligne par but dans les onglets clubs ('x' si pas de passeur)."))
     buts = bg.set_index(CLE)
     vus = set()
     for _, r in pg.iterrows():
@@ -148,14 +148,22 @@ def controle_passes(pg: pd.DataFrame, pc: pd.DataFrame, bg: pd.DataFrame) -> lis
             out.append(Anomalie(BLOQUANT, src, f"{loc} : passeur sur un CSC."))
     for k in set(map(tuple, bg[CLE].values.tolist())) - vus:
         out.append(Anomalie(BLOQUANT, src, f"But sans ligne de passe : J{k[0]} {k[1]}-{k[2]} ({k[3]}-{k[4]})."))
-    # global vs clubs (seulement si des onglets clubs sont fournis)
+    # Les passeurs viennent des onglets clubs (pg). L'onglet global (pc) ne sert qu'à signaler les écarts.
     if pc.empty:
+        out.append(Anomalie(ALERTE, src, "Aucun onglet club lisible dans le fichier passes : passeurs lus dans l'onglet global."))
         return out
-    a = pg.set_index(CLE).joueur.str.upper(); b = pc.set_index(CLE).joueur.str.upper()
-    j = pd.concat([a, b], axis=1, keys=["glob", "club"])
-    for idx, r in j[j.glob.fillna("") != j.club.fillna("")].iterrows():
-        out.append(Anomalie(BLOQUANT, src, f"Global et onglets clubs différents : J{idx[0]} {idx[1]}-{idx[2]} "
-                            f"({idx[3]}-{idx[4]}) global '{r.glob}', club '{r.club}'."))
+    cle = lambda d: d[CLE].astype("string").agg("|".join, axis=1)
+    pg = pg.assign(_k=cle(pg)).drop_duplicates("_k"); pc = pc.assign(_k=cle(pc)).drop_duplicates("_k")
+    for _, r in pc[~pc._k.isin(set(pg._k))].iterrows():
+        out.append(Anomalie(ALERTE, src, f"{_ou(r)} : ligne présente dans l'onglet global mais absente des onglets clubs."))
+    for _, r in pg[~pg._k.isin(set(pc._k))].iterrows():
+        out.append(Anomalie(ALERTE, src, f"{_ou(r)} : ligne présente dans l'onglet club mais absente de l'onglet global."))
+    passeur_global = pc.set_index("_k").joueur
+    for _, r in pg[pg._k.isin(passeur_global.index)].iterrows():
+        autre = passeur_global[r._k]
+        if pd.notna(autre) and pd.notna(r.joueur) and str(autre).upper() != str(r.joueur).upper():
+            out.append(Anomalie(ALERTE, src, f"{_ou(r)} : passeur différent entre l'onglet club ({r.joueur}) et l'onglet global ({autre}). "
+                                f"Le site affiche celui de l'onglet club : corriger l'onglet global."))
     return out
 
 

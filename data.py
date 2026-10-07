@@ -100,11 +100,28 @@ def lire_buts(path=C.FICHIER_BUTS) -> tuple[pd.DataFrame, pd.DataFrame]:
 
 
 def lire_passes(path=C.FICHIER_PASSES) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Retourne (passes de référence, onglet global).
+    Les passeurs viennent UNIQUEMENT des onglets clubs, vérifiés par Victor (comme les origines des buts).
+    L'onglet global ne sert plus qu'à signaler les écarts sur la page contrôle.
+    Sans aucun onglet club lisible, on retombe sur l'onglet global."""
     xl = pd.ExcelFile(path)
-    g = _lire_table(xl, _onglet_global(xl), 12)       # seul l'onglet global fait foi
+    g = _lire_table(xl, _onglet_global(xl), 12)
     for c in COLS_BUT[:5] + ["joueur"]:
         g[c] = nettoie(g[c])
-    return g, g.iloc[0:0]
+    morceaux = []
+    for onglet in xl.sheet_names[1:]:
+        try:
+            t = _lire_table(xl, onglet, 12)
+        except ValueError:          # onglet sans tableau de passes (notes, modèle...)
+            continue
+        if all(c in t for c in COLS_BUT):
+            morceaux.append(t)
+    if not morceaux:
+        return g, g.iloc[0:0]
+    c = pd.concat(morceaux, ignore_index=True)
+    for col in COLS_BUT[:5] + ["joueur"]:
+        c[col] = nettoie(c[col])
+    return c, g
 
 
 def lire_fiches(path=C.FICHIER_FICHES) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:

@@ -3,3 +3,4 @@ __pycache__/
 export_verification.xlsx
 desktop.ini
 *.zip
+.~lock.*
