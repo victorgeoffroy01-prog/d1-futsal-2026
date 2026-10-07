@@ -5,6 +5,8 @@ Les liens internes sont des URL à paramètres (?page=...) : chaque fiche a donc
 """
 from __future__ import annotations
 import base64
+import re
+import unicodedata
 import html as _html
 from pathlib import Path
 
@@ -53,18 +55,37 @@ def icon(n, s=22, c=INK, sw=1.8):
 
 
 # ------------------------------------------------------------- images (logos, photos)
+_MIME = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp"}
+
+
+def _cle_image(nom: str) -> str:
+    """'Axel Kirtys Zorohuidi' ou 'ACASA' -> 'axel-kirtys-zorohuidi', 'acasa' : majuscules, accents et espaces ignorés."""
+    t = unicodedata.normalize("NFKD", str(nom)).encode("ascii", "ignore").decode().lower()
+    return re.sub(r"[^a-z0-9]+", "-", t).strip("-")
+
+
 @st.cache_data(show_spinner=False)
-def _data_uri(path: str) -> str | None:
-    p = Path(path)
-    if not p.exists():
+def _images(dossier: str, empreinte: tuple) -> dict:
+    """Images d'un dossier : clé tolérante -> image prête à afficher. Relu seulement si le dossier change."""
+    out = {}
+    for p in sorted(Path(dossier).iterdir()):
+        if p.is_file() and p.suffix.lower() in _MIME:
+            out.setdefault(_cle_image(p.stem), f"data:{_MIME[p.suffix.lower()]};base64,{base64.b64encode(p.read_bytes()).decode()}")
+    return out
+
+
+def _image(sous_dossier: str, nom: str) -> str | None:
+    """Image de assets/<sous_dossier> dont le nom correspond (ACASA.png, acasa.PNG, Axel Kirtys Zorohuidi.JPG...)."""
+    d = C.ASSETS_DIR / sous_dossier
+    if not d.is_dir():
         return None
-    mime = "image/png" if p.suffix.lower() == ".png" else "image/jpeg"
-    return f"data:{mime};base64,{base64.b64encode(p.read_bytes()).decode()}"
+    empreinte = tuple(sorted((p.name, p.stat().st_mtime, p.stat().st_size) for p in d.iterdir() if p.is_file()))
+    return _images(str(d), empreinte).get(_cle_image(nom))
 
 
 def logo_or_badge(club: str, size=28, fs=10, dark=True) -> str:
     """Logo du club s'il existe dans assets/clubs, sinon pastille avec l'abréviation."""
-    src = _data_uri(str(C.ASSETS_DIR / "clubs" / f"{club}.png"))
+    src = _image("clubs", club)
     if src:
         return f'<img src="{src}" alt="" width="{size}" height="{size}" style="width: {size}px; height: {size}px; object-fit: contain; flex-shrink: 0">'
     bg, fg = (INK, "#fff") if dark else (PAPER, INK)
@@ -74,10 +95,9 @@ def logo_or_badge(club: str, size=28, fs=10, dark=True) -> str:
 
 
 def photo(id_joueur: str, w=96, h=116) -> str:
-    for ext in ("jpg", "png", "jpeg"):
-        src = _data_uri(str(C.ASSETS_DIR / "joueurs" / f"{id_joueur}.{ext}"))
-        if src:
-            return f'<img src="{src}" alt="" style="width: {w}px; height: {h}px; object-fit: cover; border-radius: 10px; flex-shrink: 0">'
+    src = _image("joueurs", id_joueur)
+    if src:
+        return f'<img src="{src}" alt="" style="width: {w}px; height: {h}px; object-fit: cover; border-radius: 10px; flex-shrink: 0">'
     return (f'<div style="width: {w}px; height: {h}px; flex-shrink: 0; border-radius: 10px; background: {SOFT}; display: flex; '
             f'align-items: flex-end; justify-content: center; overflow: hidden">'
             + svg_img(f'<svg width="{w*0.8:.0f}" height="{h*0.8:.0f}" viewBox="0 0 24 24" fill="{LINE}">'
