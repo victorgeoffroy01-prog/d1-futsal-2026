@@ -3,7 +3,7 @@ import os
 import sys
 from playwright.sync_api import sync_playwright
 
-URL = os.environ.get("https://d1-futsal.streamlit.app/", "").strip()
+URL = os.environ.get("https://d1-futsal.streamlit.app", "").strip()
 if not URL:
     sys.exit("APP_URL manquante")
 
