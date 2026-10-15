@@ -207,11 +207,11 @@ def cartes_gardiens(r, noms):
 # colonnes du tableau joueurs : (en-tête, largeur, fonction de la cellule)
 COLS_MOBILE = [("Tirs", 30, lambda j: j["tirs"]), ("Cad.", 30, lambda j: j["cadres"]), ("B", 22, lambda j: j["buts"]),
                ("Duels", 40, lambda j: "{}/{}".format(*duels(j))), ("Pert.", 34, lambda j: j["pertes"]), ("Int.", 30, lambda j: j["inter"])]
-COLS_ORDI = [("Tirs", 44, lambda j: j["tirs"]), ("Cadrés", 50, lambda j: j["cadres"]), ("Buts", 40, lambda j: j["buts"]),
-             ("Duels off.", 62, lambda j: frac(j["duels_off"])), ("Duels déf.", 62, lambda j: frac(j["duels_def"])),
-             ("Pertes", 48, lambda j: j["pertes"]), ("Récup.", 48, lambda j: j["recup"]), ("Inter.", 44, lambda j: j["inter"]),
-             ("P. loupées", 64, lambda j: j["passes_loupees"]),
-             ("Fautes S/C", 66, lambda j: f'{j["fautes_subies"]}/{j["fautes_commises"]}' if j["fautes_subies"] is not None else "-")]
+COLS_ORDI = [("Tirs", 38, lambda j: j["tirs"]), ("Cadrés", 46, lambda j: j["cadres"]), ("Buts", 36, lambda j: j["buts"]),
+             ("Duels off.", 56, lambda j: frac(j["duels_off"])), ("Duels déf.", 56, lambda j: frac(j["duels_def"])),
+             ("Pertes", 44, lambda j: j["pertes"]), ("Récup.", 46, lambda j: j["recup"]), ("Inter.", 40, lambda j: j["inter"]),
+             ("P. loupées", 56, lambda j: j["passes_loupees"]),
+             ("Fautes S/C", 54, lambda j: f'{j["fautes_subies"]}/{j["fautes_commises"]}' if j["fautes_subies"] is not None else "-")]
 
 
 def tableau_joueurs(r, k, cols, pad="0"):

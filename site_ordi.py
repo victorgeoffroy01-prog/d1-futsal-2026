@@ -40,6 +40,8 @@ CSS_ORDI = f"""
 [data-testid="stDataFrame"] {{ border: 1.5px solid {INK}; border-radius: 10px; overflow: hidden; }}
 [data-testid="stTextInput"] {{ padding: 0 !important; }}
 .st-key-filtres {{ background: {SOFT}; border-radius: 10px; padding: 14px 16px; gap: 14px !important; margin: 10px 0 14px; }}
+.st-key-eq-joueurs {{ flex-wrap: wrap !important; gap: 0 48px !important; }}
+.st-key-eq-joueurs > div {{ flex: 1 1 680px !important; min-width: 0 !important; width: auto !important; }}
 .st-key-filtres label p {{ font-family: {COND}; font-weight: 700; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: {MUTED}; }}
 /* filtres des statistiques : mêmes cases que le reste du site (fond papier, filet noir, bords ronds) */
 .st-key-filtres [data-testid="stSelectbox"] > div > div, .st-key-filtres [data-testid="stMultiSelect"] > div > div {{ background: {PAPER} !important;
@@ -413,18 +415,19 @@ def page_match():
                 st.html('<div style="height: 14px"></div>')
                 X["bouton_pdf"](rapport)
             st.html('<div style="height: 30px"></div>' + kick("Joueurs de champ"))
-            cols = st.columns(2, gap="large")
-            for k, col in enumerate(cols):
-                with col:
-                    head, lignes = analyse.tableau_joueurs(r, k, analyse.COLS_ORDI, pad="10px")
-                    o = Sortie()
-                    o.add(f'<div style="font-family: {SERIF}; font-size: 24px; margin: 12px 0 6px; color: {INK if k == 0 else RED}">{e(N[r["clubs"][k]])}</div>' + head)
-                    for h, i in lignes:
-                        if i:
-                            o.lien(h, "joueur", id=i)
-                        else:
-                            o.add(h)
-                    o.fin()
+            # côte à côte sur grand écran, l'une sous l'autre sinon (les noms restent lisibles)
+            with st.container(horizontal=True, key="eq-joueurs"):
+                for k in (0, 1):
+                    with st.container(key=f"eq-joueurs-{k}"):
+                        head, lignes = analyse.tableau_joueurs(r, k, analyse.COLS_ORDI, pad="10px")
+                        o = Sortie()
+                        o.add(f'<div style="font-family: {SERIF}; font-size: 24px; margin: 12px 0 6px; color: {INK if k == 0 else RED}">{e(N[r["clubs"][k]])}</div>' + head)
+                        for h, i in lignes:
+                            if i:
+                                o.lien(h, "joueur", id=i)
+                            else:
+                                o.add(h)
+                        o.fin()
             st.html(f'<div style="font-size: 12px; color: {MUTED}; margin-top: 14px">{analyse.LEGENDE} Cliquer un joueur ouvre sa fiche quand il a déjà marqué ou passé.</div>')
     pied()
 
