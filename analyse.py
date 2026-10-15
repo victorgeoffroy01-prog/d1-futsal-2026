@@ -214,9 +214,13 @@ COLS_ORDI = [("Tirs", 38, lambda j: j["tirs"]), ("Cadrés", 46, lambda j: j["cad
              ("Fautes S/C", 54, lambda j: f'{j["fautes_subies"]}/{j["fautes_commises"]}' if j["fautes_subies"] is not None else "-")]
 
 
-def tableau_joueurs(r, k, cols, pad="0"):
-    """Renvoie (en-tête HTML, [(ligne HTML, id_joueur | None)]). Trié par tirs."""
-    tpl = "grid-template-columns: minmax(0,1fr) " + " ".join(f"{w}px" for _, w, _ in cols)
+def tableau_joueurs(r, k, cols, pad="0", compact=False):
+    """Renvoie (en-tête HTML, [(ligne HTML, id_joueur | None)]). Trié par tirs.
+    compact=True (ordinateur) : colonne des noms limitée et tableau calé à gauche, pour garder les stats près des noms."""
+    nom = "minmax(120px, 210px)" if compact else "minmax(0,1fr)"
+    tpl = f"grid-template-columns: {nom} " + " ".join(f"{w}px" for _, w, _ in cols)
+    if compact:
+        tpl += "; max-width: " + str(210 + sum(w for _, w, _ in cols) + 4 * len(cols) + 20) + "px"
     head = (f'<div style="display: grid; {tpl}; gap: 4px; padding: 6px {pad}; border-bottom: 2px solid {INK}; font-family: {COND}; font-weight: 700; '
             f'font-size: 11px; letter-spacing: 0.04em; color: {MUTED}; text-transform: uppercase"><span>Joueur</span>'
             + "".join(f'<span style="text-align: center">{l}</span>' for l, _, _ in cols) + "</div>")

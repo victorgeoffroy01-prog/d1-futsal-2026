@@ -419,7 +419,7 @@ def page_match():
             with st.container(horizontal=True, key="eq-joueurs"):
                 for k in (0, 1):
                     with st.container(key=f"eq-joueurs-{k}"):
-                        head, lignes = analyse.tableau_joueurs(r, k, analyse.COLS_ORDI, pad="10px")
+                        head, lignes = analyse.tableau_joueurs(r, k, analyse.COLS_ORDI, pad="10px", compact=True)
                         o = Sortie()
                         o.add(f'<div style="font-family: {SERIF}; font-size: 24px; margin: 12px 0 6px; color: {INK if k == 0 else RED}">{e(N[r["clubs"][k]])}</div>' + head)
                         for h, i in lignes:
