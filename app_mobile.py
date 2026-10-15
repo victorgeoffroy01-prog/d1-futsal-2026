@@ -58,7 +58,7 @@ def _empreinte():
 
 
 @st.cache_resource(show_spinner=False)
-def _base(_cle):
+def _base(cle):          # paramètre sans "_" : Streamlit en tient compte, le cache se renouvelle quand un fichier change
     return data.charger(), charger_textes()
 
 
@@ -74,7 +74,7 @@ RAPPORTS, ANOM_RAPPORTS = rapports.lister(base)
 
 
 @st.cache_resource(show_spinner=False)
-def _analyses(_cle):
+def _analyses(cle):      # idem : un nouveau rapport PDF est lu sans redémarrer le site
     return analyse.preparer(base, RAPPORTS)
 
 
