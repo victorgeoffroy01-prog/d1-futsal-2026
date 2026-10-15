@@ -238,8 +238,11 @@ class Base:
         ids = set(b.id_buteur) | set(p.id_passeur)
         jref = self.joueurs.set_index("id_joueur")
         tot_club = self.buts.groupby("club_marque").size()
+        par_buteur = {k: g for k, g in b.groupby("id_buteur")}      # regroupés une seule fois (rapide)
+        par_passeur = {k: g for k, g in p.groupby("id_passeur")}
+        vide = b.iloc[0:0]
         for i in ids:
-            bj = b[b.id_buteur == i]; pj = p[p.id_passeur == i]
+            bj = par_buteur.get(i, vide); pj = par_passeur.get(i, p.iloc[0:0])
             club = jref.club_court.get(i) if i in jref.index else (bj.club_marque.iloc[0] if len(bj) else pj.club_marque.iloc[0])
             grp = bj.groupe_origine.value_counts()
             nb = len(bj)

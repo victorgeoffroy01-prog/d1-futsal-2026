@@ -64,13 +64,33 @@ def _cle_image(nom: str) -> str:
     return re.sub(r"[^a-z0-9]+", "-", t).strip("-")
 
 
+def _miniature(p: Path, cote: int) -> str:
+    """Image réduite à `cote` pixels maximum (les originaux font souvent 1 Mo : la page deviendrait énorme).
+    Logos en PNG (transparence gardée), photos en JPEG. Si la réduction échoue, on garde l'original."""
+    try:
+        from PIL import Image
+        import io
+        im = Image.open(p)
+        im.thumbnail((cote, cote))
+        buf = io.BytesIO()
+        if im.mode in ("RGBA", "LA", "P"):
+            im.convert("RGBA").save(buf, "PNG", optimize=True)
+            mime = "image/png"
+        else:
+            im.convert("RGB").save(buf, "JPEG", quality=82, optimize=True)
+            mime = "image/jpeg"
+        return f"data:{mime};base64,{base64.b64encode(buf.getvalue()).decode()}"
+    except Exception:
+        return f"data:{_MIME[p.suffix.lower()]};base64,{base64.b64encode(p.read_bytes()).decode()}"
+
+
 @st.cache_data(show_spinner=False)
-def _images(dossier: str, empreinte: tuple) -> dict:
-    """Images d'un dossier : clé tolérante -> image prête à afficher. Relu seulement si le dossier change."""
+def _images(dossier: str, empreinte: tuple, cote: int = 160) -> dict:
+    """Images d'un dossier : clé tolérante -> image réduite prête à afficher. Relu seulement si le dossier change."""
     out = {}
     for p in sorted(Path(dossier).iterdir()):
-        if p.is_file() and p.suffix.lower() in _MIME:
-            out.setdefault(_cle_image(p.stem), f"data:{_MIME[p.suffix.lower()]};base64,{base64.b64encode(p.read_bytes()).decode()}")
+        if p.is_file() and p.suffix.lower() in _MIME and _cle_image(p.stem) not in out:
+            out[_cle_image(p.stem)] = _miniature(p, cote)
     return out
 
 
@@ -102,7 +122,7 @@ def _image(sous_dossier: str, nom: str, saisi: str | None = None) -> str | None:
     if not d.is_dir():
         return None
     empreinte = tuple(sorted((p.name, p.stat().st_mtime, p.stat().st_size) for p in d.iterdir() if p.is_file()))
-    dispo = _images(str(d), empreinte)
+    dispo = _images(str(d), empreinte, 160 if sous_dossier == "clubs" else 320)
     if saisi and _cle_image(_sans_extension(saisi)) in dispo:
         return dispo[_cle_image(_sans_extension(saisi))]
     return dispo.get(_cle_image(nom))

@@ -127,7 +127,9 @@ def controle_passes(pg: pd.DataFrame, pc: pd.DataFrame, bg: pd.DataFrame) -> lis
         bg[c] = pd.to_numeric(bg[c], errors="coerce")
     if len(pg) != len(bg):
         out.append(Anomalie(BLOQUANT, src, f"{len(pg)} lignes de passes pour {len(bg)} buts : il faut une ligne par but dans les onglets clubs ('x' si pas de passeur)."))
-    buts = bg.set_index(CLE)
+    buts = {}                       # but par clé (dictionnaire : recherche instantanée)
+    for row in bg.to_dict("records"):
+        buts.setdefault(tuple(row[c] for c in CLE), row)
     vus = set()
     for _, r in pg.iterrows():
         loc = _ou(r)
@@ -137,16 +139,16 @@ def controle_passes(pg: pd.DataFrame, pc: pd.DataFrame, bg: pd.DataFrame) -> lis
         if k in vus:
             out.append(Anomalie(BLOQUANT, src, f"{loc} : passe en double pour ce but."))
         vus.add(k)
-        if k not in buts.index:
+        if k not in buts:
             out.append(Anomalie(BLOQUANT, src, f"{loc} : aucun but correspondant dans le fichier buts."))
             continue
-        but = buts.loc[[k]].iloc[0]
-        if but.equipe_marque != r.equipe_marque or but.minute != r.minute or but.periode != r.periode:
+        but = buts[k]
+        if but["equipe_marque"] != r.equipe_marque or but["minute"] != r.minute or but["periode"] != r.periode:
             out.append(Anomalie(BLOQUANT, src, f"{loc} : équipe, minute ou période différente du but correspondant."))
         pj = str(r.joueur).upper()
-        if pj == str(but.joueur).upper():
+        if pj == str(but["joueur"]).upper():
             out.append(Anomalie(BLOQUANT, src, f"{loc} : le passeur est aussi le buteur."))
-        if str(but.joueur).upper() == C.CSC and pj != C.SANS_PASSE.upper():
+        if str(but["joueur"]).upper() == C.CSC and pj != C.SANS_PASSE.upper():
             out.append(Anomalie(BLOQUANT, src, f"{loc} : passeur sur un CSC."))
     for k in set(map(tuple, bg[CLE].values.tolist())) - vus:
         out.append(Anomalie(BLOQUANT, src, f"But sans ligne de passe : J{k[0]} {k[1]}-{k[2]} ({k[3]}-{k[4]})."))

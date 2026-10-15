@@ -67,8 +67,15 @@ qp = st.query_params
 
 NOMS = {r.club_court: (r.nom_affiche if isinstance(getattr(r, "nom_affiche", None), str) and r.nom_affiche
                        else C.NOMS_CLUBS.get(r.club_court, r.club_court)) for r in base.clubs.itertuples()}
-CLASSEMENT = base.classement()
-STATS = base.stats_joueurs()
+
+
+@st.cache_resource(show_spinner=False)
+def _derives(cle):
+    """Classement et stats joueurs : calculés une fois par version des fichiers, pas à chaque clic."""
+    return base.classement(), base.stats_joueurs()
+
+
+CLASSEMENT, STATS = _derives(_empreinte())
 DERNIERE = max(base.journees) if base.journees else 1
 RAPPORTS, ANOM_RAPPORTS = rapports.lister(base)
 
