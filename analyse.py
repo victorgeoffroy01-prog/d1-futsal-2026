@@ -7,6 +7,8 @@ import os
 import re
 import unicodedata
 
+import pandas as pd
+
 import controles
 import data
 import rapport_stats
@@ -30,8 +32,10 @@ def _inverser(r):
 def _id_joueur(nom, effectif):
     """Retrouve le joueur du rapport dans l'effectif du club (nom de famille, surnom ou initiale)."""
     morceaux = [m for m in re.split(r"[\s.]+", _sa(nom)) if m]
-    mots = [m for m in morceaux if len(m) >= 3]
-    initiale = morceaux[0] if len(morceaux) > 1 and len(morceaux[0]) == 1 else None     # « I.AHSSEN »
+    # début de prénom abrégé : « I.AHSSEN », « SI. SOUMARE » (Sirou), « SO. SOUMARE » (Soumaila)
+    abrege = re.match(r"\s*([A-Z]{1,3})\.", _sa(nom))
+    initiale = abrege.group(1) if abrege and len(morceaux) > 1 else None
+    mots = [m for m in morceaux[1 if initiale else 0:] if len(m) >= 3]
     if not mots:
         return None
     scores = {}
@@ -96,6 +100,8 @@ def preparer(base, fichiers: dict) -> tuple[dict, list]:
                         anomalies.append(controles.Anomalie(controles.ALERTE, "fiches", f"{jr['nom']} ({club}) : vu dans {nom_f}, absent des fiches. "
                                                             f"Fiche provisoire créée, à compléter dans le fichier fiches."))
                     jr["id"] = i
+                num = eff.set_index("id_joueur").numero.get(jr["id"]) if len(eff) and jr["id"] in set(eff.id_joueur) else None
+                jr["numero"] = str(num).replace(".0", "") if num is not None and pd.notna(num) and str(num).strip() else ""
         out[(j, dom)] = r
     return out, anomalies, list(nouveaux.values())
 
@@ -234,7 +240,9 @@ def tableau_joueurs(r, k, cols, pad="0", compact=False):
             else:
                 cells += f'<span style="text-align: center; font-family: {COND}; color: {MUTED if v in (0, "0/0", "-") else INK}">{v}</span>'
         lignes.append((f'<div style="display: grid; {tpl}; gap: 4px; align-items: center; padding: 9px {pad}; border-bottom: 1px solid {LINE}">'
-                       f'<span style="font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{e(jr["nom"].title())}</span>{cells}</div>', jr.get("id")))
+                       f'<span style="font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">'
+                       + (f'<span style="display: inline-block; min-width: 24px; font-family: {COND}; font-weight: 700; color: {MUTED}">{e(jr["numero"])}</span>' if jr.get("numero") else "")
+                       + f'{e(jr["nom"].title())}</span>{cells}</div>', jr.get("id")))
     return head, lignes
 
 
