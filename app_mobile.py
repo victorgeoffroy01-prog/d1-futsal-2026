@@ -62,7 +62,10 @@ def _empreinte():
 
 @st.cache_resource(show_spinner=False)
 def _base(cle):          # paramètre sans "_" : Streamlit en tient compte, le cache se renouvelle quand un fichier change
-    return data.charger(), charger_textes()
+    b = data.charger()
+    # textes publiés : les noms de famille des joueurs passent en majuscules, même dans les textes déjà validés
+    clubs = set(b.clubs.club_court) | set(b.clubs.nom_affiche.dropna()) | set(C.NOMS_CLUBS.values())
+    return b, {k: data.noms_en_majuscules(v, b.joueurs, clubs) for k, v in charger_textes().items()}
 
 
 base, TEXTES = _base(_empreinte())

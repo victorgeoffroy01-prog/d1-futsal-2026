@@ -102,7 +102,7 @@ def preparer(base, fichiers: dict) -> tuple[dict, list]:
                     if (club, i) not in nouveaux:
                         nom = re.sub(r"\.(?=\S)", ". ", str(jr["nom"]))
                         nouveaux[(club, i)] = dict(id_joueur=i, nom_base=nom.upper(), club_court=club, id_auto=True,
-                                                   nom_affiche=data.nom_affiche(nom), absent_fiches=True)
+                                                   nom_affiche=nom_rapport(nom), absent_fiches=True)    # un rapport ne donne que le nom de famille
                         anomalies.append(controles.Anomalie(controles.ALERTE, "fiches", f"{jr['nom']} ({club}) : vu dans {nom_f}, absent des fiches. "
                                                             f"Fiche provisoire créée, à compléter dans le fichier fiches."))
                     jr["id"] = i

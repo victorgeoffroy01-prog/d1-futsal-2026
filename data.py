@@ -58,6 +58,26 @@ def nom_affiche(nom_base: str, prenom=None, nom=None) -> str:
     return _cap(mots[0]) + " " + " ".join(mots[1:]).upper()
 
 
+def noms_en_majuscules(texte: str, joueurs: pd.DataFrame, a_ignorer=()) -> str:
+    """Met en MAJUSCULES chaque nom de famille de joueur cité dans un texte
+    ('un doublé de Bakkali' -> 'un doublé de BAKKALI', 'Caio Dos Santos' -> 'Caio DOS SANTOS').
+    Le nom de famille est la partie en majuscules de nom_affiche ; les noms les plus longs passent d'abord.
+    a_ignorer : mots à ne jamais toucher (noms de clubs...)."""
+    if not isinstance(texte, str) or not texte:
+        return texte
+    ignorer = {str(x).lower() for x in a_ignorer}
+    familles = set()
+    for n in joueurs.nom_affiche.dropna().astype(str):
+        mots = n.split()
+        fam = " ".join(m for m in (mots[1:] if len(mots) > 1 else mots) if m.isupper())
+        if len(fam) >= 3 and fam.lower() not in ignorer:
+            familles.add(fam)
+    if not familles:
+        return texte
+    motif = re.compile(r"(?<![\w])(" + "|".join(re.escape(f) for f in sorted(familles, key=len, reverse=True)) + r")(?![\w])", re.IGNORECASE)
+    return motif.sub(lambda m: m.group(0).upper(), texte)
+
+
 def _onglet_global(xl: pd.ExcelFile) -> str:
     return xl.sheet_names[0]
 
