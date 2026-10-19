@@ -149,6 +149,17 @@ def photo(id_joueur: str, w=96, h=116) -> str:
                       f'<circle cx="12" cy="8" r="4.5"/><path d="M2 24c1-6 5-9 10-9s9 3 10 9z"/></svg>', int(w*0.8), int(h*0.8)) + '</div>')
 
 
+def photo_rond(id_joueur, d=56, bord="#fff") -> str:
+    """Photo du joueur dans un rond (cadrée sur le visage), ou silhouette s'il n'y a pas encore de photo."""
+    src = _image("joueurs", id_joueur, PHOTOS.get(id_joueur)) if id_joueur else None
+    cadre = f"width: {d}px; height: {d}px; border-radius: 50%; border: 3px solid {bord}; box-sizing: border-box; flex-shrink: 0"
+    if src:
+        return f'<img src="{src}" alt="" style="{cadre}; object-fit: cover; object-position: 50% 15%; background: {CR}">'
+    return (f'<div style="{cadre}; background: {CR}; overflow: hidden; display: flex; align-items: flex-end; justify-content: center">'
+            + svg_img(f'<svg width="{d*0.78:.0f}" height="{d*0.78:.0f}" viewBox="0 0 24 24" fill="{LINE}">'
+                      f'<circle cx="12" cy="8" r="4.5"/><path d="M2 24c1-6 5-9 10-9s9 3 10 9z"/></svg>', int(d*0.78), int(d*0.78)) + '</div>')
+
+
 # ------------------------------------------------------------- blocs texte
 def kicker(txt, mt=0, color=RED):
     return (f'<div style="margin-top: {mt}px; display: flex; flex-direction: column; gap: 6px">'

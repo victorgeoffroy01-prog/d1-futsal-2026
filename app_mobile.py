@@ -465,6 +465,7 @@ def page_club():
     onglets(o, "club", {"id": club}, [("resume", "Résumé"), ("effectif", "Effectif"), ("buts", "Buts"), ("matchs", "Matchs")], onglet)
     if onglet == "resume":
         o.add(ui.section(ui.kicker("Forme") + '<div style="display: flex; gap: 6px; margin-top: 10px">' + "".join(ui.form_chip(x, 30) for x in cl["forme"]) + "</div>", pad="16px 16px 0"))
+        o.add(ui.section(ui.kicker("Compo type") + '<div style="margin-top: 10px">' + site_ordi.pitch(club, mobile=True) + "</div>"))
         o.add(ui.section(ui.kicker("Buts par tranche de 5 min") + '<div style="margin-top: 10px">' + ui.tranches_miroir(s["tranches_marques"], s["tranches_encaisses"]) + "</div>"))
         o.add(ui.section(ui.kicker("Joueurs clés"), pad="22px 16px 4px"))
         top = STATS[STATS.club == club].sort_values(["B+P", "Buts"], ascending=False).head(5)

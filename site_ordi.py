@@ -663,13 +663,19 @@ def page_clubs():
     pied()
 
 
-def pitch(club):
-    """Compo type sur un terrain (vide tant que la fiche n'est pas remplie)."""
+def pitch(club, mobile=False):
+    """Compo type sur un terrain (vide tant que la fiche n'est pas remplie). mobile=True : ronds plus petits pour un téléphone."""
     comp = X["base"].compos
     comp = comp[comp.club_court == club] if len(comp) else comp
     jref = X["jref"]
-    pos = {"GB": (8, 50), "Fixo": (30, 50), "Ailier G": (55, 18), "Ailier D": (55, 82), "Pivot": (82, 50)}
-    h = (f'<div style="position: relative; width: 100%; height: 240px; background: {INK}; border-radius: 12px; overflow: hidden">'
+    # position du centre de chaque rond (en % du terrain) ; les blocs sont ensuite tenus à l'intérieur des lignes
+    if mobile:
+        pos = {"GB": (11, 46), "Fixo": (38, 46), "Ailier G": (63, 21), "Ailier D": (63, 70), "Pivot": (88, 46)}
+        D, L, taille, haut = 52, 84, 12, 300      # diamètre du rond, largeur du nom, taille du texte, hauteur du terrain
+    else:
+        pos = {"GB": (10, 46), "Fixo": (35, 46), "Ailier G": (60, 22), "Ailier D": (60, 70), "Pivot": (87, 46)}
+        D, L, taille, haut = 64, 104, 14, 330
+    h = (f'<div style="position: relative; width: 100%; height: {haut}px; background: {INK}; border-radius: 12px; overflow: hidden">'
          f'<div style="position: absolute; inset: 12px; border: 1.5px solid #5A5A5A"></div><div style="position: absolute; left: 50%; top: 12px; bottom: 12px; width: 1.5px; background: #5A5A5A"></div>')
     for p, (x, y) in pos.items():
         i = None
@@ -677,10 +683,13 @@ def pitch(club):
             r = comp[comp.poste_terrain == p]
             i = r.id_joueur.iloc[0] if len(r) and isinstance(r.id_joueur.iloc[0], str) else None
         nom = jref.nom_affiche.get(i, "") if i else ""
-        court = nom.split()[-1] if nom else p
-        h += (f'<div style="position: absolute; left: calc({x}% - 45px); top: calc({y}% - 26px); width: 90px; display: flex; flex-direction: column; align-items: center; gap: 4px">'
-              f'<div style="width: 34px; height: 34px; border-radius: 50%; background: {CR}; border: 2px solid {RED if p == "Pivot" else "#fff"}"></div>'
-              f'<span style="font-family: {COND}; font-weight: 700; font-size: 11px; color: #fff; letter-spacing: 0.04em; text-align: center">{e(court).upper()}</span></div>')
+        mots = nom.split()
+        court = (" ".join(m for m in mots[1:] if m.isupper()) or nom) if nom else p      # le nom de famille entier
+        h += (f'<div style="position: absolute; left: clamp(14px, calc({x}% - {L // 2}px), calc(100% - {L + 14}px)); top: calc({y}% - {D // 2}px); width: {L}px; '
+              f'display: flex; flex-direction: column; align-items: center; gap: 6px">'
+              + ui.photo_rond(i, D, RED if p == "Pivot" else "#fff")
+              + f'<span style="max-width: {L}px; font-family: {COND}; font-weight: 700; font-size: {taille}px; color: #fff; letter-spacing: 0.04em; text-align: center; '
+              f'line-height: 1.1; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden">{e(court).upper()}</span></div>')        # nom long : 2 lignes au plus
     vide = "" if (len(comp) and comp.id_joueur.notna().any()) else f'<div style="font-size: 12px; color: {MUTED}; margin-top: 6px">Compo type à renseigner dans la fiche club.</div>'
     return h + "</div>" + vide
 
