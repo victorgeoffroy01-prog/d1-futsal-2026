@@ -24,6 +24,12 @@ def _sa(t):
     return unicodedata.normalize("NFKD", str(t)).encode("ascii", "ignore").decode().upper()
 
 
+def nom_rapport(n) -> str:
+    """Nom écrit dans un rapport -> affichage du site : 'SI. SOUMARE' -> 'Si. SOUMARE', 'fahmi' -> 'FAHMI'."""
+    m = re.match(r"\s*([^\W\d_]{1,3})\.\s*(.+)", str(n))
+    return f"{m.group(1).capitalize()}. {m.group(2).upper()}" if m else str(n).upper()
+
+
 def _inverser(r):
     return {"equipes": r["equipes"][::-1], "collectif": {k: v[::-1] for k, v in r["collectif"].items()},
             "joueurs": r["joueurs"][::-1], "gardiens": r["gardiens"][::-1]}
@@ -195,7 +201,7 @@ def carte_gardien(g, club_nom, couleur):
             hc.append(f"{v} {mot}")
     hors = f'<div style="font-size: 12px; color: {MUTED}; margin-top: 4px">Hors de sa cage : {", ".join(hc)}</div>' if hc else ""
     return (f'<div style="flex: 1; min-width: 0; box-sizing: border-box; background: {PAPER}; border: 1.5px solid {INK}; border-top: 5px solid {couleur}; border-radius: 10px; padding: 12px 14px">'
-            f'<div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px"><div><div style="font-weight: 700">{e(g["nom"].title())}</div>'
+            f'<div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px"><div><div style="font-weight: 700">{e(nom_rapport(g["nom"]))}</div>'
             f'<div style="font-family: {COND}; font-size: 11px; letter-spacing: 0.08em; color: {MUTED}; text-transform: uppercase">{e(club_nom)}</div></div>'
             f'<div style="font-family: {SERIF}; font-size: 32px; line-height: 1">{pct} %</div></div>'
             f'<div style="height: 6px; background: {SOFT}; border-radius: 3px; margin-top: 8px"><div style="height: 6px; width: {pct}%; background: {couleur}; border-radius: 3px"></div></div>'
@@ -242,7 +248,7 @@ def tableau_joueurs(r, k, cols, pad="0", compact=False):
         lignes.append((f'<div style="display: grid; {tpl}; gap: 4px; align-items: center; padding: 9px {pad}; border-bottom: 1px solid {LINE}">'
                        f'<span style="font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">'
                        + (f'<span style="display: inline-block; min-width: 24px; font-family: {COND}; font-weight: 700; color: {MUTED}">{e(jr["numero"])}</span>' if jr.get("numero") else "")
-                       + f'{e(jr["nom"].title())}</span>{cells}</div>', jr.get("id")))
+                       + f'{e(nom_rapport(jr["nom"]))}</span>{cells}</div>', jr.get("id")))
     return head, lignes
 
 

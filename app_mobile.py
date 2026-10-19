@@ -54,6 +54,9 @@ def lib_origine(v) -> str:
 # ------------------------------------------------------------------ données (cache invalidé si un fichier change)
 def _empreinte():
     fichiers = [C.FICHIER_BUTS, C.FICHIER_PASSES, C.FICHIER_FICHES, C.FICHIER_TEXTES]
+    # le code qui lit les fichiers compte aussi : une nouvelle version recalcule tout
+    ici = os.path.dirname(os.path.abspath(__file__))
+    fichiers += [os.path.join(ici, f) for f in ("data.py", "controles.py", "analyse.py", "rapport_stats.py", "rapports.py")]
     return tuple(os.path.getmtime(f) if os.path.exists(f) else 0 for f in fichiers)
 
 

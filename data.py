@@ -39,10 +39,23 @@ def nettoie(s: pd.Series) -> pd.Series:
     return s.astype("string").str.strip().str.replace(r"\s+", " ", regex=True)
 
 
-def nom_affiche(nom_base: str) -> str:
-    """'FRANCISCO MARTINEZ VILLALBA' -> 'Francisco Martinez Villalba'."""
-    return " ".join(m.capitalize() if "-" not in m else "-".join(x.capitalize() for x in m.split("-"))
-                    for m in str(nom_base).split())
+def _cap(mot: str) -> str:
+    """'louis-hugo' -> 'Louis-Hugo'."""
+    return "-".join(x.capitalize() for x in str(mot).split("-"))
+
+
+def nom_affiche(nom_base: str, prenom=None, nom=None) -> str:
+    """Prénom en minuscules, nom de famille en MAJUSCULES, partout sur le site.
+    'FRANCISCO MARTINEZ VILLALBA' -> 'Francisco MARTINEZ VILLALBA' (1er mot = prénom).
+    Si les colonnes prenom et nom des fiches sont remplies, elles décident : prénoms composés
+    ('Sid Ahmed' BELHAJ) et noms à particule restent justes.
+    'SI. SOUMARE' -> 'Si. SOUMARE' ; un seul mot ('LEOZINHO') -> en majuscules."""
+    if isinstance(prenom, str) and prenom.strip() and isinstance(nom, str) and nom.strip():
+        return " ".join(_cap(m) for m in prenom.split()) + " " + nom.strip().upper()
+    mots = str(nom_base).split()
+    if len(mots) <= 1:
+        return str(nom_base).strip().upper()
+    return _cap(mots[0]) + " " + " ".join(mots[1:]).upper()
 
 
 def _onglet_global(xl: pd.ExcelFile) -> str:
@@ -178,7 +191,8 @@ def lire_fiches(path=C.FICHIER_FICHES) -> tuple[pd.DataFrame, pd.DataFrame, pd.D
     j["nom_base"] = j["nom_base"].str.upper()
     j["id_auto"] = j["id_joueur"].isna()
     j.loc[j["id_auto"], "id_joueur"] = j.loc[j["id_auto"], "nom_base"].map(slug)
-    j["nom_affiche"] = j["surnom"].fillna(j["nom_base"].map(nom_affiche))
+    j["nom_affiche"] = [nom_affiche(s) if isinstance(s, str) and s.strip() else nom_affiche(b, p, n)
+                        for s, b, p, n in zip(j["surnom"], j["nom_base"], j.get("prenom", [None] * len(j)), j.get("nom", [None] * len(j)))]
     return pd.DataFrame(clubs), j, pd.DataFrame(compos)
 
 
