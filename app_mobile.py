@@ -7,9 +7,41 @@ La navigation se fait sans rechargement (voir nav.py).
 """
 from __future__ import annotations
 import os
+import sys
 
 import pandas as pd
 import streamlit as st
+
+
+def _modules_du_site():
+    """{nom: (module, date du fichier)} pour les fichiers .py du site déjà chargés."""
+    ici = os.path.dirname(os.path.abspath(__file__))
+    out = {}
+    for nom, mod in list(sys.modules.items()):
+        f = getattr(mod, "__file__", None) or ""
+        if nom != "__main__" and f.endswith(".py") and os.path.dirname(os.path.abspath(f)) == ici:
+            out[nom] = (mod, os.path.getmtime(f) if os.path.exists(f) else 0)
+    return out
+
+
+def _recharger_modules():
+    """Après un Push, Streamlit Cloud relance app_mobile.py mais garde en mémoire les anciens data.py,
+    components.py... (d'où des erreurs « AttributeError » qui obligeaient à faire Reboot app).
+    Chaque module du site porte la date de son fichier au moment où il a été lu : si un fichier a changé
+    depuis, on oublie tous les modules du site et ils sont relus juste après, par les import ci-dessous."""
+    mods = _modules_du_site()
+    if any(getattr(m, "_d1_date", t) != t for m, t in mods.values()):
+        for nom in mods:
+            sys.modules.pop(nom, None)
+
+
+def _dater_modules():
+    for m, t in _modules_du_site().values():
+        if not hasattr(m, "_d1_date"):
+            m._d1_date = t
+
+
+_recharger_modules()
 
 import config as C
 import data
@@ -25,6 +57,7 @@ from textes import charger_textes
 import components as ui
 from components import e, fr
 from theme import CSS, PAPER, INK, RED, MUTED, LINE, SERIF, COND
+_dater_modules()
 
 st.set_page_config(page_title="D1 Futsal", page_icon="⚽", layout="centered", initial_sidebar_state="collapsed")
 nav.reset()
