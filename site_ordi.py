@@ -685,9 +685,15 @@ def pitch(club, mobile=False):
         nom = jref.nom_affiche.get(i, "") if i else ""
         mots = nom.split()
         court = (" ".join(m for m in mots[1:] if m.isupper()) or nom) if nom else p      # le nom de famille entier
+        num = jref.numero.get(i) if i and "numero" in jref else None
+        num = str(num).replace(".0", "").strip() if num is not None and pd.notna(num) else ""
+        t = 22 if mobile else 26          # pastille du numéro, posée sur le bas du rond
+        pastille = (f'<span style="position: absolute; right: -6px; bottom: -4px; min-width: {t}px; height: {t}px; padding: 0 4px; box-sizing: border-box; '
+                    f'border-radius: {t // 2}px; background: #fff; color: {INK}; border: 2px solid {INK}; '
+                    f'display: flex; align-items: center; justify-content: center; font-family: {COND}; font-weight: 700; font-size: {t - 10}px; line-height: 1">{e(num)}</span>') if num else ""
         h += (f'<div style="position: absolute; left: clamp(14px, calc({x}% - {L // 2}px), calc(100% - {L + 14}px)); top: calc({y}% - {D // 2}px); width: {L}px; '
               f'display: flex; flex-direction: column; align-items: center; gap: 6px">'
-              + ui.photo_rond(i, D, RED if p == "Pivot" else "#fff")
+              + f'<div style="position: relative">' + ui.photo_rond(i, D, "#fff") + pastille + "</div>"
               + f'<span style="max-width: {L}px; font-family: {COND}; font-weight: 700; font-size: {taille}px; color: #fff; letter-spacing: 0.04em; text-align: center; '
               f'line-height: 1.1; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden">{e(court).upper()}</span></div>')        # nom long : 2 lignes au plus
     vide = "" if (len(comp) and comp.id_joueur.notna().any()) else f'<div style="font-size: 12px; color: {MUTED}; margin-top: 6px">Compo type à renseigner dans la fiche club.</div>'
