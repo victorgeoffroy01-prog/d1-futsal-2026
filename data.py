@@ -396,11 +396,16 @@ def charger(f_buts=C.FICHIER_BUTS, f_passes=C.FICHIER_PASSES, f_fiches=C.FICHIER
         i = slug(nom)
         # même nom à l'accent ou au tiret près (RIAÑO / RIANO, EL-FENNI / EL FENNI) : même joueur
         connu = next((k for (n, c), k in ref.items() if c == club and slug(n) == i), None)
+        # id déjà donné dans les fiches à un joueur du même club (ex. id felipe-feijao pour FELIPE DE SOUZA FRANCO) : même joueur
+        connu = connu or next((k for (n, c), k in ref.items() if c == club and k == i), None)
         if connu:
             anomalies.append(controles.Anomalie(controles.ALERTE, "orthographe",
                              f"{nom} ({club}) écrit autrement ailleurs : rattaché au même joueur. Harmoniser l'orthographe dans les fichiers."))
             ref[(nom, club)] = connu
             return connu
+        pris = set(ref.values())
+        if i in pris:          # même id qu'un joueur d'un autre club : on le rend unique
+            i = next(f"{i}-{k}" for k in range(2, 99) if f"{i}-{k}" not in pris)
         nouveaux.append(dict(id_joueur=i, nom_base=nom, club_court=club, id_auto=True,
                              nom_affiche=nom_affiche(nom), absent_fiches=True))
         ref[(nom, club)] = i
