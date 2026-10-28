@@ -1,10 +1,12 @@
 """
 Onglet Équipe de France : calendrier des qualifs, puis une page par match analysé.
 
-Fichiers (dossier `edf/` du dépôt) :
-  - edf/EDF_matchs.xlsx                  : un match par ligne (date, compétition, phase, domicile, extérieur, score, lieu, rapport)
-  - edf/rapport/J02_MOLDAVIE-FRANCE.pdf  : le rapport de match (chiffres lus comme pour la D1)
-  - edf/rapport/J02_MOLDAVIE-FRANCE.json : les données du générateur (cartes, +/-, couloirs, temps forts, temps de jeu)
+Fichiers :
+  - EDF_matchs.xlsx                  : à la racine, à côté des autres Excel. Un match par ligne
+                                       (date, compétition, phase, domicile, extérieur, score, lieu, rapport)
+  - rapport/J02_MOLDAVIE-FRANCE.pdf  : le rapport de match, dans le même dossier que les rapports D1
+  - rapport/J02_MOLDAVIE-FRANCE.json : les données du générateur (cartes, +/-, couloirs, temps forts, temps de jeu)
+  (l'ancien emplacement edf/ marche encore)
   - assets/edf/FRANCE.png ...            : logos des sélections (facultatif)
 
 Rien ici ne touche aux classements ni aux stats de D1. Les joueurs français déjà en D1 sont reliés à leur fiche club.
@@ -28,9 +30,22 @@ import components as ui
 from components import e
 from theme import CR, PAPER, INK, RED, MUTED, LINE, SOFT, SERIF, SANS, COND
 
-DOSSIER = Path(C.DATA_DIR) / "edf"
-FICHIER_MATCHS = DOSSIER / "EDF_matchs.xlsx"
-DOSSIER_RAPPORTS = DOSSIER / "rapport"
+RACINE = Path(C.DATA_DIR)
+# Excel des matchs : à la racine (ou dans edf/, ancien emplacement)
+FICHIER_MATCHS = next((p for p in (RACINE / "EDF_matchs.xlsx", RACINE / "edf" / "EDF_matchs.xlsx") if p.exists()),
+                      RACINE / "EDF_matchs.xlsx")
+# Rapports : même dossier que les rapports D1 (ou edf/rapport, ancien emplacement)
+DOSSIERS_RAPPORTS = [RACINE / "rapport", RACINE / "rapports", RACINE / "edf" / "rapport"]
+
+
+def _fichier_rapport(nom: str, ext: str):
+    """Premier fichier <nom>.<ext> trouvé dans les dossiers de rapports, sinon None."""
+    for d in DOSSIERS_RAPPORTS:
+        for e_ in (ext, ext.upper()):
+            p = d / f"{nom}.{e_}"
+            if p.exists():
+                return p
+    return None
 FRANCE = "FRANCE"
 MENTION = ("Analyse indépendante réalisée à partir de la diffusion des matchs. Données non officielles, "
            "collectées par Victor Geoffroy. Crédits : FFF, sélections, joueurs.")
@@ -86,9 +101,8 @@ def mmss(s) -> str:
 
 def empreinte() -> tuple:
     """Dates des fichiers EDF : le cache est renouvelé dès qu'un fichier change."""
-    if not DOSSIER.is_dir():
-        return ()
-    return tuple(sorted((str(p), p.stat().st_mtime) for p in DOSSIER.rglob("*") if p.is_file()))
+    fichiers = [FICHIER_MATCHS] + [p for d in DOSSIERS_RAPPORTS if d.is_dir() for p in d.iterdir() if p.is_file()]
+    return tuple(sorted((str(p), p.stat().st_mtime) for p in fichiers if p.exists()))
 
 
 # ------------------------------------------------------------------ chargement et contrôles
@@ -131,11 +145,11 @@ def charger(base) -> dict:
 
 
 def _rapport(m, base, out, A):
-    pdf = DOSSIER_RAPPORTS / f"{m['rapport']}.pdf"
-    js = DOSSIER_RAPPORTS / f"{m['rapport']}.json"
-    m["pdf"] = str(pdf) if pdf.exists() else None
-    if not pdf.exists():
-        A(controles.ALERTE, f"{m['rapport']} : PDF introuvable dans edf/rapport.")
+    pdf = _fichier_rapport(m["rapport"], "pdf")
+    js = _fichier_rapport(m["rapport"], "json") or RACINE / "rapport" / f"{m['rapport']}.json"   # absent : chemin qui n'existe pas
+    m["pdf"] = str(pdf) if pdf else None
+    if not pdf:
+        A(controles.ALERTE, f"{m['rapport']} : PDF introuvable dans le dossier rapport.")
         return
     if m["sd"] is None:
         A(controles.ALERTE, f"{m['rapport']} : score absent de EDF_matchs.xlsx, analyse non publiée.")

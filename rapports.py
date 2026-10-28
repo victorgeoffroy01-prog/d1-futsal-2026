@@ -5,6 +5,8 @@ Dépôt : un PDF par match analysé dans le dossier `rapport/` (ou `rapports/`),
 nommé  J04_TOULON-NANTES.pdf  : journée sur 2 chiffres, équipe à domicile, équipe à l'extérieur.
 Les abréviations habituelles sont acceptées (NMF, UJS, MTP, SCP, ACASA...).
 Un fichier qui ne correspond à aucun match n'est pas publié et remonte en alerte (page contrôle).
+Les rapports de l'Équipe de France (FRANCE dans le nom) sont rangés dans le même dossier :
+ils sont ignorés ici et lus par edf.py. Les .json à côté des PDF sont ignorés aussi.
 """
 from __future__ import annotations
 import re
@@ -15,6 +17,7 @@ import config as C
 import controles
 
 DOSSIERS = ["rapport", "rapports"]
+EQUIPE_DE_FRANCE = {"FRANCE", "EDF", "EQUIPE DE FRANCE"}   # rapports lus par l'onglet Équipe de France
 MOTIF = re.compile(r"^J(\d{1,2})_(.+?)-(.+?)\.pdf$", re.IGNORECASE)
 
 # abréviations utilisées dans les noms de fichiers -> club_court
@@ -63,6 +66,8 @@ def lister(base) -> tuple[dict, list]:
                 anomalies.append(controles.Anomalie(controles.ALERTE, "rapports",
                                  f"{f.name} : nom non reconnu, attendu J04_DOMICILE-EXTERIEUR.pdf. Non publié."))
                 continue
+            if EQUIPE_DE_FRANCE & {_norm(m.group(2)), _norm(m.group(3))}:
+                continue   # match des Bleus : pas un match de D1
             j, a, b = int(m.group(1)), _club(m.group(2), clubs), _club(m.group(3), clubs)
             if not a or not b:
                 inconnu = m.group(2) if not a else m.group(3)
