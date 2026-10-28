@@ -46,6 +46,7 @@ ICON = {
     "joueur": '<circle cx="12" cy="8" r="3.5"/><path d="M5 20c1-4 4-6 7-6s6 2 7 6"/>',
     "back": '<path d="M15 5l-7 7 7 7"/>',
     "chev": '<path d="M9 6l6 6-6 6"/>',
+    "edf": '<path d="M5 21V4"/><path d="M5 4.5h13l-2.5 4 2.5 4H5"/>',
 }
 
 
@@ -241,7 +242,7 @@ def seg_item(lab, on):
 def nav_item(k, lab, on):
     c = RED if on else INK
     return (f'<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; height: 54px; '
-            f'color: {c}; font-family: {COND}; font-weight: {700 if on else 600}; font-size: 10.5px; letter-spacing: 0.03em; '
+            f'color: {c}; font-family: {COND}; font-weight: {700 if on else 600}; font-size: 10px; letter-spacing: 0.01em; white-space: nowrap; '
             f'text-transform: uppercase; border-bottom: 3px solid {RED if on else "transparent"}; box-sizing: border-box">{icon(k, 20, c)}<span>{lab}</span></div>')
 
 

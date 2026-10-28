@@ -1,0 +1,2933 @@
+{
+ "version": 1,
+ "competition": "ÉQUIPE DE FRANCE",
+ "journee": "J2 – Qualif Mondial",
+ "saison": "Saison 2026 / 2027",
+ "domicile": "MOLDAVIE",
+ "exterieur": "FRANCE",
+ "score": [
+  0,
+  6
+ ],
+ "equipes": [
+  "FRANCE",
+  "MOLDAVIE"
+ ],
+ "couleurs": {
+  "FRANCE": "#2F5FD0",
+  "MOLDAVIE": "#E5352B"
+ },
+ "buteurs": {
+  "MOLDAVIE": [],
+  "FRANCE": [
+   {
+    "minute": "5'",
+    "joueur": "LUTIN",
+    "origine": ""
+   },
+   {
+    "minute": "14'",
+    "joueur": "GUIRIO",
+    "origine": "transition off"
+   },
+   {
+    "minute": "19'",
+    "joueur": "REZZOUG",
+    "origine": "attaque placée"
+   },
+   {
+    "minute": "20'",
+    "joueur": "DIAOUNE",
+    "origine": "corner"
+   },
+   {
+    "minute": "30'",
+    "joueur": "TCHAPTCHET",
+    "origine": "attaque placée"
+   },
+   {
+    "minute": "37'",
+    "joueur": "SAADAOUI",
+    "origine": "touche off"
+   }
+  ]
+ },
+ "compo": {
+  "MOLDAVIE": [
+   {
+    "nom": "BURDUJA",
+    "numero": 1,
+    "gardien": true
+   },
+   {
+    "nom": "GOLUBCIUC",
+    "numero": 12,
+    "gardien": true
+   },
+   {
+    "nom": "RADUCAN",
+    "numero": 6,
+    "gardien": false
+   },
+   {
+    "nom": "LASCU",
+    "numero": 7,
+    "gardien": false
+   },
+   {
+    "nom": "BOTNARU",
+    "numero": 10,
+    "gardien": false
+   },
+   {
+    "nom": "VASILEVSCHI",
+    "numero": 11,
+    "gardien": false
+   },
+   {
+    "nom": "GHITAU",
+    "numero": 13,
+    "gardien": false
+   },
+   {
+    "nom": "PETRARI",
+    "numero": 2,
+    "gardien": false
+   },
+   {
+    "nom": "COVAL",
+    "numero": 3,
+    "gardien": false
+   },
+   {
+    "nom": "CASNOV",
+    "numero": 4,
+    "gardien": false
+   },
+   {
+    "nom": "GODOROJEA",
+    "numero": 5,
+    "gardien": false
+   },
+   {
+    "nom": "BEJENARU",
+    "numero": 8,
+    "gardien": false
+   },
+   {
+    "nom": "OBADA",
+    "numero": 9,
+    "gardien": false
+   },
+   {
+    "nom": "MOSNEAGU",
+    "numero": 14,
+    "gardien": false
+   }
+  ],
+  "FRANCE": [
+   {
+    "nom": "LOKOKA",
+    "numero": 1,
+    "gardien": true
+   },
+   {
+    "nom": "MARQUET",
+    "numero": 12,
+    "gardien": true
+   },
+   {
+    "nom": "BELHAJ",
+    "numero": 2,
+    "gardien": false
+   },
+   {
+    "nom": "MOHAMED ADAM",
+    "numero": 4,
+    "gardien": false
+   },
+   {
+    "nom": "SAADAOUI",
+    "numero": 8,
+    "gardien": false
+   },
+   {
+    "nom": "MOUHOUDINE",
+    "numero": 11,
+    "gardien": false
+   },
+   {
+    "nom": "M.TOURE",
+    "numero": 13,
+    "gardien": false
+   },
+   {
+    "nom": "GUEDDOURA",
+    "numero": 3,
+    "gardien": false
+   },
+   {
+    "nom": "TCHAPTCHET",
+    "numero": 5,
+    "gardien": false
+   },
+   {
+    "nom": "GUIRIO",
+    "numero": 7,
+    "gardien": false
+   },
+   {
+    "nom": "LUTIN",
+    "numero": 9,
+    "gardien": false
+   },
+   {
+    "nom": "SOUKOUNA",
+    "numero": 14,
+    "gardien": false
+   },
+   {
+    "nom": "DIAOUNE",
+    "numero": 17,
+    "gardien": false
+   },
+   {
+    "nom": "REZZOUG",
+    "numero": 19,
+    "gardien": false
+   }
+  ]
+ },
+ "familles": [
+  {
+   "cle": "tirs",
+   "kicker": "Tirs",
+   "titre": "Où l'on frappe",
+   "demi": true,
+   "ligne_hauteur": false,
+   "actions": {
+    "But": [
+     "ballon",
+     true
+    ],
+    "Tir cadré": [
+     "o",
+     true
+    ],
+    "Tir contré": [
+     "o",
+     false
+    ],
+    "Tir hors cadre": [
+     "o",
+     false
+    ],
+    "Poteau": [
+     "o",
+     false
+    ]
+   },
+   "legende": [
+    [
+     "ballon",
+     true,
+     "But"
+    ],
+    [
+     "o",
+     true,
+     "Tir cadré"
+    ],
+    [
+     "o",
+     false,
+     "Contré / hors cadre"
+    ]
+   ]
+  },
+  {
+   "cle": "gains",
+   "kicker": "Gains de balle",
+   "titre": "Où l'on récupère",
+   "demi": false,
+   "ligne_hauteur": true,
+   "actions": {
+    "Récupération": [
+     "s",
+     true
+    ],
+    "Interception": [
+     "^",
+     true
+    ]
+   },
+   "legende": [
+    [
+     "s",
+     true,
+     "Récupération"
+    ],
+    [
+     "^",
+     true,
+     "Interception"
+    ],
+    [
+     "ligne",
+     true,
+     "Hauteur moyenne"
+    ]
+   ]
+  },
+  {
+   "cle": "pertes",
+   "kicker": "Pertes de balle",
+   "titre": "Où l'on rend le ballon",
+   "demi": false,
+   "ligne_hauteur": true,
+   "actions": {
+    "Perte de balle": [
+     "o",
+     true
+    ],
+    "Passe loupée": [
+     "^",
+     true
+    ],
+    "Ballon rendu": [
+     "s",
+     true
+    ]
+   },
+   "legende": [
+    [
+     "o",
+     true,
+     "Perte de balle"
+    ],
+    [
+     "^",
+     true,
+     "Passe loupée"
+    ],
+    [
+     "s",
+     true,
+     "Ballon rendu"
+    ],
+    [
+     "ligne",
+     true,
+     "Hauteur moyenne"
+    ]
+   ]
+  },
+  {
+   "cle": "duels",
+   "kicker": "Duels offensifs",
+   "titre": "Où l'on provoque",
+   "demi": false,
+   "ligne_hauteur": false,
+   "actions": {
+    "Duel gagné": [
+     "o",
+     true
+    ],
+    "Duel perdu": [
+     "o",
+     false
+    ],
+    "Faute subie": [
+     "X",
+     true
+    ]
+   },
+   "legende": [
+    [
+     "o",
+     true,
+     "Duel gagné"
+    ],
+    [
+     "o",
+     false,
+     "Duel perdu"
+    ],
+    [
+     "X",
+     true,
+     "Faute subie"
+    ]
+   ]
+  }
+ ],
+ "actions": [
+  {
+   "e": "MOLDAVIE",
+   "a": "Interception",
+   "x": 0.68,
+   "y": 32.01,
+   "mt": 1,
+   "min": 0.1,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Tir cadré",
+   "x": 19.71,
+   "y": 37.6,
+   "mt": 1,
+   "min": 0.4,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Duel perdu",
+   "x": 0.68,
+   "y": 21.41,
+   "mt": 1,
+   "min": 0.6,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Passe loupée",
+   "x": 13.63,
+   "y": 18.17,
+   "mt": 1,
+   "min": 0.8,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Interception",
+   "x": 12.31,
+   "y": 13.52,
+   "mt": 1,
+   "min": 1.0,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Récupération",
+   "x": 10.07,
+   "y": 25.43,
+   "mt": 1,
+   "min": 1.0,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Tir cadré",
+   "x": 1.65,
+   "y": 29.03,
+   "mt": 1,
+   "min": 1.0,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Interception",
+   "x": 5.99,
+   "y": 12.64,
+   "mt": 1,
+   "min": 1.3,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Interception",
+   "x": 8.86,
+   "y": 13.26,
+   "mt": 1,
+   "min": 1.3,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Passe loupée",
+   "x": 7.01,
+   "y": 2.14,
+   "mt": 1,
+   "min": 1.4,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Duel gagné",
+   "x": 2.82,
+   "y": 34.46,
+   "mt": 1,
+   "min": 1.7,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Interception",
+   "x": 10.32,
+   "y": 4.65,
+   "mt": 1,
+   "min": 1.7,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Passe loupée",
+   "x": 14.99,
+   "y": 13.26,
+   "mt": 1,
+   "min": 1.7,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Duel gagné",
+   "x": 10.12,
+   "y": 27.52,
+   "mt": 1,
+   "min": 1.9,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Duel perdu",
+   "x": 1.95,
+   "y": 26.27,
+   "mt": 1,
+   "min": 2.1,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Récupération",
+   "x": 18.05,
+   "y": 13.63,
+   "mt": 1,
+   "min": 2.1,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Tir cadré",
+   "x": 16.35,
+   "y": 35.77,
+   "mt": 1,
+   "min": 2.2,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Passe loupée",
+   "x": 0.05,
+   "y": 39.16,
+   "mt": 1,
+   "min": 2.5,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Poteau",
+   "x": 13.28,
+   "y": 36.03,
+   "mt": 1,
+   "min": 2.8,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Passe loupée",
+   "x": 14.55,
+   "y": 12.69,
+   "mt": 1,
+   "min": 2.9,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Ballon rendu",
+   "x": 13.58,
+   "y": 6.79,
+   "mt": 1,
+   "min": 3.3,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir contré",
+   "x": 7.35,
+   "y": 36.24,
+   "mt": 1,
+   "min": 3.4,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Récupération",
+   "x": 14.36,
+   "y": 1.72,
+   "mt": 1,
+   "min": 3.5,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Duel gagné",
+   "x": 19.08,
+   "y": 18.07,
+   "mt": 1,
+   "min": 3.5,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Passe loupée",
+   "x": 7.35,
+   "y": 9.45,
+   "mt": 1,
+   "min": 3.6,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Perte de balle",
+   "x": 19.76,
+   "y": 35.93,
+   "mt": 1,
+   "min": 4.0,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Passe loupée",
+   "x": 12.02,
+   "y": 1.25,
+   "mt": 1,
+   "min": 4.1,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Faute subie",
+   "x": 6.81,
+   "y": 26.06,
+   "mt": 1,
+   "min": 4.4,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "But",
+   "x": 6.62,
+   "y": 37.28,
+   "mt": 1,
+   "min": 4.9,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Récupération",
+   "x": 15.82,
+   "y": 27.99,
+   "mt": 1,
+   "min": 5.2,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Passe loupée",
+   "x": 0.15,
+   "y": 33.42,
+   "mt": 1,
+   "min": 5.4,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Faute subie",
+   "x": 18.88,
+   "y": 17.91,
+   "mt": 1,
+   "min": 5.6,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Duel gagné",
+   "x": 1.65,
+   "y": 21.83,
+   "mt": 1,
+   "min": 5.8,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Récupération",
+   "x": 7.79,
+   "y": 9.56,
+   "mt": 1,
+   "min": 5.8,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Faute subie",
+   "x": 15.28,
+   "y": 15.61,
+   "mt": 1,
+   "min": 5.9,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir cadré",
+   "x": 3.84,
+   "y": 24.8,
+   "mt": 1,
+   "min": 6.3,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir hors cadre",
+   "x": 18.78,
+   "y": 32.64,
+   "mt": 1,
+   "min": 6.6,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Perte de balle",
+   "x": 1.02,
+   "y": 33.63,
+   "mt": 1,
+   "min": 7.3,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir cadré",
+   "x": 9.34,
+   "y": 29.66,
+   "mt": 1,
+   "min": 7.9,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir cadré",
+   "x": 12.31,
+   "y": 28.41,
+   "mt": 1,
+   "min": 8.1,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Ballon rendu",
+   "x": 10.07,
+   "y": 5.12,
+   "mt": 1,
+   "min": 8.1,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir hors cadre",
+   "x": 17.81,
+   "y": 39.32,
+   "mt": 1,
+   "min": 8.5,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Interception",
+   "x": 9.15,
+   "y": 9.24,
+   "mt": 1,
+   "min": 8.5,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Duel gagné",
+   "x": 1.12,
+   "y": 31.59,
+   "mt": 1,
+   "min": 8.7,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir cadré",
+   "x": 1.12,
+   "y": 34.46,
+   "mt": 1,
+   "min": 8.7,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir hors cadre",
+   "x": 7.45,
+   "y": 38.28,
+   "mt": 1,
+   "min": 8.7,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Faute subie",
+   "x": 3.55,
+   "y": 13.05,
+   "mt": 1,
+   "min": 9.0,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Passe loupée",
+   "x": 19.08,
+   "y": 13.26,
+   "mt": 1,
+   "min": 9.2,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Duel gagné",
+   "x": 18.98,
+   "y": 34.1,
+   "mt": 1,
+   "min": 9.7,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir hors cadre",
+   "x": 10.95,
+   "y": 37.18,
+   "mt": 1,
+   "min": 9.9,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Récupération",
+   "x": 19.12,
+   "y": 32.38,
+   "mt": 1,
+   "min": 10.1,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Duel perdu",
+   "x": 0.68,
+   "y": 7.83,
+   "mt": 1,
+   "min": 10.1,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Passe loupée",
+   "x": 17.52,
+   "y": 34.99,
+   "mt": 1,
+   "min": 10.1,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Interception",
+   "x": 5.45,
+   "y": 33.89,
+   "mt": 1,
+   "min": 10.5,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Perte de balle",
+   "x": 1.46,
+   "y": 35.77,
+   "mt": 1,
+   "min": 10.5,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Duel gagné",
+   "x": 1.02,
+   "y": 16.61,
+   "mt": 1,
+   "min": 10.6,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Tir contré",
+   "x": 16.01,
+   "y": 25.74,
+   "mt": 1,
+   "min": 10.9,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Faute subie",
+   "x": 14.84,
+   "y": 24.65,
+   "mt": 1,
+   "min": 10.9,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Tir hors cadre",
+   "x": 16.74,
+   "y": 24.39,
+   "mt": 1,
+   "min": 11.4,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Passe loupée",
+   "x": 15.82,
+   "y": 37.18,
+   "mt": 1,
+   "min": 11.6,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Faute subie",
+   "x": 3.65,
+   "y": 11.38,
+   "mt": 1,
+   "min": 11.6,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Duel gagné",
+   "x": 12.55,
+   "y": 14.78,
+   "mt": 1,
+   "min": 12.0,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Tir cadré",
+   "x": 11.68,
+   "y": 30.29,
+   "mt": 1,
+   "min": 12.0,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Tir cadré",
+   "x": 2.68,
+   "y": 31.54,
+   "mt": 1,
+   "min": 12.1,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Ballon rendu",
+   "x": 12.99,
+   "y": 6.37,
+   "mt": 1,
+   "min": 12.1,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Récupération",
+   "x": 6.81,
+   "y": 5.27,
+   "mt": 1,
+   "min": 12.3,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir contré",
+   "x": 2.92,
+   "y": 32.85,
+   "mt": 1,
+   "min": 12.4,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Passe loupée",
+   "x": 0.92,
+   "y": 28.88,
+   "mt": 1,
+   "min": 12.5,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Passe loupée",
+   "x": 4.38,
+   "y": 39.37,
+   "mt": 1,
+   "min": 12.6,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Passe loupée",
+   "x": 1.31,
+   "y": 26.74,
+   "mt": 1,
+   "min": 12.7,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Perte de balle",
+   "x": 4.82,
+   "y": 37.02,
+   "mt": 1,
+   "min": 12.8,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Perte de balle",
+   "x": 18.78,
+   "y": 33.42,
+   "mt": 1,
+   "min": 13.2,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Passe loupée",
+   "x": 19.51,
+   "y": 5.54,
+   "mt": 1,
+   "min": 13.3,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Duel perdu",
+   "x": 1.31,
+   "y": 30.7,
+   "mt": 1,
+   "min": 13.5,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir hors cadre",
+   "x": 9.93,
+   "y": 37.49,
+   "mt": 1,
+   "min": 13.7,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Interception",
+   "x": 6.96,
+   "y": 26.06,
+   "mt": 1,
+   "min": 13.9,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "But",
+   "x": 9.15,
+   "y": 33.21,
+   "mt": 1,
+   "min": 13.9,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Passe loupée",
+   "x": 12.02,
+   "y": 6.95,
+   "mt": 1,
+   "min": 14.1,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir hors cadre",
+   "x": 9.15,
+   "y": 26.58,
+   "mt": 1,
+   "min": 14.4,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Tir contré",
+   "x": 5.21,
+   "y": 28.62,
+   "mt": 1,
+   "min": 14.5,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Tir contré",
+   "x": 5.21,
+   "y": 37.6,
+   "mt": 1,
+   "min": 15.0,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Duel perdu",
+   "x": 17.52,
+   "y": 29.66,
+   "mt": 1,
+   "min": 15.1,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Récupération",
+   "x": 2.48,
+   "y": 10.13,
+   "mt": 1,
+   "min": 15.1,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Faute subie",
+   "x": 5.99,
+   "y": 34.67,
+   "mt": 1,
+   "min": 15.2,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir contré",
+   "x": 15.62,
+   "y": 35.77,
+   "mt": 1,
+   "min": 15.8,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir hors cadre",
+   "x": 4.09,
+   "y": 34.67,
+   "mt": 1,
+   "min": 15.9,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Tir hors cadre",
+   "x": 19.08,
+   "y": 36.55,
+   "mt": 1,
+   "min": 16.0,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Passe loupée",
+   "x": 1.46,
+   "y": 33.73,
+   "mt": 1,
+   "min": 16.2,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Passe loupée",
+   "x": 10.07,
+   "y": 1.25,
+   "mt": 1,
+   "min": 16.5,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Duel gagné",
+   "x": 1.12,
+   "y": 28.41,
+   "mt": 1,
+   "min": 17.0,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir contré",
+   "x": 12.99,
+   "y": 29.45,
+   "mt": 1,
+   "min": 17.0,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir cadré",
+   "x": 15.43,
+   "y": 27.31,
+   "mt": 1,
+   "min": 17.4,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Duel gagné",
+   "x": 1.12,
+   "y": 27.31,
+   "mt": 1,
+   "min": 17.5,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Faute subie",
+   "x": 1.12,
+   "y": 27.31,
+   "mt": 1,
+   "min": 17.6,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir cadré",
+   "x": 9.78,
+   "y": 37.02,
+   "mt": 1,
+   "min": 17.9,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Perte de balle",
+   "x": 10.66,
+   "y": 38.28,
+   "mt": 1,
+   "min": 17.9,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Tir hors cadre",
+   "x": 13.04,
+   "y": 35.77,
+   "mt": 1,
+   "min": 18.0,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "But",
+   "x": 9.78,
+   "y": 33.05,
+   "mt": 1,
+   "min": 18.4,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Duel gagné",
+   "x": 4.82,
+   "y": 24.65,
+   "mt": 1,
+   "min": 18.7,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Faute subie",
+   "x": 1.85,
+   "y": 27.57,
+   "mt": 1,
+   "min": 18.7,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Tir hors cadre",
+   "x": 14.36,
+   "y": 29.03,
+   "mt": 1,
+   "min": 19.1,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir cadré",
+   "x": 16.64,
+   "y": 37.28,
+   "mt": 1,
+   "min": 19.3,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "But",
+   "x": 15.43,
+   "y": 31.38,
+   "mt": 1,
+   "min": 19.4,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Duel perdu",
+   "x": 19.71,
+   "y": 36.55,
+   "mt": 1,
+   "min": 19.7,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Passe loupée",
+   "x": 13.38,
+   "y": 34.73,
+   "mt": 1,
+   "min": 19.8,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Perte de balle",
+   "x": 6.18,
+   "y": 33.73,
+   "mt": 1,
+   "min": 19.8,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Tir contré",
+   "x": 15.28,
+   "y": 25.8,
+   "mt": 1,
+   "min": 20.0,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Interception",
+   "x": 17.18,
+   "y": 37.6,
+   "mt": 2,
+   "min": 20.0,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Interception",
+   "x": 7.98,
+   "y": 11.38,
+   "mt": 2,
+   "min": 20.1,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Interception",
+   "x": 13.04,
+   "y": 7.83,
+   "mt": 2,
+   "min": 20.5,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Duel perdu",
+   "x": 18.05,
+   "y": 31.12,
+   "mt": 2,
+   "min": 20.6,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Perte de balle",
+   "x": 18.05,
+   "y": 40.0,
+   "mt": 2,
+   "min": 20.6,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Duel gagné",
+   "x": 1.02,
+   "y": 25.22,
+   "mt": 2,
+   "min": 21.3,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Interception",
+   "x": 16.84,
+   "y": 1.98,
+   "mt": 2,
+   "min": 21.4,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Duel gagné",
+   "x": 17.32,
+   "y": 8.67,
+   "mt": 2,
+   "min": 21.4,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Duel perdu",
+   "x": 19.51,
+   "y": 35.56,
+   "mt": 2,
+   "min": 21.5,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Duel perdu",
+   "x": 0.88,
+   "y": 30.76,
+   "mt": 2,
+   "min": 22.2,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Duel gagné",
+   "x": 3.21,
+   "y": 33.63,
+   "mt": 2,
+   "min": 22.2,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Poteau",
+   "x": 13.19,
+   "y": 35.77,
+   "mt": 2,
+   "min": 22.3,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Tir cadré",
+   "x": 13.82,
+   "y": 38.07,
+   "mt": 2,
+   "min": 22.4,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Tir hors cadre",
+   "x": 15.43,
+   "y": 30.55,
+   "mt": 2,
+   "min": 22.7,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Duel gagné",
+   "x": 1.02,
+   "y": 30.08,
+   "mt": 2,
+   "min": 23.2,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir cadré",
+   "x": 7.01,
+   "y": 37.6,
+   "mt": 2,
+   "min": 23.2,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir cadré",
+   "x": 19.85,
+   "y": 31.12,
+   "mt": 2,
+   "min": 23.4,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir cadré",
+   "x": 15.91,
+   "y": 32.95,
+   "mt": 2,
+   "min": 23.6,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Tir cadré",
+   "x": 4.62,
+   "y": 30.13,
+   "mt": 2,
+   "min": 23.7,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Passe loupée",
+   "x": 4.72,
+   "y": 35.77,
+   "mt": 2,
+   "min": 24.1,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Tir cadré",
+   "x": 6.81,
+   "y": 36.61,
+   "mt": 2,
+   "min": 24.6,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Tir cadré",
+   "x": 9.78,
+   "y": 34.67,
+   "mt": 2,
+   "min": 24.6,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Tir hors cadre",
+   "x": 6.81,
+   "y": 28.41,
+   "mt": 2,
+   "min": 24.9,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir hors cadre",
+   "x": 15.38,
+   "y": 33.84,
+   "mt": 2,
+   "min": 25.1,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Passe loupée",
+   "x": 12.99,
+   "y": 15.82,
+   "mt": 2,
+   "min": 25.5,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Interception",
+   "x": 5.16,
+   "y": 16.4,
+   "mt": 2,
+   "min": 25.7,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Passe loupée",
+   "x": 12.46,
+   "y": 10.34,
+   "mt": 2,
+   "min": 25.7,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir hors cadre",
+   "x": 11.39,
+   "y": 29.66,
+   "mt": 2,
+   "min": 26.1,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Perte de balle",
+   "x": 19.66,
+   "y": 36.61,
+   "mt": 2,
+   "min": 26.3,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Interception",
+   "x": 10.32,
+   "y": 3.13,
+   "mt": 2,
+   "min": 26.6,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Perte de balle",
+   "x": 8.32,
+   "y": 5.95,
+   "mt": 2,
+   "min": 26.7,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Interception",
+   "x": 11.14,
+   "y": 4.02,
+   "mt": 2,
+   "min": 26.7,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Duel perdu",
+   "x": 18.35,
+   "y": 12.43,
+   "mt": 2,
+   "min": 26.7,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Duel gagné",
+   "x": 0.68,
+   "y": 6.16,
+   "mt": 2,
+   "min": 26.9,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Perte de balle",
+   "x": 10.12,
+   "y": 34.67,
+   "mt": 2,
+   "min": 27.0,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Duel gagné",
+   "x": 5.01,
+   "y": 37.02,
+   "mt": 2,
+   "min": 27.0,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Récupération",
+   "x": 12.85,
+   "y": 1.51,
+   "mt": 2,
+   "min": 27.1,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Tir hors cadre",
+   "x": 1.95,
+   "y": 32.17,
+   "mt": 2,
+   "min": 27.1,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir cadré",
+   "x": 6.52,
+   "y": 35.3,
+   "mt": 2,
+   "min": 27.5,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Duel perdu",
+   "x": 1.85,
+   "y": 33.84,
+   "mt": 2,
+   "min": 28.0,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir hors cadre",
+   "x": 2.19,
+   "y": 39.37,
+   "mt": 2,
+   "min": 28.2,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Perte de balle",
+   "x": 17.81,
+   "y": 13.32,
+   "mt": 2,
+   "min": 28.4,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Faute subie",
+   "x": 11.29,
+   "y": 7.42,
+   "mt": 2,
+   "min": 28.4,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Récupération",
+   "x": 10.07,
+   "y": 14.1,
+   "mt": 2,
+   "min": 28.7,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir hors cadre",
+   "x": 8.52,
+   "y": 29.66,
+   "mt": 2,
+   "min": 29.0,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Duel perdu",
+   "x": 12.99,
+   "y": 35.93,
+   "mt": 2,
+   "min": 29.2,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Tir cadré",
+   "x": 7.98,
+   "y": 27.83,
+   "mt": 2,
+   "min": 29.4,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Duel gagné",
+   "x": 2.82,
+   "y": 35.56,
+   "mt": 2,
+   "min": 29.5,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "But",
+   "x": 10.66,
+   "y": 39.37,
+   "mt": 2,
+   "min": 29.5,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Duel gagné",
+   "x": 18.78,
+   "y": 35.93,
+   "mt": 2,
+   "min": 30.2,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Tir hors cadre",
+   "x": 18.15,
+   "y": 38.43,
+   "mt": 2,
+   "min": 30.3,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Perte de balle",
+   "x": 1.22,
+   "y": 15.98,
+   "mt": 2,
+   "min": 30.5,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Passe loupée",
+   "x": 7.35,
+   "y": 12.85,
+   "mt": 2,
+   "min": 30.5,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir hors cadre",
+   "x": 12.65,
+   "y": 24.65,
+   "mt": 2,
+   "min": 31.0,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Tir hors cadre",
+   "x": 18.69,
+   "y": 27.52,
+   "mt": 2,
+   "min": 31.3,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir hors cadre",
+   "x": 8.52,
+   "y": 28.25,
+   "mt": 2,
+   "min": 31.5,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Faute subie",
+   "x": 11.48,
+   "y": 10.91,
+   "mt": 2,
+   "min": 31.7,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Duel gagné",
+   "x": 12.55,
+   "y": 29.66,
+   "mt": 2,
+   "min": 32.4,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Faute subie",
+   "x": 12.65,
+   "y": 29.66,
+   "mt": 2,
+   "min": 32.4,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir contré",
+   "x": 12.65,
+   "y": 30.97,
+   "mt": 2,
+   "min": 32.8,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Duel perdu",
+   "x": 15.18,
+   "y": 25.9,
+   "mt": 2,
+   "min": 33.0,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Perte de balle",
+   "x": 15.38,
+   "y": 25.74,
+   "mt": 2,
+   "min": 33.0,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Passe loupée",
+   "x": 13.48,
+   "y": 5.69,
+   "mt": 2,
+   "min": 33.1,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir hors cadre",
+   "x": 8.86,
+   "y": 26.68,
+   "mt": 2,
+   "min": 33.4,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Passe loupée",
+   "x": 17.81,
+   "y": 7.78,
+   "mt": 2,
+   "min": 33.4,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir contré",
+   "x": 8.71,
+   "y": 29.87,
+   "mt": 2,
+   "min": 33.9,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Passe loupée",
+   "x": 14.26,
+   "y": 17.65,
+   "mt": 2,
+   "min": 34.0,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Duel gagné",
+   "x": 4.38,
+   "y": 32.38,
+   "mt": 2,
+   "min": 34.4,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Poteau",
+   "x": 5.55,
+   "y": 32.95,
+   "mt": 2,
+   "min": 34.5,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Duel perdu",
+   "x": 3.11,
+   "y": 17.49,
+   "mt": 2,
+   "min": 34.9,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Ballon rendu",
+   "x": 12.99,
+   "y": 1.72,
+   "mt": 2,
+   "min": 35.1,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Perte de balle",
+   "x": 18.05,
+   "y": 23.6,
+   "mt": 2,
+   "min": 35.5,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Duel gagné",
+   "x": 0.78,
+   "y": 34.31,
+   "mt": 2,
+   "min": 35.6,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Passe loupée",
+   "x": 0.68,
+   "y": 38.96,
+   "mt": 2,
+   "min": 35.7,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Passe loupée",
+   "x": 15.38,
+   "y": 35.56,
+   "mt": 2,
+   "min": 36.0,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Passe loupée",
+   "x": 11.92,
+   "y": 2.56,
+   "mt": 2,
+   "min": 36.0,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Duel gagné",
+   "x": 5.79,
+   "y": 38.69,
+   "mt": 2,
+   "min": 36.1,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Duel perdu",
+   "x": 3.02,
+   "y": 35.98,
+   "mt": 2,
+   "min": 36.2,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "But",
+   "x": 6.52,
+   "y": 29.5,
+   "mt": 2,
+   "min": 36.3,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Tir hors cadre",
+   "x": 11.48,
+   "y": 29.09,
+   "mt": 2,
+   "min": 37.3,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir hors cadre",
+   "x": 5.21,
+   "y": 29.5,
+   "mt": 2,
+   "min": 37.6,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Interception",
+   "x": 12.02,
+   "y": 2.98,
+   "mt": 2,
+   "min": 37.8,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Duel perdu",
+   "x": 1.65,
+   "y": 23.39,
+   "mt": 2,
+   "min": 38.1,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Récupération",
+   "x": 18.35,
+   "y": 16.71,
+   "mt": 2,
+   "min": 38.1,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Tir cadré",
+   "x": 14.65,
+   "y": 32.17,
+   "mt": 2,
+   "min": 38.2,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Interception",
+   "x": 13.38,
+   "y": 10.13,
+   "mt": 2,
+   "min": 38.7,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Duel perdu",
+   "x": 17.37,
+   "y": 29.66,
+   "mt": 2,
+   "min": 38.8,
+   "derive": false
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Interception",
+   "x": 14.45,
+   "y": 10.34,
+   "mt": 2,
+   "min": 39.3,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Interception",
+   "x": 3.36,
+   "y": 22.72,
+   "mt": 2,
+   "min": 39.4,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Perte de balle",
+   "x": 9.93,
+   "y": 14.57,
+   "mt": 1,
+   "min": 1.0,
+   "derive": true
+  },
+  {
+   "e": "FRANCE",
+   "a": "Perte de balle",
+   "x": 1.95,
+   "y": 26.37,
+   "mt": 1,
+   "min": 2.1,
+   "derive": true
+  },
+  {
+   "e": "FRANCE",
+   "a": "Perte de balle",
+   "x": 5.64,
+   "y": 38.28,
+   "mt": 1,
+   "min": 3.5,
+   "derive": true
+  },
+  {
+   "e": "FRANCE",
+   "a": "Perte de balle",
+   "x": 7.15,
+   "y": 38.49,
+   "mt": 2,
+   "min": 27.1,
+   "derive": true
+  },
+  {
+   "e": "FRANCE",
+   "a": "Perte de balle",
+   "x": 1.65,
+   "y": 23.29,
+   "mt": 2,
+   "min": 38.1,
+   "derive": true
+  },
+  {
+   "e": "FRANCE",
+   "a": "Passe loupée",
+   "x": 19.32,
+   "y": 7.99,
+   "mt": 1,
+   "min": 0.1,
+   "derive": true
+  },
+  {
+   "e": "FRANCE",
+   "a": "Passe loupée",
+   "x": 11.14,
+   "y": 26.74,
+   "mt": 1,
+   "min": 1.3,
+   "derive": true
+  },
+  {
+   "e": "FRANCE",
+   "a": "Passe loupée",
+   "x": 9.68,
+   "y": 35.35,
+   "mt": 1,
+   "min": 1.7,
+   "derive": true
+  },
+  {
+   "e": "FRANCE",
+   "a": "Passe loupée",
+   "x": 12.02,
+   "y": 28.62,
+   "mt": 2,
+   "min": 20.1,
+   "derive": true
+  },
+  {
+   "e": "FRANCE",
+   "a": "Passe loupée",
+   "x": 3.16,
+   "y": 38.02,
+   "mt": 2,
+   "min": 21.4,
+   "derive": true
+  },
+  {
+   "e": "FRANCE",
+   "a": "Passe loupée",
+   "x": 14.84,
+   "y": 23.6,
+   "mt": 2,
+   "min": 25.7,
+   "derive": true
+  },
+  {
+   "e": "FRANCE",
+   "a": "Passe loupée",
+   "x": 9.68,
+   "y": 36.87,
+   "mt": 2,
+   "min": 26.6,
+   "derive": true
+  },
+  {
+   "e": "FRANCE",
+   "a": "Passe loupée",
+   "x": 8.86,
+   "y": 35.98,
+   "mt": 2,
+   "min": 26.7,
+   "derive": true
+  },
+  {
+   "e": "FRANCE",
+   "a": "Passe loupée",
+   "x": 5.55,
+   "y": 29.66,
+   "mt": 2,
+   "min": 39.3,
+   "derive": true
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Perte de balle",
+   "x": 4.18,
+   "y": 12.01,
+   "mt": 1,
+   "min": 5.2,
+   "derive": true
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Perte de balle",
+   "x": 12.21,
+   "y": 30.44,
+   "mt": 1,
+   "min": 5.8,
+   "derive": true
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Perte de balle",
+   "x": 0.88,
+   "y": 7.62,
+   "mt": 1,
+   "min": 10.1,
+   "derive": true
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Perte de balle",
+   "x": 13.19,
+   "y": 34.73,
+   "mt": 1,
+   "min": 12.3,
+   "derive": true
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Perte de balle",
+   "x": 17.52,
+   "y": 29.87,
+   "mt": 1,
+   "min": 15.1,
+   "derive": true
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Perte de balle",
+   "x": 9.93,
+   "y": 25.9,
+   "mt": 2,
+   "min": 28.7,
+   "derive": true
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Passe loupée",
+   "x": 7.69,
+   "y": 26.48,
+   "mt": 1,
+   "min": 1.0,
+   "derive": true
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Passe loupée",
+   "x": 14.01,
+   "y": 27.36,
+   "mt": 1,
+   "min": 1.3,
+   "derive": true
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Passe loupée",
+   "x": 10.85,
+   "y": 30.76,
+   "mt": 1,
+   "min": 8.5,
+   "derive": true
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Passe loupée",
+   "x": 14.55,
+   "y": 6.11,
+   "mt": 1,
+   "min": 10.5,
+   "derive": true
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Passe loupée",
+   "x": 13.04,
+   "y": 13.94,
+   "mt": 1,
+   "min": 13.9,
+   "derive": true
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Passe loupée",
+   "x": 2.82,
+   "y": 2.4,
+   "mt": 2,
+   "min": 20.0,
+   "derive": true
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Passe loupée",
+   "x": 6.96,
+   "y": 32.17,
+   "mt": 2,
+   "min": 20.5,
+   "derive": true
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Passe loupée",
+   "x": 7.98,
+   "y": 37.02,
+   "mt": 2,
+   "min": 37.8,
+   "derive": true
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Passe loupée",
+   "x": 6.62,
+   "y": 29.87,
+   "mt": 2,
+   "min": 38.7,
+   "derive": true
+  },
+  {
+   "e": "MOLDAVIE",
+   "a": "Passe loupée",
+   "x": 16.64,
+   "y": 17.28,
+   "mt": 2,
+   "min": 39.4,
+   "derive": true
+  }
+ ],
+ "terrain": {
+  "buts": [
+   {
+    "equipe": "FRANCE",
+    "buteur": "LUTIN",
+    "minute": 4.9,
+    "presents": {
+     "FRANCE": [
+      "SAADAOUI",
+      "REZZOUG",
+      "MOUHOUDINE",
+      "LUTIN",
+      "LOKOKA"
+     ],
+     "MOLDAVIE": []
+    }
+   },
+   {
+    "equipe": "FRANCE",
+    "buteur": "GUIRIO",
+    "minute": 13.9,
+    "presents": {
+     "FRANCE": [
+      "GUIRIO",
+      "LUTIN",
+      "SAADAOUI",
+      "LOKOKA",
+      "MOUHOUDINE"
+     ],
+     "MOLDAVIE": []
+    }
+   },
+   {
+    "equipe": "FRANCE",
+    "buteur": "REZZOUG",
+    "minute": 18.4,
+    "presents": {
+     "FRANCE": [
+      "LOKOKA",
+      "MOHAMED ADAM",
+      "M.TOURE",
+      "REZZOUG",
+      "BELHAJ"
+     ],
+     "MOLDAVIE": []
+    }
+   },
+   {
+    "equipe": "FRANCE",
+    "buteur": "DIAOUNE",
+    "minute": 19.4,
+    "presents": {
+     "FRANCE": [
+      "DIAOUNE",
+      "MOHAMED ADAM",
+      "MOUHOUDINE",
+      "GUIRIO",
+      "LOKOKA"
+     ],
+     "MOLDAVIE": []
+    }
+   },
+   {
+    "equipe": "FRANCE",
+    "buteur": "TCHAPTCHET",
+    "minute": 29.5,
+    "presents": {
+     "FRANCE": [
+      "TCHAPTCHET",
+      "SOUKOUNA",
+      "MOUHOUDINE",
+      "LOKOKA",
+      "GUEDDOURA"
+     ],
+     "MOLDAVIE": []
+    }
+   },
+   {
+    "equipe": "FRANCE",
+    "buteur": "SAADAOUI",
+    "minute": 36.3,
+    "presents": {
+     "FRANCE": [
+      "SAADAOUI",
+      "SOUKOUNA",
+      "GUIRIO",
+      "MOUHOUDINE",
+      "MARQUET"
+     ],
+     "MOLDAVIE": []
+    }
+   }
+  ],
+  "plusminus": [
+   {
+    "equipe": "FRANCE",
+    "nom": "SAADAOUI",
+    "numero": 8,
+    "pour": 3,
+    "contre": 0,
+    "contre_connu": true
+   },
+   {
+    "equipe": "FRANCE",
+    "nom": "REZZOUG",
+    "numero": 19,
+    "pour": 2,
+    "contre": 0,
+    "contre_connu": true
+   },
+   {
+    "equipe": "FRANCE",
+    "nom": "MOUHOUDINE",
+    "numero": 11,
+    "pour": 5,
+    "contre": 0,
+    "contre_connu": true
+   },
+   {
+    "equipe": "FRANCE",
+    "nom": "LUTIN",
+    "numero": 9,
+    "pour": 2,
+    "contre": 0,
+    "contre_connu": true
+   },
+   {
+    "equipe": "FRANCE",
+    "nom": "LOKOKA",
+    "numero": 1,
+    "pour": 5,
+    "contre": 0,
+    "contre_connu": true
+   },
+   {
+    "equipe": "FRANCE",
+    "nom": "GUIRIO",
+    "numero": 7,
+    "pour": 3,
+    "contre": 0,
+    "contre_connu": true
+   },
+   {
+    "equipe": "FRANCE",
+    "nom": "MOHAMED ADAM",
+    "numero": 4,
+    "pour": 2,
+    "contre": 0,
+    "contre_connu": true
+   },
+   {
+    "equipe": "FRANCE",
+    "nom": "M.TOURE",
+    "numero": 13,
+    "pour": 1,
+    "contre": 0,
+    "contre_connu": true
+   },
+   {
+    "equipe": "FRANCE",
+    "nom": "BELHAJ",
+    "numero": 2,
+    "pour": 1,
+    "contre": 0,
+    "contre_connu": true
+   },
+   {
+    "equipe": "FRANCE",
+    "nom": "DIAOUNE",
+    "numero": 17,
+    "pour": 1,
+    "contre": 0,
+    "contre_connu": true
+   },
+   {
+    "equipe": "FRANCE",
+    "nom": "TCHAPTCHET",
+    "numero": 5,
+    "pour": 1,
+    "contre": 0,
+    "contre_connu": true
+   },
+   {
+    "equipe": "FRANCE",
+    "nom": "SOUKOUNA",
+    "numero": 14,
+    "pour": 2,
+    "contre": 0,
+    "contre_connu": true
+   },
+   {
+    "equipe": "FRANCE",
+    "nom": "GUEDDOURA",
+    "numero": 3,
+    "pour": 1,
+    "contre": 0,
+    "contre_connu": true
+   },
+   {
+    "equipe": "FRANCE",
+    "nom": "MARQUET",
+    "numero": 12,
+    "pour": 1,
+    "contre": 0,
+    "contre_connu": true
+   }
+  ],
+  "gardiens": [
+   "BURDUJA",
+   "GOLUBCIUC",
+   "LOKOKA",
+   "MARQUET"
+  ]
+ },
+ "entrees": {
+  "FRANCE": {
+   "total": 62,
+   "possessions": 93,
+   "lignes": {
+    "Sans entrée": {
+     "n": 7,
+     "tir": 0,
+     "but": 0
+    },
+    "Gauche": {
+     "n": 20,
+     "tir": 9,
+     "but": 1
+    },
+    "Axe": {
+     "n": 14,
+     "tir": 2,
+     "but": 0
+    },
+    "Droite": {
+     "n": 21,
+     "tir": 9,
+     "but": 1
+    }
+   }
+  }
+ },
+ "momentum": {
+  "equipes": [
+   "FRANCE",
+   "MOLDAVIE"
+  ],
+  "valeurs": [
+   [
+    0.5,
+    2.0,
+    1.5,
+    2.0,
+    1.5,
+    1.5,
+    6.0,
+    3.5,
+    11.5,
+    2.5,
+    3.0,
+    0.0,
+    3.5,
+    4.0,
+    2.0,
+    5.5,
+    2.0,
+    9.0,
+    0.0,
+    5.5,
+    2.0,
+    0.5,
+    2.0,
+    13.0,
+    0.0,
+    1.5,
+    2.0,
+    6.0,
+    3.5,
+    0.5,
+    0.5,
+    6.0,
+    4.0,
+    4.5,
+    2.5,
+    0.5,
+    1.5,
+    1.5,
+    1.0,
+    1.0
+   ],
+   [
+    7.0,
+    5.0,
+    5.5,
+    0.5,
+    0.0,
+    2.0,
+    0.0,
+    0.0,
+    0.5,
+    1.0,
+    3.0,
+    4.0,
+    8.0,
+    0.0,
+    2.0,
+    4.0,
+    0.0,
+    0.0,
+    2.5,
+    4.5,
+    0.5,
+    0.5,
+    6.5,
+    4.5,
+    11.0,
+    1.0,
+    0.5,
+    2.0,
+    1.0,
+    3.0,
+    2.0,
+    2.5,
+    0.0,
+    0.5,
+    0.0,
+    0.5,
+    0.0,
+    1.5,
+    5.5,
+    0.0
+   ]
+  ],
+  "buts": [
+   [
+    "FRANCE",
+    4.9
+   ],
+   [
+    "FRANCE",
+    13.9
+   ],
+   [
+    "FRANCE",
+    18.4
+   ],
+   [
+    "FRANCE",
+    19.4
+   ],
+   [
+    "FRANCE",
+    29.5
+   ],
+   [
+    "FRANCE",
+    36.3
+   ]
+  ],
+  "poids": [
+   [
+    "Tir cadré",
+    3
+   ],
+   [
+    "Tir cadré dans les 10 m (bonus)",
+    1
+   ],
+   [
+    "Tir non cadré ou contré",
+    1.5
+   ],
+   [
+    "Corner",
+    1
+   ],
+   [
+    "Coup franc",
+    1
+   ],
+   [
+    "Touche offensive",
+    0.5
+   ],
+   [
+    "Ballon gagné dans le camp adverse",
+    1
+   ],
+   [
+    "Duel offensif gagné dans le camp adverse",
+    0.5
+   ],
+   [
+    "Faute subie dans le camp adverse",
+    0.5
+   ],
+   [
+    "Transition offensive",
+    0.5
+   ]
+  ]
+ },
+ "temps_jeu": {
+  "equipe": "FRANCE",
+  "joueurs": [
+   {
+    "numero": "1",
+    "nom": "LOKOKA",
+    "gardien": true,
+    "mt1": 1200,
+    "mt2": 900,
+    "total": 2100,
+    "entrees": 1
+   },
+   {
+    "numero": "12",
+    "nom": "MARQUET",
+    "gardien": true,
+    "mt1": 0,
+    "mt2": 300,
+    "total": 300,
+    "entrees": 1
+   },
+   {
+    "numero": "2",
+    "nom": "BELHAJ",
+    "gardien": false,
+    "mt1": 510,
+    "mt2": 360,
+    "total": 870,
+    "entrees": 5
+   },
+   {
+    "numero": "3",
+    "nom": "GUEDDOURA",
+    "gardien": false,
+    "mt1": 260,
+    "mt2": 270,
+    "total": 530,
+    "entrees": 5
+   },
+   {
+    "numero": "4",
+    "nom": "MOHAMED ADAM",
+    "gardien": false,
+    "mt1": 120,
+    "mt2": 510,
+    "total": 630,
+    "entrees": 5
+   },
+   {
+    "numero": "5",
+    "nom": "TCHAPTCHET",
+    "gardien": false,
+    "mt1": 390,
+    "mt2": 180,
+    "total": 570,
+    "entrees": 3
+   },
+   {
+    "numero": "7",
+    "nom": "GUIRIO",
+    "gardien": false,
+    "mt1": 660,
+    "mt2": 510,
+    "total": 1170,
+    "entrees": 7
+   },
+   {
+    "numero": "8",
+    "nom": "SAADAOUI",
+    "gardien": false,
+    "mt1": 490,
+    "mt2": 510,
+    "total": 1000,
+    "entrees": 5
+   },
+   {
+    "numero": "9",
+    "nom": "LUTIN",
+    "gardien": false,
+    "mt1": 500,
+    "mt2": 520,
+    "total": 1020,
+    "entrees": 6
+   },
+   {
+    "numero": "11",
+    "nom": "MOUHOUDINE",
+    "gardien": false,
+    "mt1": 590,
+    "mt2": 690,
+    "total": 1280,
+    "entrees": 9
+   },
+   {
+    "numero": "13",
+    "nom": "M.TOURE",
+    "gardien": false,
+    "mt1": 540,
+    "mt2": 390,
+    "total": 930,
+    "entrees": 6
+   },
+   {
+    "numero": "14",
+    "nom": "SOUKOUNA",
+    "gardien": false,
+    "mt1": 120,
+    "mt2": 380,
+    "total": 500,
+    "entrees": 3
+   },
+   {
+    "numero": "17",
+    "nom": "DIAOUNE",
+    "gardien": false,
+    "mt1": 60,
+    "mt2": 410,
+    "total": 470,
+    "entrees": 4
+   },
+   {
+    "numero": "19",
+    "nom": "REZZOUG",
+    "gardien": false,
+    "mt1": 540,
+    "mt2": 140,
+    "total": 680,
+    "entrees": 5
+   }
+  ]
+ }
+}

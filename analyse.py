@@ -134,7 +134,7 @@ def face_a_face(r):
     return [("Tirs", *c["tirs"]), ("Tirs cadrés", *c["cadres"]), ("Duels gagnés", c["duels"][0][0], c["duels"][1][0]),
             ("Interceptions", *c["inter"]), ("Récupérations", *c["recup"]), ("Pertes de balle", *c["pertes"]),
             ("Passes loupées", *c["passes_loupees"]), ("Fautes commises", c["fautes"][0][1], c["fautes"][1][1]),
-            ("Corners", *c["corners"]), ("Transitions off.", *c["transitions"]), ("Attaques", *c["attaques"])]
+            ("Corners", *c["corners"]), ("Transitions off.", *c["transitions"]), ("Possessions", *c["attaques"])]
 
 
 def duels(jr):
@@ -256,14 +256,14 @@ LEGENDE = ("Chiffres tirés du rapport d’analyse du match. Tirs = cadrés + ho
            "% d’arrêts = arrêts / tirs cadrés subis. Duels = gagnés / joués. Pert. = pertes de balle, Int. = interceptions.")
 
 
-def carte_joueur_match(journee, lieu, adversaire, score, jr):
-    """Fiche d'un joueur sur un match analysé (page joueur)."""
+def carte_joueur_match(journee, lieu, adversaire, score, jr, entete=None):
+    """Fiche d'un joueur sur un match analysé (page joueur). entete : texte du bandeau (sinon « J5 · DOM »)."""
     g, t = duels(jr)
     case = lambda v, l, rouge=False: (f'<div style="background: {PAPER}; padding: 12px"><div style="font-family: {SERIF}; font-size: 28px; line-height: 1; color: {RED if rouge else INK}">{v}</div>'
                                       f'<div style="font-family: {COND}; font-size: 11px; letter-spacing: 0.08em; color: {MUTED}; text-transform: uppercase">{l}</div></div>')
     return (f'<div style="background: {PAPER}; border: 1.5px solid {INK}; border-radius: 12px; overflow: hidden; margin-top: 12px">'
             f'<div style="display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: {INK}; color: #fff">'
-            f'<span style="font-family: {COND}; font-weight: 700; font-size: 12px; letter-spacing: 0.08em; color: #D9D2C6">J{journee} · {lieu}</span>'
+            f'<span style="font-family: {COND}; font-weight: 700; font-size: 12px; letter-spacing: 0.08em; color: #D9D2C6">{e(entete) if entete else f"J{journee} · {lieu}"}</span>'
             f'<span style="flex: 1; font-weight: 600">vs {e(adversaire)}</span><span style="font-family: {SERIF}; font-size: 22px">{score}</span></div>'
             f'<div style="display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 1px; background: {LINE}">'
             f'{case(jr["buts"], "buts", True)}{case(jr["tirs"], "tirs")}{case(jr["cadres"], "cadrés")}'

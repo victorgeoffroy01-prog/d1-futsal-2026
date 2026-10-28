@@ -48,6 +48,8 @@ import data
 import re
 
 import nav
+import edf
+import edf_pages
 import analyse
 import rapports
 import recherche
@@ -89,7 +91,7 @@ def _empreinte():
     fichiers = [C.FICHIER_BUTS, C.FICHIER_PASSES, C.FICHIER_FICHES, C.FICHIER_TEXTES]
     # le code qui lit les fichiers compte aussi : une nouvelle version recalcule tout
     ici = os.path.dirname(os.path.abspath(__file__))
-    fichiers += [os.path.join(ici, f) for f in ("data.py", "controles.py", "analyse.py", "rapport_stats.py", "rapports.py")]
+    fichiers += [os.path.join(ici, f) for f in ("data.py", "controles.py", "analyse.py", "rapport_stats.py", "rapports.py", "edf.py")]
     return tuple(os.path.getmtime(f) if os.path.exists(f) else 0 for f in fichiers)
 
 
@@ -130,6 +132,15 @@ if len(_res) != 3:      # résultat gardé en mémoire par une ancienne version 
     _analyses.clear()
     _res = _analyses((_empreinte(), tuple((p, os.path.getmtime(p)) for p in sorted(RAPPORTS.values()))))
 ANALYSES, _anom, _sans_fiche = _res
+
+
+@st.cache_resource(show_spinner=False)
+def _edf(cle):
+    """Onglet Équipe de France : calendrier, rapports et données du générateur (relus si un fichier change)."""
+    return edf.charger(base)
+
+
+EDF = _edf((_empreinte(), edf.empreinte()))
 ANOM_RAPPORTS = ANOM_RAPPORTS + _anom
 # tous les joueurs du site : fiches + buteurs/passeurs + joueurs vus seulement dans un rapport de match
 JOUEURS = pd.concat([base.joueurs, pd.DataFrame(_sans_fiche)], ignore_index=True) if _sans_fiche else base.joueurs
@@ -181,8 +192,8 @@ def param_choix(nom, choix, defaut):
 
 # ------------------------------------------------------------------ cadre commun
 def topnav(active):
-    items = [("une", "La Une", "une"), ("match", "Matchs", "matchs"), ("class", "Classements", "classements"),
-             ("club", "Clubs", "clubs"), ("joueur", "Joueurs", "joueurs")]
+    items = [("une", "La Une", "une"), ("match", "Matchs", "matchs"), ("class", "Classement", "classements"),
+             ("club", "Clubs", "clubs"), ("joueur", "Joueurs", "joueurs"), ("edf", "France", "edf")]
     o = Sortie()
     o.rangee([(ui.nav_item(k, lab, k == active), cible, {}) for k, lab, cible in items], key="topnav")
 
@@ -502,7 +513,12 @@ def page_club():
 
 
 def section_analyses(o: Sortie, i, club, mj):
-    """Matchs analysés d'un joueur : jamais additionnés aux totaux de saison."""
+    """Matchs analysés d'un joueur : jamais additionnés aux totaux de saison. Puis ses matchs avec l'Équipe de France."""
+    _section_d1(o, i, club, mj)
+    edf_pages.section_joueur(dict(mobile=not ORDI, E=EDF), o, i)
+
+
+def _section_d1(o: Sortie, i, club, mj):
     lignes = analyse.lignes_joueur(ANALYSES, i)
     if not lignes:
         return
@@ -628,9 +644,9 @@ def page_controle():
     if not cle or qp.get("cle") != cle:
         entete(o, "Accès refusé"); o.fin(); return
     rows = "".join(f'<div style="padding: 8px 0; border-bottom: 1px solid {LINE}; font-size: 13px"><b style="color: {RED if a.niveau == "BLOQUANT" else INK}">{a.niveau}</b> · {e(a.source)} · {e(a.message)}</div>'
-                   for a in base.anomalies + ANOM_RAPPORTS) or ui.empty("Aucune anomalie.")
+                   for a in base.anomalies + ANOM_RAPPORTS + EDF["anomalies"]) or ui.empty("Aucune anomalie.")
     entete(o, "Contrôle des données")
-    o.add(ui.section(ui.kicker(f"{len(base.anomalies) + len(ANOM_RAPPORTS)} anomalie(s)") + rows
+    o.add(ui.section(ui.kicker(f"{len(base.anomalies) + len(ANOM_RAPPORTS) + len(EDF['anomalies'])} anomalie(s)") + rows
                      + ui.kicker(f"Rapports publiés : {len(RAPPORTS)}", mt=22) + "".join(
                          f'<div style="padding: 6px 0; font-size: 13px">J{k[0]} · {e(NOMS[k[1]])} · {e(os.path.basename(v))}</div>' for k, v in sorted(RAPPORTS.items())),
                      pad="16px 16px 0"))
@@ -652,10 +668,27 @@ def page_maintenance():
 
 
 # ================================================================== routage
+# ================================================================== ÉQUIPE DE FRANCE
+def _F_mobile():
+    def haut(o, titre, sous, retour):
+        topnav("edf")
+        entete(o, titre, sous, retour=retour)
+    return dict(mobile=True, E=EDF, qp=qp, choix=param_choix, bouton_pdf=bouton_pdf, haut=haut, onglets=onglets, bas=pieds)
+
+
+def page_edf():
+    edf_pages.page_liste(_F_mobile())
+
+
+def page_edf_match():
+    edf_pages.page_match(_F_mobile())
+
+
 DEFS = [("une", page_une, "La Une", ""), ("matchs", page_matchs, "Matchs", "matchs"), ("match", page_match, "Match", "match"),
         ("classements", page_classements, "Classements", "classements"), ("clubs", page_clubs, "Clubs", "clubs"),
         ("club", page_club, "Club", "club"), ("joueurs", page_joueurs, "Joueurs", "joueurs"), ("joueur", page_joueur, "Joueur", "joueur"),
-        ("methodo", page_methodo, "Méthodologie", "methodo"), ("controle", page_controle, "Contrôle", "controle")]
+        ("methodo", page_methodo, "Méthodologie", "methodo"), ("controle", page_controle, "Contrôle", "controle"),
+        ("edf", page_edf, "Équipe de France", "edf"), ("edfmatch", page_edf_match, "Équipe de France", "edf-match")]
 
 if base.bloquant:
     # aucune donnée publiée tant qu'un contrôle bloquant n'est pas levé (sauf la page contrôle)
@@ -663,7 +696,7 @@ if base.bloquant:
 
 site_ordi.init(base=base, joueurs=JOUEURS, textes=TEXTES, noms=NOMS, jref=JREF, classement=CLASSEMENT, stats=STATS, derniere=DERNIERE,
                journees=base.journees, rapports=RAPPORTS, analyses=ANALYSES, bouton_pdf=bouton_pdf, section_analyses=section_analyses, orig=ORIG, lib_origine=lib_origine, param=param_int, choix=param_choix,
-               afficher_rapport=afficher_rapport, bascule=bascule)
+               afficher_rapport=afficher_rapport, bascule=bascule, edf=EDF)
 
 
 def _version(nom, fonction):

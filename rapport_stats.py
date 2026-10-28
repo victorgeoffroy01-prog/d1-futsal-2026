@@ -30,7 +30,7 @@ LIGNES = [  # (clé, libellé affiché, mots à trouver dans le libellé du PDF)
     ("inter", "Interceptions", ["INTERCEPTIONS"]),
     ("fautes", "Fautes subies / commises", ["FAUTE"]),
     ("coups_francs", "Coups francs", ["COUP"]),
-    ("attaques", "Attaques", ["ATTAQUE"]),
+    ("attaques", "Possessions", ["ATTAQUE|POSSESSIONS"]),   # « ATTAQUE » dans les anciens rapports
     ("transitions", "Transitions off.", ["TRANSITION"]),
     ("corners", "Corners", ["CORNER"]),
 ]
@@ -86,7 +86,8 @@ def _collectif(mots):
         for cle, _, cles in LIGNES:
             if cle in out:
                 continue
-            if all(k in texte for k in cles) and not (cle == "duels" and "PERTES" in texte) and not (cle == "buts" and "TIRS" in texte):
+            # « A|B » : l'un ou l'autre mot suffit
+            if all(any(a in texte for a in k.split("|")) for k in cles) and not (cle == "duels" and "PERTES" in texte) and not (cle == "buts" and "TIRS" in texte):
                 out[cle] = (g, d)
                 break
     return out

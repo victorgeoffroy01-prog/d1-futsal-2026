@@ -15,6 +15,7 @@ import analyse
 import nav
 import rapports
 import recherche
+import edf_pages
 from nav import Sortie
 import components as ui
 from components import e, fr, svg_img
@@ -95,7 +96,7 @@ def entete_site(active):
           f'<div style="font-family: {COND}; font-weight: 700; font-size: 13px; letter-spacing: 0.16em; text-transform: uppercase; color: {RED}; margin-top: 8px">'
           f'Le championnat en données</div></div>')
     items = [("une", "La Une", "une"), ("matchs", "Résultats", "matchs"), ("classements", "Classements", "classements"),
-             ("stats", "Statistiques", "joueurs"), ("clubs", "Clubs", "clubs"), ("annuaire", "Joueurs", "joueurs"), ("methodo", "Méthodologie", "methodo")]
+             ("stats", "Statistiques", "joueurs"), ("clubs", "Clubs", "clubs"), ("annuaire", "Joueurs", "joueurs"), ("edf", "Équipe de France", "edf"), ("methodo", "Méthodologie", "methodo")]
     nav_items = []
     for sens in (-1, +1):
         v = nav.voisin(sens)
@@ -858,5 +859,33 @@ def page_methodo():
     pied()
 
 
+# ================================================================== ÉQUIPE DE FRANCE
+def _F_ordi():
+    def haut(o, titre, sous, retour):
+        entete_site("edf")
+        if retour is None:      # page calendrier : grand titre ; page match : le bandeau du match suffit
+            o.add(f'<div style="height: 24px"></div><div style="font-family: {COND}; font-weight: 700; font-size: 12px; letter-spacing: 0.14em; color: {RED}">'
+                  f'ÉQUIPE DE FRANCE{" · " + e(sous).upper() if sous else ""}</div>'
+                  f'<h1 style="margin: 6px 0 0; font-family: {SERIF}; font-weight: 400; font-size: 44px; line-height: 1">Les matchs des Bleus</h1>')
+
+    def onglets(o, page, params, liste, actif):
+        o.fin()
+        onglets_d(page, params, liste, actif)
+
+    def bas(o):
+        o.fin()
+        pied()
+    return dict(mobile=False, E=X["edf"], qp=st.query_params, choix=X["choix"], bouton_pdf=X["bouton_pdf"], haut=haut, onglets=onglets, bas=bas)
+
+
+def page_edf():
+    edf_pages.page_liste(_F_ordi())
+
+
+def page_edf_match():
+    edf_pages.page_match(_F_ordi())
+
+
 PAGES_ORDI = {"une": page_une, "matchs": page_matchs, "match": page_match, "classements": page_classements, "clubs": page_clubs,
-              "club": page_club, "joueurs": page_joueurs, "joueur": page_joueur, "methodo": page_methodo}
+              "club": page_club, "joueurs": page_joueurs, "joueur": page_joueur, "methodo": page_methodo,
+              "edf": page_edf, "edfmatch": page_edf_match}
