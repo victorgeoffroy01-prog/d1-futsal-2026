@@ -1,9 +1,10 @@
-# Garde l'appli éveillée : visite 2 fois par jour (8h et 20h, heure de Paris en hiver).
+# Garde l'appli éveillée : visite toutes les 3 heures (minute 17 pour éviter l'heure pile, souvent retardée par GitHub).
+# Avant : 2 fois par jour, mais GitHub décalait les passages de plusieurs heures -> plus de 12 h sans visite -> veille.
 # Si Streamlit l'a mise en veille, le script clique sur le bouton de réveil.
 name: Reveil appli
 on:
   schedule:
-    - cron: "0 7,19 * * *"
+    - cron: "17 */3 * * *"
   workflow_dispatch: {}       # bouton "Run workflow" pour lancer à la main
 jobs:
   reveil:
