@@ -1,0 +1,21 @@
+# Garde l'appli éveillée : visite toutes les 3 heures (minute 17 pour éviter l'heure pile, souvent retardée par GitHub).
+# Avant : 2 fois par jour, mais GitHub décalait les passages de plusieurs heures -> plus de 12 h sans visite -> veille.
+# Si Streamlit l'a mise en veille, le script clique sur le bouton de réveil.
+name: Reveil appli
+on:
+  schedule:
+    - cron: "17 */3 * * *"
+  workflow_dispatch: {}       # bouton "Run workflow" pour lancer à la main
+jobs:
+  reveil:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install playwright && python -m playwright install --with-deps chromium
+      - run: python reveil.py
+        env:
+          APP_URL: https://d1-futsal.streamlit.app    # adresse exacte du site
