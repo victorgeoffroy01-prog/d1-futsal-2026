@@ -381,6 +381,11 @@ def charger(f_buts=C.FICHIER_BUTS, f_passes=C.FICHIER_PASSES, f_fiches=C.FICHIER
     # 3. rattachement aux id_joueur (nom_base + club), joueurs absents des fiches générés
     ref = {(r.nom_base, r.club_court): r.id_joueur for r in joueurs.itertuples()}
     ref_nom = joueurs.groupby("nom_base").id_joueur.first().to_dict()
+    ids_noms = dict(zip(joueurs.id_joueur, joueurs.nom_base))
+    surnoms = {}
+    if "surnom" in joueurs:
+        for r in joueurs[joueurs.surnom.notna()].itertuples():
+            surnoms.setdefault(r.club_court, []).append((r.id_joueur, slug(r.surnom)))
     nouveaux = []
 
     def resoudre(nom, club):
@@ -394,13 +399,26 @@ def charger(f_buts=C.FICHIER_BUTS, f_passes=C.FICHIER_PASSES, f_fiches=C.FICHIER
                              f"{nom} : fiche dans un autre club que {club} (transfert ?)."))
             return ref_nom[nom]
         i = slug(nom)
-        # même nom à l'accent ou au tiret près (RIAÑO / RIANO, EL-FENNI / EL FENNI) : même joueur
+        # Accents, tirets et apostrophes ne comptent pas (RIAÑO = RIANO, EL-FENNI = EL FENNI) : même joueur, sans alerte
         connu = next((k for (n, c), k in ref.items() if c == club and slug(n) == i), None)
-        # id déjà donné dans les fiches à un joueur du même club (ex. id felipe-feijao pour FELIPE DE SOUZA FRANCO) : même joueur
+        # id déjà donné dans les fiches à un joueur du même club (ex. id felipe-feijao pour FELIPE DE SOUZA FRANCO)
         connu = connu or next((k for (n, c), k in ref.items() if c == club and k == i), None)
+        # surnom de la fiche (ex. YANIS PUCH pour YANIS PUCH HERRANTZ, MARECO pour JULIO MARECO GALEANO)
+        if not connu:
+            mots = set(i.split("-"))
+            cand = {k for k, sur in surnoms.get(club, []) if sur == i or set(sur.split("-")) <= mots}
+            connu = cand.pop() if len(cand) == 1 else None
+        # nom partiel : un nom contient l'autre, un seul joueur possible dans le club (JULES CASAMAYOU DIT BOUCAU)
+        if not connu:
+            mots = set(i.split("-"))
+            cand = {k for (n, c), k in ref.items() if c == club and len(mots & set(slug(n).split("-"))) >= 2
+                    and (set(slug(n).split("-")) <= mots or mots <= set(slug(n).split("-")))}
+            if len(cand) == 1:
+                connu = cand.pop()
+                anomalies.append(controles.Anomalie(controles.ALERTE, "orthographe",
+                                 f"{nom} ({club}) rattaché à la fiche « {ids_noms.get(connu, connu)} » (nom partiel). "
+                                 "Vérifier que c'est bien le même joueur."))
         if connu:
-            anomalies.append(controles.Anomalie(controles.ALERTE, "orthographe",
-                             f"{nom} ({club}) écrit autrement ailleurs : rattaché au même joueur. Harmoniser l'orthographe dans les fichiers."))
             ref[(nom, club)] = connu
             return connu
         pris = set(ref.values())

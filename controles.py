@@ -222,8 +222,11 @@ def controle_joueurs(b: pd.DataFrame) -> list[Anomalie]:
             out.append(Anomalie(BLOQUANT, "joueurs", f"{d.joueur.iloc[0]} apparaît pour plusieurs clubs "
                                 f"({', '.join(sorted(d.club_marque.unique()))}) : CSC mal saisi ou transfert à déclarer dans les fiches."))
     noms = sorted(set(lignes.joueur.str.upper()))
+    id_de = lignes.assign(n=lignes.joueur.str.upper()).groupby("n").id.agg(set).to_dict()
     for i, a in enumerate(noms):
         for c in noms[i + 1:]:
+            if id_de.get(a, set()) & id_de.get(c, set()):   # déjà rattachés au même joueur (accent, tiret, surnom)
+                continue
             if difflib.SequenceMatcher(None, a, c).ratio() > 0.85:
                 out.append(Anomalie(ALERTE, "joueurs", f"Noms très proches : '{a}' / '{c}' (même joueur ?)."))
     return out
