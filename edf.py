@@ -49,7 +49,7 @@ def _fichier_rapport(nom: str, ext: str):
 FRANCE = "FRANCE"
 MENTION = ("Analyse indépendante réalisée à partir de la diffusion des matchs. Données non officielles, "
            "collectées par Victor Geoffroy. Crédits : FFF, sélections, joueurs.")
-NOMS_PAYS = {"FRANCE": "France", "MOLDAVIE": "Moldavie"}
+NOMS_PAYS = {"FRANCE": "France", "MOLDAVIE": "Moldavie", "MONTENEGRO": "Monténégro"}
 COLS = ["date", "competition", "phase", "domicile", "exterieur", "score_dom", "score_ext", "lieu", "rapport"]
 L, W = 40, 20                      # terrain de futsal, en mètres
 COUL = [INK, RED]                  # France en noir, l'adversaire en rouge (couleurs du site)
