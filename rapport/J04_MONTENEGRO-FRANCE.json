@@ -1,0 +1,3700 @@
+{
+ "version": 1,
+ "competition": "ÉQUIPE DE FRANCE",
+ "journee": "J4 - Qualif Mondial",
+ "saison": "Saison 2026 / 2027",
+ "domicile": "MONTENEGRO",
+ "exterieur": "FRANCE",
+ "score": [
+  0,
+  2
+ ],
+ "equipes": [
+  "FRANCE",
+  "MONTENEGRO"
+ ],
+ "couleurs": {
+  "FRANCE": "#2F5FD0",
+  "MONTENEGRO": "#E5352B"
+ },
+ "buteurs": {
+  "MONTENEGRO": [],
+  "FRANCE": [
+   {
+    "minute": "18'",
+    "joueur": "MOHAMMED",
+    "origine": ""
+   },
+   {
+    "minute": "35'",
+    "joueur": "TCHAPTCHET",
+    "origine": ""
+   }
+  ]
+ },
+ "compo": {
+  "MONTENEGRO": [
+   {
+    "nom": "DURKOVIC",
+    "numero": 1,
+    "gardien": true
+   },
+   {
+    "nom": "SEKULIC",
+    "numero": 12,
+    "gardien": true
+   },
+   {
+    "nom": "BULATOVIC",
+    "numero": 2,
+    "gardien": false
+   },
+   {
+    "nom": "KRUMIC",
+    "numero": 3,
+    "gardien": false
+   },
+   {
+    "nom": "BOJANOVIC",
+    "numero": 4,
+    "gardien": false
+   },
+   {
+    "nom": "NIKOLIC",
+    "numero": 5,
+    "gardien": false
+   },
+   {
+    "nom": "DELIC",
+    "numero": 6,
+    "gardien": false
+   },
+   {
+    "nom": "CIMBALJEVIC",
+    "numero": 7,
+    "gardien": false
+   },
+   {
+    "nom": "VULETIC",
+    "numero": 9,
+    "gardien": false
+   },
+   {
+    "nom": "MUGOSA",
+    "numero": 10,
+    "gardien": false
+   },
+   {
+    "nom": "PULETIC",
+    "numero": 11,
+    "gardien": false
+   },
+   {
+    "nom": "VUKCEVIC",
+    "numero": 14,
+    "gardien": false
+   },
+   {
+    "nom": "MARKOVIC",
+    "numero": 16,
+    "gardien": false
+   }
+  ],
+  "FRANCE": [
+   {
+    "nom": "LOKOKA",
+    "numero": 1,
+    "gardien": true
+   },
+   {
+    "nom": "MARQUET",
+    "numero": 12,
+    "gardien": true
+   },
+   {
+    "nom": "BELHAJ",
+    "numero": 2,
+    "gardien": false
+   },
+   {
+    "nom": "MOHAMED ADAM",
+    "numero": 4,
+    "gardien": false
+   },
+   {
+    "nom": "SAADAOUI",
+    "numero": 8,
+    "gardien": false
+   },
+   {
+    "nom": "MOUHOUDINE",
+    "numero": 11,
+    "gardien": false
+   },
+   {
+    "nom": "M.TOURE",
+    "numero": 13,
+    "gardien": false
+   },
+   {
+    "nom": "GUEDDOURA",
+    "numero": 3,
+    "gardien": false
+   },
+   {
+    "nom": "TCHAPTCHET",
+    "numero": 5,
+    "gardien": false
+   },
+   {
+    "nom": "GUIRIO",
+    "numero": 7,
+    "gardien": false
+   },
+   {
+    "nom": "LUTIN",
+    "numero": 9,
+    "gardien": false
+   },
+   {
+    "nom": "SOUKOUNA",
+    "numero": 14,
+    "gardien": false
+   },
+   {
+    "nom": "DIAOUNE",
+    "numero": 17,
+    "gardien": false
+   },
+   {
+    "nom": "REZZOUG",
+    "numero": 19,
+    "gardien": false
+   },
+   {
+    "nom": "MOHAMMED",
+    "numero": 10,
+    "gardien": false
+   },
+   {
+    "nom": "TOURE",
+    "numero": 20,
+    "gardien": false
+   },
+   {
+    "nom": "GARROS",
+    "numero": 21,
+    "gardien": true
+   }
+  ]
+ },
+ "familles": [
+  {
+   "cle": "tirs",
+   "kicker": "Tirs",
+   "titre": "Où l'on frappe",
+   "demi": true,
+   "ligne_hauteur": false,
+   "actions": {
+    "But": [
+     "ballon",
+     true
+    ],
+    "Tir cadré": [
+     "o",
+     true
+    ],
+    "Tir contré": [
+     "o",
+     false
+    ],
+    "Tir hors cadre": [
+     "o",
+     false
+    ],
+    "Poteau": [
+     "o",
+     false
+    ]
+   },
+   "legende": [
+    [
+     "ballon",
+     true,
+     "But"
+    ],
+    [
+     "o",
+     true,
+     "Tir cadré"
+    ],
+    [
+     "o",
+     false,
+     "Contré / hors cadre"
+    ]
+   ]
+  },
+  {
+   "cle": "gains",
+   "kicker": "Gains de balle",
+   "titre": "Où l'on récupère",
+   "demi": false,
+   "ligne_hauteur": true,
+   "actions": {
+    "Récupération": [
+     "s",
+     true
+    ],
+    "Interception": [
+     "^",
+     true
+    ]
+   },
+   "legende": [
+    [
+     "s",
+     true,
+     "Récupération"
+    ],
+    [
+     "^",
+     true,
+     "Interception"
+    ],
+    [
+     "ligne",
+     true,
+     "Hauteur moyenne"
+    ]
+   ]
+  },
+  {
+   "cle": "pertes",
+   "kicker": "Pertes de balle",
+   "titre": "Où l'on rend le ballon",
+   "demi": false,
+   "ligne_hauteur": true,
+   "actions": {
+    "Perte de balle": [
+     "o",
+     true
+    ],
+    "Passe loupée": [
+     "^",
+     true
+    ],
+    "Ballon rendu": [
+     "s",
+     true
+    ]
+   },
+   "legende": [
+    [
+     "o",
+     true,
+     "Perte de balle"
+    ],
+    [
+     "^",
+     true,
+     "Passe loupée"
+    ],
+    [
+     "s",
+     true,
+     "Ballon rendu"
+    ],
+    [
+     "ligne",
+     true,
+     "Hauteur moyenne"
+    ]
+   ]
+  },
+  {
+   "cle": "duels",
+   "kicker": "Duels offensifs",
+   "titre": "Où l'on provoque",
+   "demi": false,
+   "ligne_hauteur": false,
+   "actions": {
+    "Duel gagné": [
+     "o",
+     true
+    ],
+    "Duel perdu": [
+     "o",
+     false
+    ],
+    "Faute subie": [
+     "X",
+     true
+    ]
+   },
+   "legende": [
+    [
+     "o",
+     true,
+     "Duel gagné"
+    ],
+    [
+     "o",
+     false,
+     "Duel perdu"
+    ],
+    [
+     "X",
+     true,
+     "Faute subie"
+    ]
+   ]
+  }
+ ],
+ "actions": [
+  {
+   "e": "MONTENEGRO",
+   "a": "Récupération",
+   "x": 11.05,
+   "y": 7.42,
+   "mt": 1,
+   "min": 0.3,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Tir hors cadre",
+   "x": 8.52,
+   "y": 8.46,
+   "mt": 1,
+   "min": 0.4,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Interception",
+   "x": 11.53,
+   "y": 23.34,
+   "mt": 1,
+   "min": 0.5,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Passe loupée",
+   "x": 18.88,
+   "y": 18.28,
+   "mt": 1,
+   "min": 0.5,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Duel perdu",
+   "x": 0.44,
+   "y": 33.89,
+   "mt": 1,
+   "min": 0.8,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir hors cadre",
+   "x": 15.33,
+   "y": 33.94,
+   "mt": 1,
+   "min": 1.0,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Interception",
+   "x": 1.12,
+   "y": 32.32,
+   "mt": 1,
+   "min": 1.1,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Duel perdu",
+   "x": 17.81,
+   "y": 28.88,
+   "mt": 1,
+   "min": 1.4,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Perte de balle",
+   "x": 18.0,
+   "y": 28.77,
+   "mt": 1,
+   "min": 1.4,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Faute subie",
+   "x": 1.95,
+   "y": 12.64,
+   "mt": 1,
+   "min": 1.4,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Passe loupée",
+   "x": 7.98,
+   "y": 5.22,
+   "mt": 1,
+   "min": 1.8,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Duel gagné",
+   "x": 1.41,
+   "y": 24.75,
+   "mt": 1,
+   "min": 1.9,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir cadré",
+   "x": 3.16,
+   "y": 24.75,
+   "mt": 1,
+   "min": 1.9,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Récupération",
+   "x": 1.17,
+   "y": 12.79,
+   "mt": 1,
+   "min": 2.0,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Interception",
+   "x": 14.31,
+   "y": 3.6,
+   "mt": 1,
+   "min": 2.2,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Interception",
+   "x": 13.19,
+   "y": 6.63,
+   "mt": 1,
+   "min": 2.4,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir hors cadre",
+   "x": 6.23,
+   "y": 38.38,
+   "mt": 1,
+   "min": 2.5,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Tir contré",
+   "x": 18.59,
+   "y": 28.09,
+   "mt": 1,
+   "min": 2.8,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Perte de balle",
+   "x": 10.75,
+   "y": 33.16,
+   "mt": 1,
+   "min": 3.0,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Duel perdu",
+   "x": 2.14,
+   "y": 27.1,
+   "mt": 1,
+   "min": 3.0,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir contré",
+   "x": 3.36,
+   "y": 25.33,
+   "mt": 1,
+   "min": 3.2,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Duel gagné",
+   "x": 12.99,
+   "y": 24.65,
+   "mt": 1,
+   "min": 3.2,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir contré",
+   "x": 6.52,
+   "y": 25.64,
+   "mt": 1,
+   "min": 3.3,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Faute subie",
+   "x": 19.37,
+   "y": 24.96,
+   "mt": 1,
+   "min": 3.4,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir hors cadre",
+   "x": 3.6,
+   "y": 25.48,
+   "mt": 1,
+   "min": 3.7,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Interception",
+   "x": 0.34,
+   "y": 29.09,
+   "mt": 1,
+   "min": 3.8,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Duel gagné",
+   "x": 0.92,
+   "y": 33.94,
+   "mt": 1,
+   "min": 3.9,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir cadré",
+   "x": 2.87,
+   "y": 38.59,
+   "mt": 1,
+   "min": 3.9,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Interception",
+   "x": 3.41,
+   "y": 16.5,
+   "mt": 1,
+   "min": 4.0,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir cadré",
+   "x": 12.41,
+   "y": 39.69,
+   "mt": 1,
+   "min": 4.4,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Interception",
+   "x": 2.87,
+   "y": 18.22,
+   "mt": 1,
+   "min": 4.5,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Interception",
+   "x": 4.67,
+   "y": 12.27,
+   "mt": 1,
+   "min": 4.5,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Passe loupée",
+   "x": 16.35,
+   "y": 4.39,
+   "mt": 1,
+   "min": 4.7,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir hors cadre",
+   "x": 9.93,
+   "y": 25.48,
+   "mt": 1,
+   "min": 5.2,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Passe loupée",
+   "x": 15.13,
+   "y": 4.49,
+   "mt": 1,
+   "min": 5.5,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Duel perdu",
+   "x": 2.14,
+   "y": 39.69,
+   "mt": 1,
+   "min": 5.8,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Faute subie",
+   "x": 18.59,
+   "y": 16.55,
+   "mt": 1,
+   "min": 6.0,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Passe loupée",
+   "x": 10.02,
+   "y": 1.2,
+   "mt": 1,
+   "min": 6.3,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir contré",
+   "x": 19.32,
+   "y": 29.45,
+   "mt": 1,
+   "min": 6.4,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir contré",
+   "x": 5.45,
+   "y": 32.32,
+   "mt": 1,
+   "min": 6.5,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Perte de balle",
+   "x": 0.0,
+   "y": 34.31,
+   "mt": 1,
+   "min": 6.7,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Duel perdu",
+   "x": 19.37,
+   "y": 21.46,
+   "mt": 1,
+   "min": 6.8,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Perte de balle",
+   "x": 20.0,
+   "y": 23.92,
+   "mt": 1,
+   "min": 6.8,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Duel gagné",
+   "x": 1.85,
+   "y": 31.28,
+   "mt": 1,
+   "min": 6.9,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir hors cadre",
+   "x": 1.65,
+   "y": 34.31,
+   "mt": 1,
+   "min": 7.0,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Interception",
+   "x": 9.64,
+   "y": 6.58,
+   "mt": 1,
+   "min": 7.0,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Faute subie",
+   "x": 12.55,
+   "y": 33.99,
+   "mt": 1,
+   "min": 7.2,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir cadré",
+   "x": 6.37,
+   "y": 36.5,
+   "mt": 1,
+   "min": 7.6,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir hors cadre",
+   "x": 18.39,
+   "y": 34.15,
+   "mt": 1,
+   "min": 7.7,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Passe loupée",
+   "x": 7.74,
+   "y": 3.03,
+   "mt": 1,
+   "min": 7.8,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Duel perdu",
+   "x": 3.45,
+   "y": 36.4,
+   "mt": 1,
+   "min": 8.1,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir hors cadre",
+   "x": 18.88,
+   "y": 27.73,
+   "mt": 1,
+   "min": 8.3,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Duel perdu",
+   "x": 18.44,
+   "y": 24.75,
+   "mt": 1,
+   "min": 8.4,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Passe loupée",
+   "x": 10.02,
+   "y": 2.61,
+   "mt": 1,
+   "min": 8.6,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Faute subie",
+   "x": 18.59,
+   "y": 22.3,
+   "mt": 1,
+   "min": 8.8,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir hors cadre",
+   "x": 18.35,
+   "y": 29.66,
+   "mt": 1,
+   "min": 9.0,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Interception",
+   "x": 6.42,
+   "y": 34.46,
+   "mt": 1,
+   "min": 9.2,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Interception",
+   "x": 8.22,
+   "y": 16.34,
+   "mt": 1,
+   "min": 9.3,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Passe loupée",
+   "x": 2.53,
+   "y": 15.3,
+   "mt": 1,
+   "min": 9.4,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Passe loupée",
+   "x": 6.76,
+   "y": 29.92,
+   "mt": 1,
+   "min": 9.4,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Tir cadré",
+   "x": 18.64,
+   "y": 8.72,
+   "mt": 1,
+   "min": 9.6,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Duel perdu",
+   "x": 1.12,
+   "y": 34.78,
+   "mt": 1,
+   "min": 9.7,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Récupération",
+   "x": 18.83,
+   "y": 5.22,
+   "mt": 1,
+   "min": 9.7,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Duel gagné",
+   "x": 18.35,
+   "y": 24.18,
+   "mt": 1,
+   "min": 9.7,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Interception",
+   "x": 7.2,
+   "y": 10.08,
+   "mt": 1,
+   "min": 9.7,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Faute subie",
+   "x": 7.64,
+   "y": 24.23,
+   "mt": 1,
+   "min": 9.8,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir contré",
+   "x": 15.13,
+   "y": 31.33,
+   "mt": 1,
+   "min": 10.4,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Récupération",
+   "x": 13.38,
+   "y": 2.51,
+   "mt": 1,
+   "min": 10.7,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Passe loupée",
+   "x": 18.59,
+   "y": 4.39,
+   "mt": 1,
+   "min": 10.8,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir contré",
+   "x": 9.98,
+   "y": 32.58,
+   "mt": 1,
+   "min": 11.4,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Duel gagné",
+   "x": 15.09,
+   "y": 7.42,
+   "mt": 1,
+   "min": 11.5,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Faute subie",
+   "x": 15.09,
+   "y": 7.42,
+   "mt": 1,
+   "min": 11.5,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Tir hors cadre",
+   "x": 17.03,
+   "y": 25.59,
+   "mt": 1,
+   "min": 11.8,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Récupération",
+   "x": 4.62,
+   "y": 3.24,
+   "mt": 1,
+   "min": 12.0,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Passe loupée",
+   "x": 7.01,
+   "y": 3.86,
+   "mt": 1,
+   "min": 12.1,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir contré",
+   "x": 9.98,
+   "y": 23.71,
+   "mt": 1,
+   "min": 12.2,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir cadré",
+   "x": 6.08,
+   "y": 25.85,
+   "mt": 1,
+   "min": 12.3,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Faute subie",
+   "x": 18.35,
+   "y": 32.11,
+   "mt": 1,
+   "min": 12.3,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Passe loupée",
+   "x": 18.88,
+   "y": 17.7,
+   "mt": 1,
+   "min": 12.5,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir contré",
+   "x": 19.27,
+   "y": 32.11,
+   "mt": 1,
+   "min": 12.6,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Interception",
+   "x": 7.88,
+   "y": 10.6,
+   "mt": 1,
+   "min": 12.7,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Perte de balle",
+   "x": 0.0,
+   "y": 34.46,
+   "mt": 1,
+   "min": 12.7,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Duel perdu",
+   "x": 18.69,
+   "y": 15.87,
+   "mt": 1,
+   "min": 13.0,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Perte de balle",
+   "x": 18.64,
+   "y": 15.98,
+   "mt": 1,
+   "min": 13.0,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Faute subie",
+   "x": 6.72,
+   "y": 4.91,
+   "mt": 1,
+   "min": 13.3,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Tir cadré",
+   "x": 14.55,
+   "y": 34.83,
+   "mt": 1,
+   "min": 13.5,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Duel gagné",
+   "x": 15.38,
+   "y": 24.7,
+   "mt": 1,
+   "min": 13.9,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Passe loupée",
+   "x": 8.95,
+   "y": 24.96,
+   "mt": 1,
+   "min": 13.9,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Interception",
+   "x": 17.76,
+   "y": 28.77,
+   "mt": 1,
+   "min": 14.1,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Récupération",
+   "x": 12.31,
+   "y": 0.99,
+   "mt": 1,
+   "min": 14.2,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Passe loupée",
+   "x": 5.99,
+   "y": 4.13,
+   "mt": 1,
+   "min": 14.2,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Récupération",
+   "x": 14.79,
+   "y": 5.8,
+   "mt": 1,
+   "min": 14.7,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Passe loupée",
+   "x": 1.31,
+   "y": 6.11,
+   "mt": 1,
+   "min": 14.9,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Interception",
+   "x": 8.18,
+   "y": 9.3,
+   "mt": 1,
+   "min": 15.0,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Tir contré",
+   "x": 18.35,
+   "y": 37.02,
+   "mt": 1,
+   "min": 15.1,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir contré",
+   "x": 9.73,
+   "y": 15.82,
+   "mt": 1,
+   "min": 16.1,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Duel perdu",
+   "x": 14.84,
+   "y": 27.52,
+   "mt": 1,
+   "min": 16.2,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Récupération",
+   "x": 5.21,
+   "y": 12.48,
+   "mt": 1,
+   "min": 16.2,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Duel perdu",
+   "x": 4.48,
+   "y": 25.38,
+   "mt": 1,
+   "min": 16.2,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Passe loupée",
+   "x": 4.43,
+   "y": 4.44,
+   "mt": 1,
+   "min": 16.4,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Interception",
+   "x": 5.99,
+   "y": 17.96,
+   "mt": 1,
+   "min": 16.5,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Passe loupée",
+   "x": 18.64,
+   "y": 26.37,
+   "mt": 1,
+   "min": 16.6,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Duel gagné",
+   "x": 3.94,
+   "y": 27.94,
+   "mt": 1,
+   "min": 16.8,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Faute subie",
+   "x": 5.84,
+   "y": 28.56,
+   "mt": 1,
+   "min": 16.9,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir cadré",
+   "x": 8.71,
+   "y": 36.4,
+   "mt": 1,
+   "min": 17.6,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Passe loupée",
+   "x": 16.06,
+   "y": 13.89,
+   "mt": 1,
+   "min": 17.6,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir cadré",
+   "x": 15.96,
+   "y": 37.96,
+   "mt": 1,
+   "min": 17.7,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "But",
+   "x": 2.43,
+   "y": 28.98,
+   "mt": 1,
+   "min": 17.8,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Interception",
+   "x": 9.44,
+   "y": 6.63,
+   "mt": 1,
+   "min": 18.1,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Interception",
+   "x": 10.17,
+   "y": 13.89,
+   "mt": 1,
+   "min": 18.2,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir contré",
+   "x": 16.3,
+   "y": 35.87,
+   "mt": 1,
+   "min": 18.2,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Passe loupée",
+   "x": 19.85,
+   "y": 38.33,
+   "mt": 1,
+   "min": 18.3,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Perte de balle",
+   "x": 3.45,
+   "y": 23.97,
+   "mt": 1,
+   "min": 18.8,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir cadré",
+   "x": 14.21,
+   "y": 33.68,
+   "mt": 1,
+   "min": 18.9,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Interception",
+   "x": 12.8,
+   "y": 6.32,
+   "mt": 1,
+   "min": 19.0,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Tir contré",
+   "x": 17.47,
+   "y": 25.59,
+   "mt": 1,
+   "min": 19.0,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Duel gagné",
+   "x": 0.83,
+   "y": 33.47,
+   "mt": 1,
+   "min": 19.5,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir contré",
+   "x": 0.63,
+   "y": 36.14,
+   "mt": 1,
+   "min": 19.5,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir cadré",
+   "x": 13.87,
+   "y": 32.58,
+   "mt": 1,
+   "min": 19.8,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Interception",
+   "x": 13.09,
+   "y": 27.36,
+   "mt": 1,
+   "min": 19.9,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Perte de balle",
+   "x": 6.62,
+   "y": 25.9,
+   "mt": 1,
+   "min": 19.9,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Tir cadré",
+   "x": 7.98,
+   "y": 33.52,
+   "mt": 1,
+   "min": 19.9,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Interception",
+   "x": 11.78,
+   "y": 12.69,
+   "mt": 2,
+   "min": 20.2,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Interception",
+   "x": 12.8,
+   "y": 28.83,
+   "mt": 2,
+   "min": 20.2,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Tir cadré",
+   "x": 14.6,
+   "y": 32.95,
+   "mt": 2,
+   "min": 20.2,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Perte de balle",
+   "x": 18.78,
+   "y": 31.7,
+   "mt": 2,
+   "min": 20.3,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Perte de balle",
+   "x": 14.74,
+   "y": 5.27,
+   "mt": 2,
+   "min": 20.5,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Perte de balle",
+   "x": 5.11,
+   "y": 25.07,
+   "mt": 2,
+   "min": 20.9,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Interception",
+   "x": 2.09,
+   "y": 22.66,
+   "mt": 2,
+   "min": 20.9,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir contré",
+   "x": 1.85,
+   "y": 33.99,
+   "mt": 2,
+   "min": 21.3,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Duel perdu",
+   "x": 2.09,
+   "y": 24.44,
+   "mt": 2,
+   "min": 21.6,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Duel gagné",
+   "x": 14.06,
+   "y": 32.95,
+   "mt": 2,
+   "min": 21.7,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir cadré",
+   "x": 12.7,
+   "y": 34.73,
+   "mt": 2,
+   "min": 21.8,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Duel perdu",
+   "x": 0.39,
+   "y": 32.58,
+   "mt": 2,
+   "min": 22.0,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Perte de balle",
+   "x": 0.39,
+   "y": 32.53,
+   "mt": 2,
+   "min": 22.0,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Perte de balle",
+   "x": 5.74,
+   "y": 19.58,
+   "mt": 2,
+   "min": 22.1,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Duel perdu",
+   "x": 10.46,
+   "y": 31.28,
+   "mt": 2,
+   "min": 22.2,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Récupération",
+   "x": 9.73,
+   "y": 8.67,
+   "mt": 2,
+   "min": 22.2,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Passe loupée",
+   "x": 1.65,
+   "y": 32.43,
+   "mt": 2,
+   "min": 22.2,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Récupération",
+   "x": 15.67,
+   "y": 5.22,
+   "mt": 2,
+   "min": 22.4,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Duel perdu",
+   "x": 4.38,
+   "y": 34.78,
+   "mt": 2,
+   "min": 22.4,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Faute subie",
+   "x": 13.63,
+   "y": 5.12,
+   "mt": 2,
+   "min": 22.4,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Tir contré",
+   "x": 17.13,
+   "y": 35.61,
+   "mt": 2,
+   "min": 22.6,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Passe loupée",
+   "x": 19.9,
+   "y": 36.45,
+   "mt": 2,
+   "min": 22.8,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Récupération",
+   "x": 0.15,
+   "y": 7.94,
+   "mt": 2,
+   "min": 22.9,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Passe loupée",
+   "x": 10.22,
+   "y": 3.03,
+   "mt": 2,
+   "min": 23.0,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir hors cadre",
+   "x": 5.89,
+   "y": 34.78,
+   "mt": 2,
+   "min": 23.2,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Duel perdu",
+   "x": 2.73,
+   "y": 34.57,
+   "mt": 2,
+   "min": 23.6,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Tir cadré",
+   "x": 15.86,
+   "y": 28.93,
+   "mt": 2,
+   "min": 23.8,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Perte de balle",
+   "x": 1.9,
+   "y": 30.65,
+   "mt": 2,
+   "min": 23.8,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Perte de balle",
+   "x": 18.44,
+   "y": 21.78,
+   "mt": 2,
+   "min": 24.0,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir cadré",
+   "x": 9.78,
+   "y": 31.17,
+   "mt": 2,
+   "min": 24.1,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Passe loupée",
+   "x": 19.56,
+   "y": 37.55,
+   "mt": 2,
+   "min": 24.2,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Faute subie",
+   "x": 1.22,
+   "y": 26.32,
+   "mt": 2,
+   "min": 24.4,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Duel perdu",
+   "x": 17.13,
+   "y": 27.31,
+   "mt": 2,
+   "min": 24.7,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Tir contré",
+   "x": 5.16,
+   "y": 35.72,
+   "mt": 2,
+   "min": 24.8,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Passe loupée",
+   "x": 6.72,
+   "y": 3.34,
+   "mt": 2,
+   "min": 24.8,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Tir contré",
+   "x": 5.74,
+   "y": 34.78,
+   "mt": 2,
+   "min": 24.9,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Faute subie",
+   "x": 5.89,
+   "y": 4.96,
+   "mt": 2,
+   "min": 25.1,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Duel perdu",
+   "x": 4.57,
+   "y": 33.68,
+   "mt": 2,
+   "min": 25.2,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Passe loupée",
+   "x": 10.27,
+   "y": 16.87,
+   "mt": 2,
+   "min": 25.3,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Récupération",
+   "x": 5.99,
+   "y": 35.09,
+   "mt": 2,
+   "min": 25.4,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Perte de balle",
+   "x": 8.52,
+   "y": 34.31,
+   "mt": 2,
+   "min": 25.4,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Tir cadré",
+   "x": 6.47,
+   "y": 36.19,
+   "mt": 2,
+   "min": 25.5,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Passe loupée",
+   "x": 19.56,
+   "y": 4.28,
+   "mt": 2,
+   "min": 25.5,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Interception",
+   "x": 5.99,
+   "y": 20.73,
+   "mt": 2,
+   "min": 25.6,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir contré",
+   "x": 8.66,
+   "y": 29.35,
+   "mt": 2,
+   "min": 25.6,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Perte de balle",
+   "x": 0.39,
+   "y": 34.78,
+   "mt": 2,
+   "min": 25.6,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Interception",
+   "x": 9.98,
+   "y": 25.54,
+   "mt": 2,
+   "min": 25.8,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir hors cadre",
+   "x": 11.58,
+   "y": 31.33,
+   "mt": 2,
+   "min": 25.9,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Passe loupée",
+   "x": 6.72,
+   "y": 3.6,
+   "mt": 2,
+   "min": 25.9,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Perte de balle",
+   "x": 2.87,
+   "y": 32.58,
+   "mt": 2,
+   "min": 26.0,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Passe loupée",
+   "x": 19.95,
+   "y": 5.27,
+   "mt": 2,
+   "min": 26.1,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Duel gagné",
+   "x": 1.9,
+   "y": 26.11,
+   "mt": 2,
+   "min": 26.2,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir hors cadre",
+   "x": 13.82,
+   "y": 32.06,
+   "mt": 2,
+   "min": 26.3,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Passe loupée",
+   "x": 20.0,
+   "y": 13.11,
+   "mt": 2,
+   "min": 26.4,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Passe loupée",
+   "x": 17.08,
+   "y": 24.65,
+   "mt": 2,
+   "min": 26.5,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Passe loupée",
+   "x": 17.91,
+   "y": 2.3,
+   "mt": 2,
+   "min": 26.6,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Duel gagné",
+   "x": 2.24,
+   "y": 28.51,
+   "mt": 2,
+   "min": 26.7,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Faute subie",
+   "x": 3.16,
+   "y": 27.36,
+   "mt": 2,
+   "min": 26.8,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Passe loupée",
+   "x": 0.0,
+   "y": 27.78,
+   "mt": 2,
+   "min": 27.1,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Interception",
+   "x": 5.99,
+   "y": 4.6,
+   "mt": 2,
+   "min": 27.2,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Duel perdu",
+   "x": 2.24,
+   "y": 35.09,
+   "mt": 2,
+   "min": 27.3,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Perte de balle",
+   "x": 1.02,
+   "y": 37.39,
+   "mt": 2,
+   "min": 27.3,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Interception",
+   "x": 19.32,
+   "y": 24.91,
+   "mt": 2,
+   "min": 27.3,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir cadré",
+   "x": 9.98,
+   "y": 36.34,
+   "mt": 2,
+   "min": 27.3,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Faute subie",
+   "x": 10.22,
+   "y": 26.37,
+   "mt": 2,
+   "min": 27.3,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Tir hors cadre",
+   "x": 4.48,
+   "y": 33.16,
+   "mt": 2,
+   "min": 27.9,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir contré",
+   "x": 14.45,
+   "y": 33.47,
+   "mt": 2,
+   "min": 28.5,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Interception",
+   "x": 17.08,
+   "y": 10.6,
+   "mt": 2,
+   "min": 28.6,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir contré",
+   "x": 5.11,
+   "y": 26.63,
+   "mt": 2,
+   "min": 29.1,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Interception",
+   "x": 8.52,
+   "y": 2.51,
+   "mt": 2,
+   "min": 29.3,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Récupération",
+   "x": 10.17,
+   "y": 24.49,
+   "mt": 2,
+   "min": 29.3,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Passe loupée",
+   "x": 2.24,
+   "y": 28.25,
+   "mt": 2,
+   "min": 29.5,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Passe loupée",
+   "x": 14.79,
+   "y": 12.22,
+   "mt": 2,
+   "min": 29.7,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Duel gagné",
+   "x": 4.14,
+   "y": 16.03,
+   "mt": 2,
+   "min": 29.9,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir cadré",
+   "x": 15.82,
+   "y": 28.25,
+   "mt": 2,
+   "min": 29.9,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Ballon rendu",
+   "x": 10.07,
+   "y": 3.03,
+   "mt": 2,
+   "min": 30.0,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir cadré",
+   "x": 12.02,
+   "y": 26.63,
+   "mt": 2,
+   "min": 30.3,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Récupération",
+   "x": 16.74,
+   "y": 12.01,
+   "mt": 2,
+   "min": 30.3,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Passe loupée",
+   "x": 19.32,
+   "y": 8.77,
+   "mt": 2,
+   "min": 30.4,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Duel gagné",
+   "x": 3.45,
+   "y": 23.97,
+   "mt": 2,
+   "min": 30.5,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Interception",
+   "x": 14.5,
+   "y": 14.88,
+   "mt": 2,
+   "min": 30.5,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir hors cadre",
+   "x": 6.42,
+   "y": 37.28,
+   "mt": 2,
+   "min": 30.6,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Passe loupée",
+   "x": 18.64,
+   "y": 6.42,
+   "mt": 2,
+   "min": 30.8,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir contré",
+   "x": 16.35,
+   "y": 28.04,
+   "mt": 2,
+   "min": 31.1,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Duel perdu",
+   "x": 18.15,
+   "y": 31.8,
+   "mt": 2,
+   "min": 31.2,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Récupération",
+   "x": 1.85,
+   "y": 8.2,
+   "mt": 2,
+   "min": 31.2,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir contré",
+   "x": 13.19,
+   "y": 33.89,
+   "mt": 2,
+   "min": 31.2,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Duel perdu",
+   "x": 18.44,
+   "y": 18.59,
+   "mt": 2,
+   "min": 31.7,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Récupération",
+   "x": 5.26,
+   "y": 23.08,
+   "mt": 2,
+   "min": 31.7,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir cadré",
+   "x": 16.55,
+   "y": 33.94,
+   "mt": 2,
+   "min": 31.7,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir contré",
+   "x": 4.14,
+   "y": 24.44,
+   "mt": 2,
+   "min": 32.1,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Passe loupée",
+   "x": 0.0,
+   "y": 31.49,
+   "mt": 2,
+   "min": 32.1,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Interception",
+   "x": 4.14,
+   "y": 15.46,
+   "mt": 2,
+   "min": 32.3,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Passe loupée",
+   "x": 13.58,
+   "y": 13.05,
+   "mt": 2,
+   "min": 32.3,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Interception",
+   "x": 10.71,
+   "y": 10.08,
+   "mt": 2,
+   "min": 32.5,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Passe loupée",
+   "x": 19.85,
+   "y": 39.95,
+   "mt": 2,
+   "min": 32.7,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Passe loupée",
+   "x": 3.11,
+   "y": 4.7,
+   "mt": 2,
+   "min": 32.8,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Faute subie",
+   "x": 4.48,
+   "y": 26.32,
+   "mt": 2,
+   "min": 32.8,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Interception",
+   "x": 4.48,
+   "y": 26.37,
+   "mt": 2,
+   "min": 32.8,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Tir hors cadre",
+   "x": 7.25,
+   "y": 26.11,
+   "mt": 2,
+   "min": 33.2,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Perte de balle",
+   "x": 1.9,
+   "y": 26.37,
+   "mt": 2,
+   "min": 33.4,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Interception",
+   "x": 3.6,
+   "y": 20.1,
+   "mt": 2,
+   "min": 33.4,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Interception",
+   "x": 2.97,
+   "y": 13.89,
+   "mt": 2,
+   "min": 33.5,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Passe loupée",
+   "x": 5.4,
+   "y": 8.46,
+   "mt": 2,
+   "min": 33.5,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Passe loupée",
+   "x": 7.15,
+   "y": 29.35,
+   "mt": 2,
+   "min": 33.6,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Interception",
+   "x": 5.21,
+   "y": 3.81,
+   "mt": 2,
+   "min": 33.8,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Récupération",
+   "x": 14.11,
+   "y": 1.41,
+   "mt": 2,
+   "min": 33.8,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Ballon rendu",
+   "x": 16.35,
+   "y": 0.05,
+   "mt": 2,
+   "min": 33.9,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir hors cadre",
+   "x": 14.06,
+   "y": 22.87,
+   "mt": 2,
+   "min": 33.9,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Passe loupée",
+   "x": 1.85,
+   "y": 2.82,
+   "mt": 2,
+   "min": 34.1,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir cadré",
+   "x": 4.87,
+   "y": 25.74,
+   "mt": 2,
+   "min": 34.2,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir hors cadre",
+   "x": 1.56,
+   "y": 26.89,
+   "mt": 2,
+   "min": 34.3,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Duel gagné",
+   "x": 9.73,
+   "y": 4.7,
+   "mt": 2,
+   "min": 34.4,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Tir cadré",
+   "x": 3.5,
+   "y": 33.79,
+   "mt": 2,
+   "min": 34.4,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Perte de balle",
+   "x": 1.17,
+   "y": 17.08,
+   "mt": 2,
+   "min": 34.4,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Perte de balle",
+   "x": 0.73,
+   "y": 25.33,
+   "mt": 2,
+   "min": 34.5,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Perte de balle",
+   "x": 0.92,
+   "y": 22.09,
+   "mt": 2,
+   "min": 34.6,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Faute subie",
+   "x": 16.64,
+   "y": 21.72,
+   "mt": 2,
+   "min": 34.7,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Interception",
+   "x": 6.23,
+   "y": 20.47,
+   "mt": 2,
+   "min": 35.1,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "But",
+   "x": 13.72,
+   "y": 38.8,
+   "mt": 2,
+   "min": 35.2,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Perte de balle",
+   "x": 0.34,
+   "y": 36.61,
+   "mt": 2,
+   "min": 35.6,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Perte de balle",
+   "x": 2.73,
+   "y": 25.69,
+   "mt": 2,
+   "min": 35.7,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Faute subie",
+   "x": 5.21,
+   "y": 9.87,
+   "mt": 2,
+   "min": 35.9,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir cadré",
+   "x": 19.37,
+   "y": 33.68,
+   "mt": 2,
+   "min": 36.1,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Passe loupée",
+   "x": 3.99,
+   "y": 4.13,
+   "mt": 2,
+   "min": 36.4,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir contré",
+   "x": 6.42,
+   "y": 24.13,
+   "mt": 2,
+   "min": 36.6,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Passe loupée",
+   "x": 1.85,
+   "y": 5.17,
+   "mt": 2,
+   "min": 36.8,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Duel perdu",
+   "x": 18.35,
+   "y": 37.18,
+   "mt": 2,
+   "min": 37.1,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Perte de balle",
+   "x": 18.59,
+   "y": 38.33,
+   "mt": 2,
+   "min": 37.1,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Récupération",
+   "x": 6.28,
+   "y": 10.08,
+   "mt": 2,
+   "min": 37.3,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Duel perdu",
+   "x": 19.61,
+   "y": 17.13,
+   "mt": 2,
+   "min": 37.4,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Perte de balle",
+   "x": 19.56,
+   "y": 17.13,
+   "mt": 2,
+   "min": 37.4,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Faute subie",
+   "x": 4.67,
+   "y": 14.62,
+   "mt": 2,
+   "min": 37.7,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Passe loupée",
+   "x": 15.33,
+   "y": 12.79,
+   "mt": 2,
+   "min": 37.8,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Passe loupée",
+   "x": 19.37,
+   "y": 21.31,
+   "mt": 2,
+   "min": 38.0,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir cadré",
+   "x": 11.82,
+   "y": 34.31,
+   "mt": 2,
+   "min": 38.2,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Duel perdu",
+   "x": 1.7,
+   "y": 33.16,
+   "mt": 2,
+   "min": 38.9,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir contré",
+   "x": 17.27,
+   "y": 32.06,
+   "mt": 2,
+   "min": 39.1,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir cadré",
+   "x": 14.84,
+   "y": 34.57,
+   "mt": 2,
+   "min": 39.3,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Duel perdu",
+   "x": 0.92,
+   "y": 17.7,
+   "mt": 2,
+   "min": 39.4,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Interception",
+   "x": 2.97,
+   "y": 31.54,
+   "mt": 2,
+   "min": 39.5,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Perte de balle",
+   "x": 5.3,
+   "y": 35.61,
+   "mt": 2,
+   "min": 39.5,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Duel gagné",
+   "x": 2.63,
+   "y": 37.18,
+   "mt": 2,
+   "min": 39.7,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir cadré",
+   "x": 8.13,
+   "y": 38.22,
+   "mt": 2,
+   "min": 39.7,
+   "derive": false
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Passe loupée",
+   "x": 1.41,
+   "y": 16.71,
+   "mt": 2,
+   "min": 39.8,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Tir contré",
+   "x": 1.65,
+   "y": 30.5,
+   "mt": 2,
+   "min": 39.8,
+   "derive": false
+  },
+  {
+   "e": "FRANCE",
+   "a": "Perte de balle",
+   "x": 8.95,
+   "y": 32.58,
+   "mt": 1,
+   "min": 0.3,
+   "derive": true
+  },
+  {
+   "e": "FRANCE",
+   "a": "Perte de balle",
+   "x": 1.17,
+   "y": 34.78,
+   "mt": 1,
+   "min": 9.7,
+   "derive": true
+  },
+  {
+   "e": "FRANCE",
+   "a": "Perte de balle",
+   "x": 6.62,
+   "y": 37.49,
+   "mt": 1,
+   "min": 10.7,
+   "derive": true
+  },
+  {
+   "e": "FRANCE",
+   "a": "Perte de balle",
+   "x": 15.38,
+   "y": 36.76,
+   "mt": 1,
+   "min": 12.0,
+   "derive": true
+  },
+  {
+   "e": "FRANCE",
+   "a": "Perte de balle",
+   "x": 7.69,
+   "y": 39.01,
+   "mt": 1,
+   "min": 14.2,
+   "derive": true
+  },
+  {
+   "e": "FRANCE",
+   "a": "Perte de balle",
+   "x": 5.21,
+   "y": 34.2,
+   "mt": 1,
+   "min": 14.7,
+   "derive": true
+  },
+  {
+   "e": "FRANCE",
+   "a": "Perte de balle",
+   "x": 14.79,
+   "y": 27.52,
+   "mt": 1,
+   "min": 16.2,
+   "derive": true
+  },
+  {
+   "e": "FRANCE",
+   "a": "Perte de balle",
+   "x": 10.27,
+   "y": 31.33,
+   "mt": 2,
+   "min": 22.2,
+   "derive": true
+  },
+  {
+   "e": "FRANCE",
+   "a": "Perte de balle",
+   "x": 4.33,
+   "y": 34.78,
+   "mt": 2,
+   "min": 22.4,
+   "derive": true
+  },
+  {
+   "e": "FRANCE",
+   "a": "Perte de balle",
+   "x": 19.85,
+   "y": 32.06,
+   "mt": 2,
+   "min": 22.9,
+   "derive": true
+  },
+  {
+   "e": "FRANCE",
+   "a": "Perte de balle",
+   "x": 5.89,
+   "y": 38.59,
+   "mt": 2,
+   "min": 33.8,
+   "derive": true
+  },
+  {
+   "e": "FRANCE",
+   "a": "Perte de balle",
+   "x": 13.72,
+   "y": 29.92,
+   "mt": 2,
+   "min": 37.3,
+   "derive": true
+  },
+  {
+   "e": "FRANCE",
+   "a": "Passe loupée",
+   "x": 8.47,
+   "y": 16.66,
+   "mt": 1,
+   "min": 0.5,
+   "derive": true
+  },
+  {
+   "e": "FRANCE",
+   "a": "Passe loupée",
+   "x": 5.69,
+   "y": 36.4,
+   "mt": 1,
+   "min": 2.2,
+   "derive": true
+  },
+  {
+   "e": "FRANCE",
+   "a": "Passe loupée",
+   "x": 15.33,
+   "y": 27.73,
+   "mt": 1,
+   "min": 4.5,
+   "derive": true
+  },
+  {
+   "e": "FRANCE",
+   "a": "Passe loupée",
+   "x": 11.78,
+   "y": 23.66,
+   "mt": 1,
+   "min": 9.3,
+   "derive": true
+  },
+  {
+   "e": "FRANCE",
+   "a": "Passe loupée",
+   "x": 11.82,
+   "y": 30.7,
+   "mt": 1,
+   "min": 15.0,
+   "derive": true
+  },
+  {
+   "e": "FRANCE",
+   "a": "Passe loupée",
+   "x": 14.01,
+   "y": 22.04,
+   "mt": 1,
+   "min": 16.5,
+   "derive": true
+  },
+  {
+   "e": "FRANCE",
+   "a": "Passe loupée",
+   "x": 10.56,
+   "y": 33.37,
+   "mt": 1,
+   "min": 18.1,
+   "derive": true
+  },
+  {
+   "e": "FRANCE",
+   "a": "Passe loupée",
+   "x": 7.2,
+   "y": 33.68,
+   "mt": 1,
+   "min": 19.0,
+   "derive": true
+  },
+  {
+   "e": "FRANCE",
+   "a": "Passe loupée",
+   "x": 7.2,
+   "y": 11.17,
+   "mt": 2,
+   "min": 20.2,
+   "derive": true
+  },
+  {
+   "e": "FRANCE",
+   "a": "Passe loupée",
+   "x": 11.48,
+   "y": 37.49,
+   "mt": 2,
+   "min": 29.3,
+   "derive": true
+  },
+  {
+   "e": "FRANCE",
+   "a": "Passe loupée",
+   "x": 15.52,
+   "y": 13.63,
+   "mt": 2,
+   "min": 32.8,
+   "derive": true
+  },
+  {
+   "e": "FRANCE",
+   "a": "Passe loupée",
+   "x": 17.03,
+   "y": 26.11,
+   "mt": 2,
+   "min": 33.5,
+   "derive": true
+  },
+  {
+   "e": "FRANCE",
+   "a": "Passe loupée",
+   "x": 17.03,
+   "y": 8.46,
+   "mt": 2,
+   "min": 39.5,
+   "derive": true
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Perte de balle",
+   "x": 18.83,
+   "y": 27.21,
+   "mt": 1,
+   "min": 2.0,
+   "derive": true
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Perte de balle",
+   "x": 14.01,
+   "y": 4.91,
+   "mt": 2,
+   "min": 25.4,
+   "derive": true
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Perte de balle",
+   "x": 9.83,
+   "y": 15.51,
+   "mt": 2,
+   "min": 29.3,
+   "derive": true
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Perte de balle",
+   "x": 3.26,
+   "y": 27.99,
+   "mt": 2,
+   "min": 30.3,
+   "derive": true
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Perte de balle",
+   "x": 18.15,
+   "y": 31.8,
+   "mt": 2,
+   "min": 31.2,
+   "derive": true
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Perte de balle",
+   "x": 14.74,
+   "y": 16.92,
+   "mt": 2,
+   "min": 31.7,
+   "derive": true
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Passe loupée",
+   "x": 18.88,
+   "y": 7.68,
+   "mt": 1,
+   "min": 1.1,
+   "derive": true
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Passe loupée",
+   "x": 6.81,
+   "y": 33.37,
+   "mt": 1,
+   "min": 2.4,
+   "derive": true
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Passe loupée",
+   "x": 19.66,
+   "y": 10.91,
+   "mt": 1,
+   "min": 3.8,
+   "derive": true
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Passe loupée",
+   "x": 16.59,
+   "y": 23.5,
+   "mt": 1,
+   "min": 4.0,
+   "derive": true
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Passe loupée",
+   "x": 17.13,
+   "y": 21.78,
+   "mt": 1,
+   "min": 4.5,
+   "derive": true
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Passe loupée",
+   "x": 10.36,
+   "y": 33.42,
+   "mt": 1,
+   "min": 7.0,
+   "derive": true
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Passe loupée",
+   "x": 13.58,
+   "y": 5.54,
+   "mt": 1,
+   "min": 9.2,
+   "derive": true
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Passe loupée",
+   "x": 12.8,
+   "y": 29.92,
+   "mt": 1,
+   "min": 9.7,
+   "derive": true
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Passe loupée",
+   "x": 12.12,
+   "y": 29.4,
+   "mt": 1,
+   "min": 12.7,
+   "derive": true
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Passe loupée",
+   "x": 2.24,
+   "y": 11.23,
+   "mt": 1,
+   "min": 14.1,
+   "derive": true
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Passe loupée",
+   "x": 9.83,
+   "y": 26.11,
+   "mt": 1,
+   "min": 18.2,
+   "derive": true
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Passe loupée",
+   "x": 6.91,
+   "y": 12.64,
+   "mt": 1,
+   "min": 19.9,
+   "derive": true
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Passe loupée",
+   "x": 8.22,
+   "y": 27.31,
+   "mt": 2,
+   "min": 20.2,
+   "derive": true
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Passe loupée",
+   "x": 17.91,
+   "y": 17.34,
+   "mt": 2,
+   "min": 20.9,
+   "derive": true
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Passe loupée",
+   "x": 14.01,
+   "y": 19.27,
+   "mt": 2,
+   "min": 25.6,
+   "derive": true
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Passe loupée",
+   "x": 10.02,
+   "y": 14.46,
+   "mt": 2,
+   "min": 25.8,
+   "derive": true
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Passe loupée",
+   "x": 14.01,
+   "y": 35.4,
+   "mt": 2,
+   "min": 27.2,
+   "derive": true
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Passe loupée",
+   "x": 0.68,
+   "y": 15.09,
+   "mt": 2,
+   "min": 27.3,
+   "derive": true
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Passe loupée",
+   "x": 2.92,
+   "y": 29.4,
+   "mt": 2,
+   "min": 28.6,
+   "derive": true
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Passe loupée",
+   "x": 5.5,
+   "y": 25.12,
+   "mt": 2,
+   "min": 30.5,
+   "derive": true
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Passe loupée",
+   "x": 15.86,
+   "y": 24.54,
+   "mt": 2,
+   "min": 32.3,
+   "derive": true
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Passe loupée",
+   "x": 9.29,
+   "y": 29.92,
+   "mt": 2,
+   "min": 32.5,
+   "derive": true
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Passe loupée",
+   "x": 16.4,
+   "y": 19.9,
+   "mt": 2,
+   "min": 33.4,
+   "derive": true
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Passe loupée",
+   "x": 14.79,
+   "y": 36.19,
+   "mt": 2,
+   "min": 33.8,
+   "derive": true
+  },
+  {
+   "e": "MONTENEGRO",
+   "a": "Passe loupée",
+   "x": 13.77,
+   "y": 19.53,
+   "mt": 2,
+   "min": 35.1,
+   "derive": true
+  }
+ ],
+ "terrain": {
+  "buts": [
+   {
+    "equipe": "FRANCE",
+    "buteur": "MOHAMMED",
+    "minute": 17.8,
+    "presents": {
+     "FRANCE": [
+      "MOUHOUDINE",
+      "GUIRIO",
+      "MOHAMMED",
+      "TOURE",
+      "GARROS"
+     ],
+     "MONTENEGRO": []
+    }
+   },
+   {
+    "equipe": "FRANCE",
+    "buteur": "TCHAPTCHET",
+    "minute": 35.2,
+    "presents": {
+     "FRANCE": [
+      "M.TOURE",
+      "TCHAPTCHET",
+      "SAADAOUI",
+      "BELHAJ",
+      "LOKOKA"
+     ],
+     "MONTENEGRO": []
+    }
+   }
+  ],
+  "plusminus": [
+   {
+    "equipe": "FRANCE",
+    "nom": "MOUHOUDINE",
+    "numero": 11,
+    "pour": 1,
+    "contre": 0,
+    "contre_connu": true
+   },
+   {
+    "equipe": "FRANCE",
+    "nom": "GUIRIO",
+    "numero": 7,
+    "pour": 1,
+    "contre": 0,
+    "contre_connu": true
+   },
+   {
+    "equipe": "FRANCE",
+    "nom": "MOHAMMED",
+    "numero": 10,
+    "pour": 1,
+    "contre": 0,
+    "contre_connu": true
+   },
+   {
+    "equipe": "FRANCE",
+    "nom": "TOURE",
+    "numero": 20,
+    "pour": 1,
+    "contre": 0,
+    "contre_connu": true
+   },
+   {
+    "equipe": "FRANCE",
+    "nom": "GARROS",
+    "numero": 21,
+    "pour": 1,
+    "contre": 0,
+    "contre_connu": true
+   },
+   {
+    "equipe": "FRANCE",
+    "nom": "M.TOURE",
+    "numero": 13,
+    "pour": 1,
+    "contre": 0,
+    "contre_connu": true
+   },
+   {
+    "equipe": "FRANCE",
+    "nom": "TCHAPTCHET",
+    "numero": 5,
+    "pour": 1,
+    "contre": 0,
+    "contre_connu": true
+   },
+   {
+    "equipe": "FRANCE",
+    "nom": "SAADAOUI",
+    "numero": 8,
+    "pour": 1,
+    "contre": 0,
+    "contre_connu": true
+   },
+   {
+    "equipe": "FRANCE",
+    "nom": "BELHAJ",
+    "numero": 2,
+    "pour": 1,
+    "contre": 0,
+    "contre_connu": true
+   },
+   {
+    "equipe": "FRANCE",
+    "nom": "LOKOKA",
+    "numero": 1,
+    "pour": 1,
+    "contre": 0,
+    "contre_connu": true
+   }
+  ],
+  "gardiens": [
+   "BURDUJA",
+   "DURKOVIC",
+   "GARROS",
+   "GOLUBCIUC",
+   "LOKOKA",
+   "MARQUET",
+   "SEKULIC"
+  ]
+ },
+ "entrees": {
+  "FRANCE": {
+   "total": 96,
+   "possessions": 152,
+   "lignes": {
+    "Gauche": {
+     "n": 32,
+     "tir": 13,
+     "but": 0
+    },
+    "Axe": {
+     "n": 26,
+     "tir": 11,
+     "but": 1
+    },
+    "Sans entrée": {
+     "n": 18,
+     "tir": 0,
+     "but": 0
+    },
+    "Droite": {
+     "n": 20,
+     "tir": 8,
+     "but": 0
+    }
+   }
+  }
+ },
+ "momentum": {
+  "equipes": [
+   "FRANCE",
+   "MONTENEGRO"
+  ],
+  "valeurs": [
+   [
+    2.5,
+    5.0,
+    2.0,
+    13.0,
+    5.5,
+    1.5,
+    6.5,
+    8.5,
+    5.5,
+    2.5,
+    2.5,
+    1.5,
+    7.0,
+    2.0,
+    2.0,
+    0.0,
+    3.0,
+    10.5,
+    7.0,
+    9.5,
+    2.0,
+    8.0,
+    0.5,
+    2.5,
+    5.0,
+    9.0,
+    3.0,
+    7.0,
+    3.0,
+    7.0,
+    5.0,
+    11.0,
+    4.0,
+    3.0,
+    6.0,
+    2.0,
+    6.0,
+    1.0,
+    4.5,
+    14.0
+   ],
+   [
+    3.0,
+    1.0,
+    2.5,
+    0.5,
+    0.5,
+    0.0,
+    1.0,
+    0.0,
+    0.5,
+    4.5,
+    0.0,
+    3.0,
+    2.5,
+    5.0,
+    0.5,
+    3.0,
+    2.0,
+    0.5,
+    1.0,
+    6.0,
+    5.5,
+    0.0,
+    3.5,
+    3.0,
+    5.5,
+    5.0,
+    0.0,
+    4.0,
+    0.5,
+    0.5,
+    1.0,
+    0.0,
+    2.0,
+    3.5,
+    4.5,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    1.5
+   ]
+  ],
+  "buts": [
+   [
+    "FRANCE",
+    17.8
+   ],
+   [
+    "FRANCE",
+    35.2
+   ]
+  ],
+  "poids": [
+   [
+    "Tir cadré",
+    3
+   ],
+   [
+    "Tir cadré dans les 10 m (bonus)",
+    1
+   ],
+   [
+    "Tir non cadré ou contré",
+    1.5
+   ],
+   [
+    "Corner",
+    1
+   ],
+   [
+    "Coup franc",
+    1
+   ],
+   [
+    "Touche offensive",
+    0.5
+   ],
+   [
+    "Ballon gagné dans le camp adverse",
+    1
+   ],
+   [
+    "Duel offensif gagné dans le camp adverse",
+    0.5
+   ],
+   [
+    "Faute subie dans le camp adverse",
+    0.5
+   ],
+   [
+    "Transition offensive",
+    0.5
+   ]
+  ]
+ },
+ "temps_jeu": {
+  "equipe": "FRANCE",
+  "joueurs": [
+   {
+    "numero": "1",
+    "nom": "LOKOKA",
+    "gardien": true,
+    "mt1": 0,
+    "mt2": 1200,
+    "total": 1200,
+    "entrees": 1
+   },
+   {
+    "numero": "3",
+    "nom": "GUEDDOURA",
+    "gardien": false,
+    "mt1": 315,
+    "mt2": 255,
+    "total": 570,
+    "entrees": 4
+   },
+   {
+    "numero": "4",
+    "nom": "MOHAMED ADAM",
+    "gardien": false,
+    "mt1": 150,
+    "mt2": 120,
+    "total": 270,
+    "entrees": 3
+   },
+   {
+    "numero": "5",
+    "nom": "TCHAPTCHET",
+    "gardien": false,
+    "mt1": 450,
+    "mt2": 285,
+    "total": 735,
+    "entrees": 6
+   },
+   {
+    "numero": "7",
+    "nom": "GUIRIO",
+    "gardien": false,
+    "mt1": 750,
+    "mt2": 540,
+    "total": 1290,
+    "entrees": 7
+   },
+   {
+    "numero": "8",
+    "nom": "SAADAOUI",
+    "gardien": false,
+    "mt1": 185,
+    "mt2": 410,
+    "total": 595,
+    "entrees": 8
+   },
+   {
+    "numero": "9",
+    "nom": "LUTIN",
+    "gardien": false,
+    "mt1": 305,
+    "mt2": 165,
+    "total": 470,
+    "entrees": 5
+   },
+   {
+    "numero": "10",
+    "nom": "MOHAMMED",
+    "gardien": false,
+    "mt1": 435,
+    "mt2": 495,
+    "total": 930,
+    "entrees": 7
+   },
+   {
+    "numero": "11",
+    "nom": "MOUHOUDINE",
+    "gardien": false,
+    "mt1": 735,
+    "mt2": 690,
+    "total": 1425,
+    "entrees": 8
+   },
+   {
+    "numero": "13",
+    "nom": "M.TOURE",
+    "gardien": false,
+    "mt1": 315,
+    "mt2": 360,
+    "total": 675,
+    "entrees": 6
+   },
+   {
+    "numero": "2",
+    "nom": "BELHAJ",
+    "gardien": false,
+    "mt1": 180,
+    "mt2": 660,
+    "total": 840,
+    "entrees": 7
+   },
+   {
+    "numero": "19",
+    "nom": "REZZOUG",
+    "gardien": false,
+    "mt1": 270,
+    "mt2": 270,
+    "total": 540,
+    "entrees": 5
+   },
+   {
+    "numero": "20",
+    "nom": "TOURE",
+    "gardien": false,
+    "mt1": 720,
+    "mt2": 510,
+    "total": 1230,
+    "entrees": 7
+   },
+   {
+    "numero": "21",
+    "nom": "GARROS",
+    "gardien": true,
+    "mt1": 1200,
+    "mt2": 0,
+    "total": 1200,
+    "entrees": 1
+   }
+  ]
+ }
+}
