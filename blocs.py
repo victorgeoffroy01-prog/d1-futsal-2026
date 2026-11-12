@@ -191,3 +191,15 @@ DEFINITIONS = [
     "Remontada : victoire après avoir été mené au moins une fois. Points perdus en menant : points laissés dans les matchs où le club a mené au moins une fois. Buts 36’-40’ : 5 dernières minutes.",
     "Records : en cas d’égalité, le premier en date est affiché. Les séries en cours sont comptées sur les matchs du club jusqu’à la dernière journée.",
 ]
+
+
+def series_ligne(series, pad="0") -> str:
+    """Séries en cours des clubs, condensées en un seul bloc (au lieu d'une ligne par série)."""
+    if not series:
+        return ""
+    lib = {"victoires": "victoires de suite", "invaincu": "sans défaite", "sans_victoire": "sans victoire"}
+    items = "".join(f'<div style="display: flex; align-items: baseline; gap: 8px"><span style="font-family: {SERIF}; font-size: 20px; line-height: 1; color: {RED}; min-width: 18px">{e(r["valeur"])}</span>'
+                    f'<span style="font-size: 13px"><b>{e(lib[r["cle"]])}</b> · {e(r["detail"])}</span></div>' for r in series)
+    return (f'<div style="padding: {pad}"><div style="background: {PAPER}; border: 1.5px solid {INK}; border-radius: 10px; padding: 10px 12px">'
+            f'<div style="font-family: {COND}; font-weight: 700; font-size: 11px; letter-spacing: 0.1em; color: {MUTED}; margin-bottom: 6px">SÉRIES EN COURS</div>'
+            f'<div style="display: flex; flex-direction: column; gap: 6px">{items}</div></div></div>')

@@ -254,13 +254,22 @@ def bilan(matchs) -> str:
                     ui.tile(f"{pour}-{contre}", "buts pour-contre", "red"))
 
 
-def encart_une(E, mobile=False):
+def encart_une(E, mobile=False, court=False):
     """Encart « Équipe de France » de la Une : dernier match analysé, ce qu'on y trouve, prochain match.
+    court=True : bandeau compact (Une mobile), pour ne pas repousser les résultats de D1 trop bas.
     Renvoie (html, id du match analysé) ou (None, None) s'il n'y a rien à montrer."""
     joues = [m for m in E["matchs"] if m["sd"] is not None and m["id"] in E["analyses"]]
     if not joues:
         return None, None
     m = joues[-1]
+    if court:
+        return (f'<div style="background: {PAPER}; border: 2px solid {ui.BLEU_FR}; border-radius: 12px; overflow: hidden">{ui.bande_fr(5)}'
+                f'<div style="padding: 12px 14px; display: flex; align-items: center; gap: 12px">'
+                f'<div style="flex: 1; min-width: 0"><div style="font-family: {COND}; font-weight: 800; font-size: 11px; letter-spacing: 0.14em; color: {ui.BLEU_FR}">ÉQUIPE DE FRANCE · ANALYSE COMPLÈTE</div>'
+                f'<div style="font-family: {SERIF}; font-size: 19px; line-height: 1.15; margin-top: 4px">Les Bleus à la loupe</div>'
+                f'<div style="font-size: 12px; color: {MUTED}; margin-top: 2px">{e(nom_pays(m["domicile"]))} - {e(nom_pays(m["exterieur"]))}{" · " + e(m["date"]) if m.get("date") else ""}</div></div>'
+                f'<div style="display: flex; align-items: center; gap: 6px">{logo(m["domicile"], 24)}<span style="font-family: {SERIF}; font-size: 28px; line-height: 1">{m["sd"]}-{m["se"]}</span>{logo(m["exterieur"], 24)}</div></div>'
+                f'<div style="padding: 0 14px 10px; font-family: {COND}; font-weight: 800; font-size: 12px; letter-spacing: 0.08em; color: {RED}">VOIR L\'ANALYSE →</div></div>'), m["id"]
     d = E["donnees"].get(m["id"]) or {}
     contenu = [lab for k, lab in onglets_dispo(m, E["analyses"].get(m["id"]), d) if k != "resume"]
     suivant = next((x for x in E["matchs"] if x["sd"] is None), None)

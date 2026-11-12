@@ -351,7 +351,7 @@ def match_row(m, noms, analyse=False):
                 f'<span style="font-family: {SERIF}; font-size: 20px; line-height: 1; color: {INK if win or not (wd or we) else MUTED}">{s}</span></div>')
     return (f'<div style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; '
             f'border-bottom: 1px solid {LINE}; background: {PAPER}"><div style="width: 58px; display: flex; flex-direction: column; align-items: flex-start; gap: 5px; font-family: {COND}; font-weight: 700; '
-            f'font-size: 11px; color: {MUTED}">TER{BADGE_ANALYSE if analyse else ""}</div><div style="flex: 1; display: flex; flex-direction: column; gap: 8px">'
+            f'font-size: 11px; color: {MUTED}">FIN<span style="font-weight: 500">MT {m.mt_d}-{m.mt_e}</span>{BADGE_ANALYSE if analyse else ""}</div><div style="flex: 1; display: flex; flex-direction: column; gap: 8px">'
             f'{side(m.dom, m.bd, wd)}{side(m.ext, m.be, we)}</div>{icon("chev", 18, MUTED)}</div>')
 
 

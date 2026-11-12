@@ -243,6 +243,7 @@ def pieds(o: Sortie):
 
 # ================================================================== LA UNE
 def page_une():
+    """La Une : l'essentiel de la journée d'abord (match, France, résultats, classement), puis les leaders et les records."""
     topnav("une")
     o = Sortie()
     j = param_int("j", DERNIERE)
@@ -254,74 +255,90 @@ def page_une():
         o.add(ui.section(ui.empty("Pas encore de match pour cette journée."))); o.fin(); return
     top = m.sort_values(["nb_buts", "dom"], ascending=[False, True]).iloc[0]
     titre, chapo = TEXTES.get(f"une:J{j}"), TEXTES.get(f"match:J{j}:{top.dom}")
-    o.add(ui.section(ui.kicker(f"La Une · Journée {j}"), pad="4px 16px 0"))
-    card = (f'<div style="margin: 12px 16px 0; background: {INK}; color: #fff; border-radius: 12px; padding: 18px 16px 16px">'
-            f'<div style="font-family: {COND}; font-weight: 700; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #F2B8C0">Le match de la journée</div>'
+    ecart = m.assign(d=(m.bd - m.be).abs()).sort_values("d", ascending=False).iloc[0]
+    # 1. le match de la journée, avec les chiffres de la journée en pied de carte
+    chiffre = lambda v, l: (f'<div style="flex: 1; text-align: center"><div style="font-family: {SERIF}; font-size: 22px; line-height: 1">{v}</div>'
+                            f'<div style="font-family: {COND}; font-size: 10px; letter-spacing: 0.08em; color: #D9D2C6; margin-top: 3px">{l}</div></div>')
+    card = (f'<div style="margin: 4px 16px 0; background: {INK}; color: #fff; border-radius: 12px; overflow: hidden"><div style="padding: 16px 16px 14px">'
+            f'<div style="font-family: {COND}; font-weight: 700; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #F2B8C0">Le match de la journée {j}</div>'
             f'<div style="display: flex; align-items: center; justify-content: space-between; margin-top: 12px">'
             f'<div style="display: flex; flex-direction: column; align-items: center; gap: 6px; width: 96px">{ui.logo_or_badge(top.dom, 44, 12, False)}<span style="font-weight: 600; font-size: 13px">{ui.lien_club(top.dom, e(NOMS[top.dom]))}</span></div>'
-            f'<div style="font-family: {SERIF}; font-size: 56px; line-height: 1">{top.bd}-{top.be}</div>'
+            f'<div style="text-align: center"><div style="font-family: {SERIF}; font-size: 54px; line-height: 1">{top.bd}-{top.be}</div>'
+            f'<div style="font-family: {COND}; font-size: 11px; letter-spacing: 0.08em; color: #D9D2C6; margin-top: 4px">MI-TEMPS {top.mt_d}-{top.mt_e}</div></div>'
             f'<div style="display: flex; flex-direction: column; align-items: center; gap: 6px; width: 96px">{ui.logo_or_badge(top.ext, 44, 12, False)}<span style="font-weight: 600; font-size: 13px">{ui.lien_club(top.ext, e(NOMS[top.ext]))}</span></div></div>'
-            + (f'<div style="font-family: {SERIF}; font-size: 22px; line-height: 1.15; margin-top: 14px">{e(titre)}</div>' if titre else "")
-            + (f'<div style="font-size: 13px; color: #D9D2C6; margin-top: 6px">{e(chapo)}</div>' if chapo else "") + "</div>")
+            + (f'<div style="font-family: {SERIF}; font-size: 21px; line-height: 1.15; margin-top: 14px">{e(titre)}</div>' if titre else "")
+            + (f'<div style="font-size: 13px; color: #D9D2C6; margin-top: 6px">{e(chapo)}</div>' if chapo else "")
+            + f'</div><div style="display: flex; border-top: 1px solid #333; padding: 10px 6px">{chiffre(len(b), f"BUTS EN J{j}")}{chiffre(fr(len(b) / len(m)), "BUTS / MATCH")}'
+            f'{chiffre(f"{max(ecart.bd, ecart.be)}-{min(ecart.bd, ecart.be)}", "PLUS LARGE ÉCART")}</div></div>')
     o.lien(card, "match", j=j, dom=top.dom)
-    fr_html, fr_id = edf.encart_une(EDF, mobile=True)
+    # 2. l'Équipe de France, en bandeau court : visible sans repousser la D1
+    fr_html, fr_id = edf.encart_une(EDF, mobile=True, court=True)
     if fr_html:
-        o.lien(f'<div style="margin: 14px 16px 0">{fr_html}</div>', "edfmatch", id=fr_id)
-    ecart = m.assign(d=(m.bd - m.be).abs()).sort_values("d", ascending=False).iloc[0]
-    o.add(f'<div style="padding: 0 16px">' + ui.tiles(ui.tile(len(b), f"buts en J{j}", "red"), ui.tile(fr(len(b) / len(m)), "buts / match"),
-          ui.tile(f"{max(ecart.bd, ecart.be)}-{min(ecart.bd, ecart.be)}", "plus large écart"), mt=10) + "</div>")
-    o.add(f'<div style="padding: 22px 16px 8px">{ui.kicker(f"Résultats · J{j}")}</div><div style="border-top: 1px solid {LINE}"></div>')
+        o.lien(f'<div style="margin: 12px 16px 0">{fr_html}</div>', "edfmatch", id=fr_id)
+    # 3. résultats de la journée
+    o.add(ui.section(ui.kicker(f"Résultats · J{j}"), pad="24px 16px 10px") + f'<div style="border-top: 1px solid {LINE}"></div>')
     for r in m.sort_values("nb_buts", ascending=False).itertuples():
         o.lien(ui.match_row(r, NOMS, (r.journee, r.dom) in RAPPORTS), "match", j=r.journee, dom=r.dom)
-
-    def podium(df, col, titre, vue):
-        o.add(ui.section(ui.kicker(titre) + '<div style="height: 12px"></div>'))
-        cartes = []
-        for i, r in enumerate(df.head(3).itertuples()):
-            dark = i == 0
-            nom = r.joueur.split()
-            cartes.append((f'<div style="height: 100%; box-sizing: border-box; background: {INK if dark else PAPER}; color: {"#fff" if dark else INK}; border: 1.5px solid {INK}; '
-                           f'border-radius: 10px; padding: 12px 10px; display: flex; flex-direction: column; gap: 6px">'
-                           f'<div style="font-family: {SERIF}; font-size: 36px; line-height: 1">{getattr(r, col)}</div>'
-                           f'<div style="font-weight: 700; font-size: 13px; line-height: 1.15">{e(nom[0])}<br>{e(" ".join(nom[1:3]))}</div>'
-                           f'<div style="font-family: {COND}; font-weight: 600; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: {"#E9E2D5" if dark else MUTED}">{ui.lien_club(r.club, e(NOMS.get(r.club, r.club)))}</div></div>',
-                           "joueur", {"id": r.id_joueur}))
-        with st.container(key=f"pad-{vue}"):
-            o.rangee(cartes, style="cards")
-        o.lien(f'<div style="display: flex; justify-content: flex-end; padding: 10px 16px 0; font-family: {COND}; font-weight: 700; font-size: 12px; letter-spacing: 0.08em; color: {RED}">TOUT LE CLASSEMENT</div>', "classements", vue=vue)
-    podium(STATS[STATS.Buts > 0], "Buts", "Meilleurs buteurs", "buteurs")
-    podium(STATS[STATS.Passes > 0].sort_values(["Passes", "Buts"], ascending=False), "Passes", "Meilleurs passeurs", "passeurs")
-    section_records(o, j)
-    o.add(f'<div style="padding: 22px 16px 6px">{ui.kicker("Classement")}</div>')
+    # 4. classement (top 5)
+    o.add(ui.section(ui.kicker(f"Classement · après J{DERNIERE}"), pad="24px 16px 6px"))
     for r in CLASSEMENT.head(5).itertuples():
         o.lien(f'<div style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-bottom: 1px solid {LINE}; {"box-shadow: inset 4px 0 0 " + RED if r.Rg <= C.NB_PLAYOFFS else ""}">'
                f'<span style="width: 18px; font-family: {COND}; font-weight: 700">{r.Rg}</span>{ui.logo_or_badge(r.club, 24, 8)}'
                f'<span style="flex: 1; font-weight: 600">{e(NOMS[r.club])}</span><span style="font-family: {COND}; color: {MUTED}; width: 34px; text-align: right">{r.Diff:+d}</span>'
                f'<span style="font-family: {SERIF}; font-size: 18px; width: 28px; text-align: right">{r.Pts}</span></div>', "club", id=r.club)
-    o.lien(f'<div style="display: flex; align-items: center; justify-content: center; min-height: 48px; font-family: {COND}; font-weight: 700; font-size: 13px; letter-spacing: 0.08em; color: {RED}">CLASSEMENT COMPLET</div>', "classements")
+    o.lien(lien_rouge("CLASSEMENT COMPLET"), "classements")
+    # 5. leaders : podium des buteurs, puis passeurs et décisifs en listes courtes
+    o.add(ui.section(ui.kicker("Meilleurs buteurs") + '<div style="height: 12px"></div>', pad="24px 16px 0"))
+    cartes = []
+    for i, r in enumerate(STATS[STATS.Buts > 0].head(3).itertuples()):
+        dark = i == 0
+        nom = r.joueur.split()
+        cartes.append((f'<div style="height: 100%; box-sizing: border-box; background: {INK if dark else PAPER}; color: {"#fff" if dark else INK}; border: 1.5px solid {INK}; '
+                       f'border-radius: 10px; padding: 12px 10px; display: flex; flex-direction: column; gap: 6px">'
+                       f'<div style="font-family: {SERIF}; font-size: 34px; line-height: 1">{r.Buts}</div>'
+                       f'<div style="font-weight: 700; font-size: 13px; line-height: 1.15">{e(nom[0])}<br>{e(" ".join(nom[1:3]))}</div>'
+                       f'<div style="font-family: {COND}; font-weight: 600; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: {"#E9E2D5" if dark else MUTED}">{ui.lien_club(r.club, e(NOMS.get(r.club, r.club)))}</div></div>',
+                       "joueur", {"id": r.id_joueur}))
+    o.flush()          # le titre s'affiche avant le conteneur du podium (sinon décalé de 16 px)
+    with st.container(key="pad-buteurs"):
+        o.rangee(cartes, style="cards")
+    o.lien(lien_rouge("TOUS LES BUTEURS"), "classements", vue="buteurs")
+    for titre_l, col, d, vue, sous in [
+            ("Meilleurs passeurs", "Passes", STATS[STATS.Passes > 0].sort_values(["Passes", "Buts", "joueur"], ascending=[False, False, True]), "passeurs",
+             lambda r: f"{r.Buts} b · {r.Passes} p"),
+            ("Les plus décisifs", "Pts_rapportes", STATS[STATS.Pts_rapportes > 0].sort_values(["Pts_rapportes", "Vainqueurs", "joueur"], ascending=[False, False, True]), "decisifs",
+             lambda r: f"{int(r.Pts_rapportes)} points rapportés · {int(r.Vainqueurs)} vainq.")]:
+        o.add(ui.section(ui.kicker(titre_l), pad="24px 16px 4px"))
+        for k, (_, r) in enumerate(d.head(3).iterrows(), 1):
+            o.lien(ui.rank_row(k, r.joueur, "", int(r[col]), k == 1, sous_html=f"{ui.lien_club(r.club, e(NOMS.get(r.club, r.club)))} · {sous(r)}"), "joueur", id=r.id_joueur)
+        o.lien(lien_rouge("TOUT LE CLASSEMENT"), "classements", vue=vue)
+    # 6. records et séries, condensés
+    section_records(o, j)
     pieds(o)
 
 
+def lien_rouge(txt):
+    return (f'<div style="display: flex; justify-content: flex-end; align-items: center; min-height: 40px; padding: 0 16px; font-family: {COND}; font-weight: 700; '
+            f'font-size: 12px; letter-spacing: 0.08em; color: {RED}">{txt}</div>')
+
+
 def section_records(o: Sortie, j):
-    """Records et séries de la D1 : bloc compact (5 lignes), le reste sur demande."""
-    tout = CTX["series"] + CTX["records"]
-    if not tout:
+    """Records et séries de la D1 : séries en un bloc, 4 records, le reste sur demande."""
+    if not (CTX["series"] or CTX["records"]):
         return
     plus = qp.get("rec") == "1"
-    o.add(ui.section(ui.kicker("Records et séries") + f'<div style="font-size: 12px; color: {MUTED}; margin-top: 6px">Depuis la J1, toute la D1.</div>', pad="22px 16px 4px"))
-    for r in (tout if plus else tout[:5]):
+    recs = CTX["records"] if plus else CTX["records"][:4]
+    o.add(ui.section(ui.kicker("Records et séries · depuis la J1"), pad="24px 16px 10px") + blocs.series_ligne(CTX["series"], "0 16px 6px"))
+    for r in recs:
         if r.get("lien"):
             o.lien(blocs.record_ligne(r, compact=True), "match", j=r["lien"][0], dom=r["lien"][1])
         elif r.get("joueur"):
             o.lien(blocs.record_ligne(r, compact=True), "joueur", id=r["joueur"])
-        elif r.get("clubs") and len(r["clubs"]) == 1:
-            o.lien(blocs.record_ligne(r, compact=True), "club", id=r["clubs"][0])
         else:
             o.add(blocs.record_ligne(r, compact=True))
-    if len(tout) > 5:
-        lib = "MOINS DE RECORDS" if plus else f"TOUS LES RECORDS ({len(tout)})"
-        o.lien(f'<div style="display: flex; justify-content: flex-end; padding: 10px 16px 0; font-family: {COND}; font-weight: 700; font-size: 12px; letter-spacing: 0.08em; color: {RED}">{lib}</div>',
-               "une", **({"j": j} if plus else {"j": j, "rec": 1}))
+    if len(CTX["records"]) > 4:
+        lib = "MOINS DE RECORDS" if plus else f"TOUS LES RECORDS ({len(CTX['records'])})"
+        o.lien(lien_rouge(lib), "une", **({"j": j} if plus else {"j": j, "rec": 1}))
 
 
 # ================================================================== MATCHS
