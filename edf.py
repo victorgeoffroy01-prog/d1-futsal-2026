@@ -254,6 +254,40 @@ def bilan(matchs) -> str:
                     ui.tile(f"{pour}-{contre}", "buts pour-contre", "red"))
 
 
+def encart_une(E, mobile=False):
+    """Encart « Équipe de France » de la Une : dernier match analysé, ce qu'on y trouve, prochain match.
+    Renvoie (html, id du match analysé) ou (None, None) s'il n'y a rien à montrer."""
+    joues = [m for m in E["matchs"] if m["sd"] is not None and m["id"] in E["analyses"]]
+    if not joues:
+        return None, None
+    m = joues[-1]
+    d = E["donnees"].get(m["id"]) or {}
+    contenu = [lab for k, lab in onglets_dispo(m, E["analyses"].get(m["id"]), d) if k != "resume"]
+    suivant = next((x for x in E["matchs"] if x["sd"] is None), None)
+    t = 13 if mobile else 14
+    score = (f'<div style="display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 14px">'
+             f'{logo(m["domicile"], 40 if mobile else 48)}<span style="font-family: {SERIF}; font-size: {44 if mobile else 52}px; line-height: 1">{m["sd"]}-{m["se"]}</span>'
+             f'{logo(m["exterieur"], 40 if mobile else 48)}</div>'
+             f'<div style="text-align: center; font-weight: 700; font-size: {t + 1}px; margin-top: 8px">{e(nom_pays(m["domicile"]))} - {e(nom_pays(m["exterieur"]))}</div>'
+             f'<div style="text-align: center; font-family: {COND}; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: {MUTED}; margin-top: 2px">'
+             f'{e(" · ".join(x for x in [m["phase"], m["date"]] if x))}</div>')
+    puces = "".join(f'<span style="border: 1.5px solid {ui.BLEU_FR}; color: {ui.BLEU_FR}; border-radius: 999px; padding: 3px 10px; font-family: {COND}; '
+                    f'font-weight: 700; font-size: 12px; white-space: nowrap">{e(c)}</span>' for c in contenu)
+    prochain = (f'<div style="margin-top: 12px; font-size: {t - 1}px; color: {MUTED}">Prochain match : <b style="color: {INK}">{e(nom_pays(suivant["domicile"]))} - '
+                f'{e(nom_pays(suivant["exterieur"]))}</b>{" · " + e(suivant["date"]) if suivant.get("date") else ""}</div>') if suivant else ""
+    html = (f'<div style="background: {PAPER}; border: 2px solid {ui.BLEU_FR}; border-radius: 14px; overflow: hidden">{ui.bande_fr(6)}'
+            f'<div style="padding: {"16px" if mobile else "20px 22px"}">'
+            f'<div style="display: flex; justify-content: space-between; align-items: center; gap: 8px">'
+            f'<span style="font-family: {COND}; font-weight: 800; font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: {ui.BLEU_FR}">Équipe de France</span>'
+            f'<span style="font-family: {COND}; font-weight: 700; font-size: 10px; letter-spacing: 0.1em; color: #fff; background: {ui.BLEU_FR}; border-radius: 3px; padding: 2px 6px">ANALYSE COMPLÈTE</span></div>'
+            f'<div style="font-family: {SERIF}; font-size: {22 if mobile else 26}px; line-height: 1.1; margin-top: 8px">Les Bleus à la loupe</div>'
+            f'<div style="font-size: {t}px; color: {MUTED}; margin-top: 4px">Chaque match analysé action par action, avec bien plus de stats que la D1.</div>'
+            f'{score}<div style="display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 12px">{puces}</div>{prochain}'
+            f'<div style="margin-top: 14px; text-align: center; font-family: {COND}; font-weight: 800; font-size: 13px; letter-spacing: 0.08em; color: {RED}">VOIR L\'ANALYSE →</div>'
+            f'</div></div>')
+    return html, m["id"]
+
+
 def mention(pad="0") -> str:
     return (f'<div style="padding: {pad}; font-size: 12px; line-height: 1.5; color: {MUTED}">'
             f'<b style="color: {INK}">Analyse indépendante.</b> {e(MENTION.split(". ", 1)[1])}</div>')

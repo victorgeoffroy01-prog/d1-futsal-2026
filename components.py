@@ -309,8 +309,24 @@ def seg_item(lab, on):
             f'background: {INK if on else "transparent"}; color: {"#fff" if on else INK}; font-family: {COND}; font-weight: 700; font-size: 13px">{e(lab)}</div>')
 
 
+# Bande bleu-blanc-rouge : signe distinctif de l'Équipe de France partout sur le site (menu, encarts).
+BLEU_FR = "#1F3A93"
+
+
+def bande_fr(h=4, w="100%") -> str:
+    return (f'<div style="display: flex; width: {w}; height: {h}px; border-radius: 2px; overflow: hidden; flex-shrink: 0">'
+            f'<span style="flex: 1; background: {BLEU_FR}"></span><span style="flex: 1; background: #fff; box-shadow: inset 0 0 0 0.5px {LINE}"></span>'
+            f'<span style="flex: 1; background: {RED}"></span></div>')
+
+
 def nav_item(k, lab, on):
     c = RED if on else INK
+    if k == "edf":            # Équipe de France mise en valeur : bleu, bande tricolore
+        c = RED if on else BLEU_FR
+        return (f'<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; height: 54px; '
+                f'color: {c}; font-family: {COND}; font-weight: 800; font-size: 10px; letter-spacing: 0.01em; white-space: nowrap; '
+                f'text-transform: uppercase; border-bottom: 3px solid {RED if on else "transparent"}; box-sizing: border-box">'
+                f'{bande_fr(3, "22px")}{icon(k, 18, c)}<span>{lab}</span></div>')
     return (f'<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; height: 54px; '
             f'color: {c}; font-family: {COND}; font-weight: {700 if on else 600}; font-size: 10px; letter-spacing: 0.01em; white-space: nowrap; '
             f'text-transform: uppercase; border-bottom: 3px solid {RED if on else "transparent"}; box-sizing: border-box">{icon(k, 20, c)}<span>{lab}</span></div>')

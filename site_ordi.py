@@ -15,6 +15,7 @@ import analyse
 import nav
 import rapports
 import recherche
+import edf
 import edf_pages
 from nav import Sortie
 import components as ui
@@ -104,6 +105,11 @@ def entete_site(active):
                           v[0] if v else None, v[1] if v else None, "content"))
     for k, lab, cible in items:
         on = k == active
+        if k == "edf":        # Équipe de France mise en valeur : bleu + bande tricolore
+            nav_items.append((f'<div style="padding: 8px 0 10px; border-bottom: 3px solid {RED if on else "transparent"}; font-family: {COND}; '
+                              f'font-weight: 800; font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap; color: {RED if on else ui.BLEU_FR}">'
+                              f'{ui.bande_fr(3)}<div style="margin-top: 4px">{lab}</div></div>', cible, {}, "content"))
+            continue
         nav_items.append((f'<div style="padding: 12px 0 10px; border-bottom: 3px solid {RED if on else "transparent"}; font-family: {COND}; '
                           f'font-weight: 700; font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap">{lab}</div>',
                           cible, {"vue": "annuaire"} if k == "annuaire" else ({"vue": "tableau"} if k == "stats" else {}), "content"))
@@ -285,7 +291,11 @@ def page_une():
         o.fin()
         grille_matchs(m.sort_values("nb_buts", ascending=False))
     with d:
-        st.html('<div style="height: 60px"></div>' + kick(f"Classement · Après J{X['derniere']}"))
+        fr_html, fr_id = edf.encart_une(X["edf"])
+        if fr_html:
+            st.html('<div style="height: 60px"></div>')
+            o2 = Sortie(); o2.lien(fr_html, "edfmatch", id=fr_id); o2.fin()
+        st.html(f'<div style="height: {24 if fr_html else 60}px"></div>' + kick(f"Classement · Après J{X['derniere']}"))
         classement_table(X["classement"], compact=True)
     st.html('<div style="height: 30px"></div>')
     c1, c2, c3 = st.columns(3, gap="large")

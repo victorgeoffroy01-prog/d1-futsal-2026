@@ -35,6 +35,10 @@ def _inverser(r):
             "joueurs": r["joueurs"][::-1], "gardiens": r["gardiens"][::-1]}
 
 
+# Nom écrit dans un rapport -> id de la fiche, quand le nom du rapport ne ressemble pas à celui de la fiche.
+ALIAS_RAPPORTS = {("GOAL", "COELHO"): "pedro-oliveira-martins"}
+
+
 def _id_joueur(nom, effectif):
     """Retrouve le joueur du rapport dans l'effectif du club (nom de famille, surnom ou initiale)."""
     morceaux = [m for m in re.split(r"[\s.]+", _sa(nom)) if m]
@@ -95,7 +99,7 @@ def preparer(base, fichiers: dict) -> tuple[dict, list]:
         for k, club in enumerate(r["clubs"]):
             eff = base.joueurs[base.joueurs.club_court == club]
             for jr in r["joueurs"][k]:
-                jr["id"] = _id_joueur(jr["nom"], eff)
+                jr["id"] = ALIAS_RAPPORTS.get((club, _sa(jr["nom"]).strip())) or _id_joueur(jr["nom"], eff)
                 if jr["id"] is None:
                     # pas de fiche : on en crée une provisoire pour que le joueur soit quand même cliquable
                     i = data.slug(jr["nom"])
