@@ -149,7 +149,8 @@ def _rapport(m, base, out, A):
     js = _fichier_rapport(m["rapport"], "json") or RACINE / "rapport" / f"{m['rapport']}.json"   # absent : chemin qui n'existe pas
     m["pdf"] = str(pdf) if pdf else None
     if not pdf:
-        A(controles.ALERTE, f"{m['rapport']} : PDF introuvable dans le dossier rapport.")
+        if m["sd"] is not None:      # match pas encore joué : rapport prévu, pas d'alerte
+            A(controles.ALERTE, f"{m['rapport']} : PDF introuvable dans le dossier rapport.")
         return
     if m["sd"] is None:
         A(controles.ALERTE, f"{m['rapport']} : score absent de EDF_matchs.xlsx, analyse non publiée.")

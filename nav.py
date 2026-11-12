@@ -12,15 +12,18 @@ Usage dans une page :
     o.fin()
 """
 from __future__ import annotations
+import threading
 import streamlit as st
 
 PAGES: dict = {}          # rempli par app_mobile.py : nom -> st.Page
-_COMPTEUR = [0]           # numérote les zones cliquables, unique sur toute la page
+# Numérote les zones cliquables, unique sur toute la page. Un compteur par visiteur (par fil d'exécution) :
+# partagé entre visiteurs, deux personnes sur le site en même temps faisaient planter la page (clé en double).
+_COMPTEUR = threading.local()
 
 
 def reset():
     """À appeler au début de chaque exécution du script."""
-    _COMPTEUR[0] = 0
+    _COMPTEUR.n = 0
 
 CSS_NAV = """
 <style>
@@ -55,8 +58,8 @@ class Sortie:
         self.buf: list[str] = []
 
     def _cle(self, prefixe):
-        _COMPTEUR[0] += 1
-        return f"{prefixe}-{_COMPTEUR[0]}"
+        _COMPTEUR.n = getattr(_COMPTEUR, "n", 0) + 1
+        return f"{prefixe}-{_COMPTEUR.n}"
 
     def add(self, h: str):
         self.buf.append(h)

@@ -161,8 +161,11 @@ def controle_passes(pg: pd.DataFrame, pc: pd.DataFrame, bg: pd.DataFrame) -> lis
     pg = pg.assign(_k=cle(pg)).drop_duplicates("_k"); pc = pc.assign(_k=cle(pc)).drop_duplicates("_k")
     for _, r in pc[~pc._k.isin(set(pg._k))].iterrows():
         out.append(Anomalie(ALERTE, src, f"{_ou(r)} : ligne présente dans l'onglet global mais absente des onglets clubs."))
-    for _, r in pg[~pg._k.isin(set(pc._k))].iterrows():
-        out.append(Anomalie(ALERTE, src, f"{_ou(r)} : ligne présente dans l'onglet club mais absente de l'onglet global."))
+    manque = pg[~pg._k.isin(set(pc._k))]
+    if len(manque):                 # l'onglet global ne sert pas au site : une seule alerte, pas une par ligne
+        js = ", ".join(f"J{int(j)}" for j in sorted(pd.to_numeric(manque.journee, errors="coerce").dropna().unique()))
+        out.append(Anomalie(ALERTE, src, f"Onglet global des passes pas à jour : {len(manque)} passe(s) des onglets clubs n'y sont pas ({js}). "
+                            f"Le site ne s'en sert pas : le compléter ou le vider."))
     passeur_global = pc.set_index("_k").joueur
     for _, r in pg[pg._k.isin(passeur_global.index)].iterrows():
         autre = passeur_global[r._k]
