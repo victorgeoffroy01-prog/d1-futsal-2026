@@ -17,6 +17,7 @@ from dataclasses import dataclass, field
 import pandas as pd
 
 import config as C
+import contexte
 import controles
 
 COLS_BUT = ["journee", "equipe_domicile", "equipe_exterieure", "equipe_marque", "equipe_encaisse",
@@ -289,6 +290,11 @@ class Base:
             })
         df = pd.DataFrame(rows)
         df["Buts_par_match"] = (df.Buts / df.MJ_club.where(df.MJ_club > 0)).round(2)
+        # contexte des buts (égalisateurs, vainqueurs, points rapportés...) : 0 pour un joueur sans but
+        ctx = contexte.stats_joueurs(b, self.matchs)
+        df = df.merge(ctx, on="id_joueur", how="left")
+        for c in contexte.COLS:
+            df[c] = df[c].fillna(0).astype(float if c == "Minute_moy" else int)
         return df.sort_values(["Buts", "B+P", "joueur"], ascending=[False, False, True]).reset_index(drop=True)
 
     def buteurs(self) -> pd.DataFrame:
@@ -446,6 +452,7 @@ def charger(f_buts=C.FICHIER_BUTS, f_passes=C.FICHIER_PASSES, f_fiches=C.FICHIER
                          mt_e=int(mt.score_ext_apres.max()) if len(mt) else 0,
                          nb_buts=len(m)))
     matchs = pd.DataFrame(rows).sort_values(["journee", "dom"]).reset_index(drop=True)
+    b = contexte.enrichir_buts(b, matchs)       # égalisateur, but vainqueur, score avant le but...
     anomalies += controles.controle_calendrier(matchs, len(clubs))
     anomalies += controles.controle_joueurs(b)
 

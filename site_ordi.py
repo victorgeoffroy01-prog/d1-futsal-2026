@@ -12,6 +12,8 @@ import streamlit as st
 import config as C
 import data
 import analyse
+import blocs
+import contexte
 import nav
 import rapports
 import recherche
@@ -313,7 +315,29 @@ def page_une():
         top_liste(X["stats"][X["stats"].Buts > 0], "Buts", 8)
         st.html(kick("Meilleurs passeurs", mt=18))
         top_liste(X["stats"][X["stats"].Passes > 0].sort_values(["Passes", "Buts"], ascending=False), "Passes", 5)
+    bande_records()
     pied()
+
+
+def bande_records():
+    """Records et séries de la D1 : une bande compacte en bas de la Une (présente sans prendre toute la place)."""
+    tout = X["ctx"]["series"] + X["ctx"]["records"]
+    if not tout:
+        return
+    st.html('<div style="height: 30px"></div>' + kick("Records et séries · depuis la J1") + '<div style="height: 6px"></div>')
+    cols = st.columns(4, gap="large")
+    for n, r in enumerate(tout):
+        with cols[n % 4]:
+            o = Sortie()
+            if r.get("lien"):
+                o.lien(blocs.record_ligne(r), "match", j=r["lien"][0], dom=r["lien"][1])
+            elif r.get("joueur"):
+                o.lien(blocs.record_ligne(r), "joueur", id=r["joueur"])
+            elif r.get("clubs") and len(r["clubs"]) == 1:
+                o.lien(blocs.record_ligne(r), "club", id=r["clubs"][0])
+            else:
+                o.add(blocs.record_ligne(r))
+            o.fin()
 
 
 # ================================================================== RÉSULTATS
@@ -483,11 +507,22 @@ COLS_STATS = {"joueur": "Joueur", "club": "Club", "Buts": "Buts", "Passes": "Pas
 TETES_STATS = {"joueur": "Joueur", "club": "Club", "Buts": "Buts", "Passes": "Passes", "B+P": "B+P", "Buts_1MT": "1re MT", "Buts_2MT": "2e MT",
                "Buts_dom": "Dom", "Buts_ext": "Ext", "Att_placee": "Placée", "Transition": "Transit.", "Att_rapide": "Rapide", "CPA": "CPA",
                "Power_play": "P. play", "Penalty": "Pen.", "Buts_ouverture": "1er but", "Pct_buts_club": "% club"}
-TPL_STATS = "grid-template-columns: 30px minmax(170px, 2.3fr) minmax(110px, 1.1fr) repeat(15, minmax(34px, 0.5fr))"
-CSS_STATS = f"""
+# 2e jeu de colonnes : contexte des buts (égalisateurs, vainqueurs, points rapportés...), voir contexte.py
+_BASE_COLS = {"joueur": "Joueur", "club": "Club", "Buts": "Buts", "Passes": "Passes", "B+P": "B+P"}
+COLS_CTX = {**_BASE_COLS, **contexte.COLS}
+TETES_CTX = {**_BASE_COLS, **contexte.COURTS}
+JEUX_STATS = {"origines": (COLS_STATS, TETES_STATS), "contexte": (COLS_CTX, TETES_CTX)}
+
+
+def tpl_stats(n):
+    return f"grid-template-columns: 30px minmax(170px, 2.3fr) minmax(110px, 1.1fr) repeat({n}, minmax(34px, 0.5fr))"
+
+
+def css_stats(tpl):
+    return f"""
 <style>
 /* en-tête triable : mêmes colonnes que les lignes du tableau */
-[class*="st-key-rw-thead"] {{ display: grid !important; {TPL_STATS}; gap: 6px !important; padding: 0 10px; border-bottom: 2px solid {INK};
+[class*="st-key-rw-thead"] {{ display: grid !important; {tpl}; gap: 6px !important; padding: 0 10px; border-bottom: 2px solid {INK};
   align-items: end !important; overflow: visible !important; }}
 [class*="st-key-rw-thead"] > div {{ width: auto !important; min-width: 0 !important; max-width: none !important; flex: none !important; }}
 </style>
@@ -572,6 +607,11 @@ def page_joueurs():
     o.fin()
     js = X["journees"]
     if vue == "tableau":
+        jeu = X["choix"]("cols", list(JEUX_STATS), "origines")
+        COLS, TETES = JEUX_STATS[jeu]
+        o = Sortie()
+        o.rangee([(ui.pill_item(lab, k == jeu), "joueurs", {"vue": "tableau", "cols": k}, "content") for k, lab in [("origines", "Origines des buts"), ("contexte", "Contexte des buts")]], style="pills")
+        o.fin()
         ref = X["stats"]
         with st.container(horizontal=True, key="filtres"):
             q = recherche.champ([(r.joueur, N.get(r.club, r.club), r.joueur) for r in ref.sort_values(["B+P", "Buts", "joueur"], ascending=[False, False, True]).itertuples()],
@@ -581,54 +621,61 @@ def page_joueurs():
             lieu = st.selectbox("Lieu", ["Tous", "Domicile", "Extérieur"], key="st-lieu")
             groupe = st.selectbox("Phase de jeu", ["Toutes", "Attaque placée", "Transition off", "Attaque rapide", "CPA", "Power play", "Penalty"], key="st-phase")
         sb = _sous_base(base, j1, j2, lieu, groupe)
-        s = sb.stats_joueurs() if len(sb.buts) else pd.DataFrame(columns=["id_joueur"] + list(COLS_STATS))
+        s = sb.stats_joueurs() if len(sb.buts) else pd.DataFrame(columns=["id_joueur"] + list(COLS))
         if clubs:
             s = s[s.club.isin(clubs)]
         if q:
             s = s[[recherche.correspond(q, t) for t in s.joueur]]
         s = s[(s.Buts > 0) | (s.Passes > 0)]
         # tri : clic sur un en-tête (2e clic = sens inverse)
-        tri = X["choix"]("tri", list(COLS_STATS), "Buts")
+        tri = X["choix"]("tri", list(COLS), "Buts")
         texte = tri in ("joueur", "club")
         sens = X["choix"]("sens", ["asc", "desc"], "asc" if texte else "desc")
         s = s.assign(_club=s.club.map(lambda c: N.get(c, c)), _nom=s.joueur.map(recherche.norm))
         cle = {"joueur": "_nom", "club": "_club"}.get(tri, tri)
         s = s.sort_values(["Buts", "B+P", "_nom"], ascending=[False, False, True]).sort_values(cle, ascending=sens == "asc", kind="stable").reset_index(drop=True)
-        st.html(CSS_STATS + f'<div style="font-size: 13px; color: {MUTED}; margin-bottom: 8px">{len(s)} joueur{"s" if len(s) > 1 else ""} · '
+        nums = [c for c in COLS if c not in ("joueur", "club")]
+        TPL = tpl_stats(len(nums))
+        st.html(css_stats(TPL) + f'<div style="font-size: 13px; color: {MUTED}; margin-bottom: 8px">{len(s)} joueur{"s" if len(s) > 1 else ""} · '
                 f'cliquer un en-tête pour trier, une ligne pour ouvrir la fiche du joueur.</div>')
         o = Sortie()
         tetes = [(f'<div style="padding: 8px 0; font-family: {COND}; font-weight: 700; font-size: 11px; letter-spacing: 0.08em; color: {MUTED}">#</div>', None, None)]
-        for c, lab in TETES_STATS.items():
+        for c, lab in TETES.items():
             on = c == tri
             suivant = ("desc" if sens == "asc" else "asc") if on else ("asc" if c in ("joueur", "club") else "desc")
             fleche = (" ▲" if sens == "asc" else " ▼") if on else ""
-            tetes.append((f'<div title="{e(COLS_STATS[c])}" style="padding: 8px 0; font-family: {COND}; font-weight: 700; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; '
+            tetes.append((f'<div title="{e(COLS[c])}" style="padding: 8px 0; font-family: {COND}; font-weight: 700; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; '
                           f'line-height: 1.15; color: {RED if on else MUTED}; text-align: {"left" if c in ("joueur", "club") else "center"}">{e(lab)}{fleche}</div>',
-                          "joueurs", {"vue": "tableau", "tri": c, "sens": suivant}))
+                          "joueurs", {"vue": "tableau", "cols": jeu, "tri": c, "sens": suivant}))
         o.rangee(tetes, style="thead")
         if s.empty:
             o.add(ui.empty("Aucun joueur ne correspond à ces filtres."))
-        nums = [c for c in COLS_STATS if c not in ("joueur", "club")]
         for i, r in enumerate(s.to_dict("records"), 1):
             cell = ""
             for c in nums:
-                v = int(r[c])
-                txt = f"{v} %" if c == "Pct_buts_club" else str(v)
+                v = float(r[c]) if c == "Minute_moy" else int(r[c])
+                txt = f"{v} %" if c == "Pct_buts_club" else ((fr(v) + "’" if v else "-") if c == "Minute_moy" else str(v))
                 if c == tri:
                     cell += f'<span style="text-align: center; font-family: {SERIF}; font-size: 18px; color: {RED if v else LINE}">{txt}</span>'
                 else:
                     cell += f'<span style="text-align: center; font-family: {COND}; font-size: 15px; font-weight: {700 if c == "Buts" else 500}; color: {INK if v else "#B5AB99"}">{txt}</span>'
-            o.lien(f'<div style="display: grid; {TPL_STATS}; gap: 6px; align-items: center; padding: 7px 10px; border-bottom: 1px solid {LINE}; background: {PAPER if i % 2 else CR}">'
+            o.lien(f'<div style="display: grid; {TPL}; gap: 6px; align-items: center; padding: 7px 10px; border-bottom: 1px solid {LINE}; background: {PAPER if i % 2 else CR}">'
                    f'<span style="font-family: {COND}; font-weight: 700; color: {MUTED}">{i}</span>'
                    f'<span style="font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{e(r["joueur"])}</span>'
                    f'<span style="display: flex; align-items: center; gap: 8px; min-width: 0">{ui.logo_or_badge(r["club"], 22, 8)}'
                    f'<span style="font-size: 13px; color: {MUTED}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{ui.lien_club(r["club"], e(r["_club"]))}</span></span>{cell}</div>',
                    "joueur", id=r["id_joueur"])
         o.fin()
-        aff = s.assign(club=s._club)[list(COLS_STATS)].rename(columns=COLS_STATS)
+        aff = s.assign(club=s._club)[list(COLS)].rename(columns=COLS)
         with st.container(key="export"):
-            st.download_button("Exporter en CSV", aff.to_csv(index=False, sep=";").encode("utf-8-sig"), file_name="d1futsal_stats_joueurs.csv", mime="text/csv")
-        st.html(f'<div style="font-size: 12px; color: {MUTED}; line-height: 1.6; margin-top: 10px">1re MT, 2e MT : buts par mi-temps. Dom, Ext : buts à domicile, à l’extérieur. '
+            st.download_button("Exporter en CSV", aff.to_csv(index=False, sep=";", decimal=",").encode("utf-8-sig"), file_name=f"d1futsal_stats_joueurs_{jeu}.csv", mime="text/csv")
+        if jeu == "contexte":
+            st.html(f'<div style="font-size: 12px; color: {MUTED}; line-height: 1.6; margin-top: 10px">Égalis. : buts égalisateurs. Avantage : buts qui font passer de l’égalité à devant (hors 1er but du match). '
+                    f'Vainq. : buts de la victoire. Pts rapp. : points que l’équipe aurait perdus sans ses buts. Mené, Égalité, Devant : score de son équipe au moment du but. '
+                    f'36’-40’ : buts des 5 dernières minutes. Doublés : matchs à 2 buts ou plus. Min. moy. : minute moyenne de ses buts. '
+                    f'Les filtres Lieu et Phase de jeu s’appliquent aux buts et aux passes.</div>')
+        else:
+            st.html(f'<div style="font-size: 12px; color: {MUTED}; line-height: 1.6; margin-top: 10px">1re MT, 2e MT : buts par mi-temps. Dom, Ext : buts à domicile, à l’extérieur. '
                 f'Placée : attaque placée. Transit. : transition offensive. Rapide : attaque rapide. CPA : corner, touche, coup franc, jet franc. P. play : power play. Pen. : penalty. '
                 f'1er but : buts d’ouverture du score. % club : part des buts de son équipe. '
                 f'Les filtres Lieu et Phase de jeu s’appliquent aux buts et aux passes.</div>')
@@ -640,8 +687,9 @@ def page_joueurs():
             a = st.selectbox("Joueur 1", opts, index=0, format_func=lambda i: lab[i])
             b_ = st.selectbox("Joueur 2", opts, index=1 if len(opts) > 1 else 0, format_func=lambda i: lab[i])
         A, B = s.set_index("id_joueur").loc[a], s.set_index("id_joueur").loc[b_]
-        rows = [(COLS_STATS[c], A[c], B[c]) for c in ["Buts", "Passes", "B+P", "Buts_1MT", "Buts_2MT", "Buts_dom", "Buts_ext", "Att_placee", "Transition",
-                                                      "Att_rapide", "CPA", "Power_play", "Buts_ouverture"]]
+        rows = [({**COLS_STATS, **contexte.COLS}[c], A[c], B[c]) for c in ["Buts", "Passes", "B+P", "Buts_1MT", "Buts_2MT", "Buts_dom", "Buts_ext", "Att_placee", "Transition",
+                                                      "Att_rapide", "CPA", "Power_play", "Buts_ouverture",
+                                                      "Egalisateurs", "Vainqueurs", "Pts_rapportes", "Fin_match"]]
         rows = [(l, int(x), int(y)) for l, x, y in rows]
         g, d = st.columns(2, gap="large")
         for col, J in [(g, A), (d, B)]:
@@ -745,6 +793,10 @@ def page_club():
                     f'<span style="font-family: {COND}; font-size: 13px"><b>{a} %</b> <span style="color: {MUTED}">/ {bl} %</span></span></div>')
         st.html(kick(f"Profil offensif : {N[club]} vs moyenne D1", mt=28) + sous_titre("Barre noire : part des buts du club. Trait rouge : moyenne de la ligue.")
                 + card(f'<div style="display: flex; flex-direction: column; gap: 12px">{cmp}</div>', 18))
+        ctx = contexte.contexte_club(X["ctx"]["dr"], base.buts, club)
+        du = contexte.duos(base.buts, club)
+        st.html(kick(f"Contexte : {N[club]} vs moyenne D1", mt=28) + sous_titre("Comment le club gère le score, match après match.")
+                + card(blocs.contexte_club(ctx, du.iloc[0] if len(du) else None), 18))
         st_ = X["stats"].set_index("id_joueur")
         eff = X["joueurs"][X["joueurs"].club_court == club]
         tpl = "grid-template-columns: 44px minmax(0,1fr) 110px 54px 54px 54px 60px"
@@ -764,6 +816,8 @@ def page_club():
         o.fin()
     with d:
         st.html(kick("Forme") + f'<div style="display: flex; gap: 6px; margin-top: 12px">{"".join(ui.form_chip(x, 32) for x in cl["forme"])}</div>'
+                + kick("Évolution au classement", mt=28) + '<div style="height: 12px"></div>'
+                + card(blocs.courbe_rangs(X["ctx"]["rangs"][club], len(base.clubs), 420, 180, C.NB_PLAYOFFS, C.NB_DESCENTE), 14)
                 + kick("Compo type", mt=28) + '<div style="height: 12px"></div>' + pitch(club))
         o = Sortie(); o.add(kick("Matchs", mt=28))
         for r in s["matchs"].itertuples():
@@ -810,9 +864,10 @@ def page_joueur():
         o.add(f'<div style="display: flex; align-items: flex-end; gap: 16px; margin-top: 20px"><div style="font-family: {SERIF}; font-size: 110px; line-height: 0.85; color: {RED}">{nb}</div>'
               f'<div style="padding-bottom: 8px"><div style="font-family: {COND}; font-weight: 700; font-size: 18px; letter-spacing: 0.1em">BUT{"S" if nb > 1 else ""}</div>'
               f'<div style="font-size: 14px; color: {MUTED}">{"Meilleur buteur de D1" if rang == 1 and nb else (f"{rang}e buteur de D1" if nb else "Pas encore buteur")}</div></div></div>'
-              + ui.tiles(ui.tile(npas, "passes déc.", "dark"), ui.tile(nb + npas, "buts + passes"), ui.tile(int(s.Pct_buts_club) if s is not None else 0, "% buts du club"), mt=16)
-              + ui.tiles(ui.tile(int(bj.ouverture.sum()), "buts d’ouverture"),
-                         ui.tile(f"{int((bj.periode == 1).sum())}/{int((bj.periode == 2).sum())}", "1re / 2e MT"), mt=8))
+              + ui.tiles(ui.tile(npas, "passes déc.", "dark"), ui.tile(nb + npas, "buts + passes"), ui.tile(int(s.Pct_buts_club) if s is not None else 0, "% buts du club"), mt=16))
+        if nb:
+            o.add('<div style="height: 24px"></div>' + blocs.buts_qui_comptent(s, int(bj.ouverture.sum()), int((bj.periode == 1).sum()), int((bj.periode == 2).sum())))
+        o.add(blocs.duo_favori(contexte.duo_joueur(base.buts, i)))
         o.fin()
     with d:
         h = ""
@@ -866,6 +921,7 @@ def page_methodo():
             + p("Le match diffusé de chaque journée fait l’objet d’un rapport d’analyse détaillé (tirs, duels, pertes, gardiens), à retrouver dans l’onglet Analyse de la fiche du match, avec le PDF complet en téléchargement.")
             + p(f"Classement : 3 points la victoire, 1 le nul. Départage par différence de buts puis buts marqués. Les {C.NB_PLAYOFFS} premiers sont qualifiés "
                 f"pour les play-offs, les {C.NB_DESCENTE} derniers descendent en D2.")
+            + "".join(p(t) for t in blocs.DEFINITIONS)
             + p("Crédits : clubs, joueurs, FFF. Photos et logos avec l’accord de leurs auteurs.")
             + '<div style="max-width: 760px">' + ui.tiles(ui.tile(lig["nb_buts"], "buts saisis", "red", 40), ui.tile(lig["nb_matchs"], "matchs", numsize=40),
                                                           ui.tile(f'{lig["part_avec_passe"]} %', "avec passeur", numsize=40), ui.tile(len(X["rapports"]), "matchs analysés", "dark", 40)) + "</div>")

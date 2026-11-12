@@ -8,6 +8,7 @@ La navigation se fait sans rechargement (voir nav.py).
 from __future__ import annotations
 import os
 import sys
+import threading
 
 import pandas as pd
 import streamlit as st
@@ -41,25 +42,32 @@ def _dater_modules():
             m._d1_date = t
 
 
-_recharger_modules()
+# Un seul visiteur à la fois recharge et importe les modules du site : sans ce verrou, un visiteur qui arrivait
+# pendant le rechargement d'un autre (juste après un Push) tombait sur une erreur KeyError à l'import.
+# Le verrou est rangé dans sys, qui n'est jamais rechargé.
+_VERROU = sys.__dict__.setdefault("_d1_verrou_imports", threading.RLock())
+with _VERROU:
+    _recharger_modules()
 
-import config as C
-import data
-import re
+    import config as C
+    import data
+    import re
 
-import nav
-import edf
-import edf_pages
-import analyse
-import rapports
-import recherche
-import site_ordi
-from nav import Sortie
-from textes import charger_textes
-import components as ui
-from components import e, fr
-from theme import CSS, PAPER, INK, RED, MUTED, LINE, SERIF, COND
-_dater_modules()
+    import nav
+    import edf
+    import edf_pages
+    import analyse
+    import blocs
+    import contexte
+    import rapports
+    import recherche
+    import site_ordi
+    from nav import Sortie
+    from textes import charger_textes
+    import components as ui
+    from components import e, fr
+    from theme import CSS, PAPER, INK, RED, MUTED, LINE, SERIF, COND
+    _dater_modules()
 
 st.set_page_config(page_title="D1 Futsal", page_icon="⚽", layout="centered", initial_sidebar_state="collapsed")
 nav.reset()
@@ -92,7 +100,7 @@ def _empreinte():
     fichiers = [C.FICHIER_BUTS, C.FICHIER_PASSES, C.FICHIER_FICHES, C.FICHIER_TEXTES]
     # le code qui lit les fichiers compte aussi : une nouvelle version recalcule tout
     ici = os.path.dirname(os.path.abspath(__file__))
-    fichiers += [os.path.join(ici, f) for f in ("data.py", "controles.py", "analyse.py", "rapport_stats.py", "rapports.py", "edf.py")]
+    fichiers += [os.path.join(ici, f) for f in ("data.py", "contexte.py", "controles.py", "analyse.py", "rapport_stats.py", "rapports.py", "edf.py")]
     return tuple(os.path.getmtime(f) if os.path.exists(f) else 0 for f in fichiers)
 
 
@@ -119,6 +127,17 @@ def _derives(cle):
 
 CLASSEMENT, STATS = _derives(_empreinte())
 DERNIERE = max(base.journees) if base.journees else 1
+
+
+@st.cache_resource(show_spinner=False)
+def _contexte(cle):
+    """Déroulé des matchs, rangs par journée, records et séries (nouvelles stats du 12/11)."""
+    dr = contexte.deroules(base.buts, base.matchs)
+    return {"dr": dr, "rangs": contexte.rangs(base), "records": contexte.records(base.buts, base.matchs, dr, NOMS),
+            "series": contexte.series(dr, NOMS)}
+
+
+CTX = _contexte(_empreinte())
 RAPPORTS, ANOM_RAPPORTS = rapports.lister(base)
 
 
@@ -272,6 +291,7 @@ def page_une():
         o.lien(f'<div style="display: flex; justify-content: flex-end; padding: 10px 16px 0; font-family: {COND}; font-weight: 700; font-size: 12px; letter-spacing: 0.08em; color: {RED}">TOUT LE CLASSEMENT</div>', "classements", vue=vue)
     podium(STATS[STATS.Buts > 0], "Buts", "Meilleurs buteurs", "buteurs")
     podium(STATS[STATS.Passes > 0].sort_values(["Passes", "Buts"], ascending=False), "Passes", "Meilleurs passeurs", "passeurs")
+    section_records(o, j)
     o.add(f'<div style="padding: 22px 16px 6px">{ui.kicker("Classement")}</div>')
     for r in CLASSEMENT.head(5).itertuples():
         o.lien(f'<div style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-bottom: 1px solid {LINE}; {"box-shadow: inset 4px 0 0 " + RED if r.Rg <= C.NB_PLAYOFFS else ""}">'
@@ -280,6 +300,28 @@ def page_une():
                f'<span style="font-family: {SERIF}; font-size: 18px; width: 28px; text-align: right">{r.Pts}</span></div>', "club", id=r.club)
     o.lien(f'<div style="display: flex; align-items: center; justify-content: center; min-height: 48px; font-family: {COND}; font-weight: 700; font-size: 13px; letter-spacing: 0.08em; color: {RED}">CLASSEMENT COMPLET</div>', "classements")
     pieds(o)
+
+
+def section_records(o: Sortie, j):
+    """Records et séries de la D1 : bloc compact (5 lignes), le reste sur demande."""
+    tout = CTX["series"] + CTX["records"]
+    if not tout:
+        return
+    plus = qp.get("rec") == "1"
+    o.add(ui.section(ui.kicker("Records et séries") + f'<div style="font-size: 12px; color: {MUTED}; margin-top: 6px">Depuis la J1, toute la D1.</div>', pad="22px 16px 4px"))
+    for r in (tout if plus else tout[:5]):
+        if r.get("lien"):
+            o.lien(blocs.record_ligne(r, compact=True), "match", j=r["lien"][0], dom=r["lien"][1])
+        elif r.get("joueur"):
+            o.lien(blocs.record_ligne(r, compact=True), "joueur", id=r["joueur"])
+        elif r.get("clubs") and len(r["clubs"]) == 1:
+            o.lien(blocs.record_ligne(r, compact=True), "club", id=r["clubs"][0])
+        else:
+            o.add(blocs.record_ligne(r, compact=True))
+    if len(tout) > 5:
+        lib = "MOINS DE RECORDS" if plus else f"TOUS LES RECORDS ({len(tout)})"
+        o.lien(f'<div style="display: flex; justify-content: flex-end; padding: 10px 16px 0; font-family: {COND}; font-weight: 700; font-size: 12px; letter-spacing: 0.08em; color: {RED}">{lib}</div>',
+               "une", **({"j": j} if plus else {"j": j, "rec": 1}))
 
 
 # ================================================================== MATCHS
@@ -404,11 +446,11 @@ def page_match():
 def page_classements():
     topnav("class")
     o = Sortie()
-    vue = param_choix("vue", ["equipes", "buteurs", "passeurs", "bp"], "equipes")
+    vue = param_choix("vue", ["equipes", "buteurs", "passeurs", "bp", "decisifs"], "equipes")
     lieu = param_choix("lieu", ["tous", "dom", "ext"], "tous")
     entete(o, "Classements", f"D1 · Après J{DERNIERE}")
     o.rangee([(ui.seg_item(lab, k == vue), "classements", {"vue": k}) for k, lab in
-              [("equipes", "Équipes"), ("buteurs", "Buteurs"), ("passeurs", "Passeurs"), ("bp", "B+P")]], style="seg")
+              [("equipes", "Équipes"), ("buteurs", "Buteurs"), ("passeurs", "Passeurs"), ("bp", "B+P"), ("decisifs", "Décisifs")]], style="seg")
     if vue == "equipes":
         o.rangee([(ui.pill_item(lab, k == lieu), "classements", {"vue": "equipes", "lieu": k}, "content") for k, lab in
                   [("tous", "Général"), ("dom", "Domicile"), ("ext", "Extérieur")]], style="pills")
@@ -429,6 +471,17 @@ def page_classements():
         o.add(f'<div style="display: flex; flex-wrap: wrap; gap: 14px; padding: 12px 16px 4px; font-size: 12px; color: {MUTED}">'
               f'{leg(RED, f"Top {C.NB_PLAYOFFS} : play-offs")}{leg(INK, f"{C.NB_DESCENTE} derniers : descente en D2")}</div>'
               f'<div style="padding: 4px 16px; font-size: 12px; color: {MUTED}">Départage : points, différence de buts, buts marqués.</div>')
+    elif vue == "decisifs":
+        d = STATS[STATS.Pts_rapportes > 0].sort_values(["Pts_rapportes", "Vainqueurs", "Egalisateurs", "joueur"], ascending=[False, False, False, True])
+        o.add(f'<div style="padding: 10px 16px 0; font-size: 12px; color: {MUTED}">Points rapportés : points que son équipe aurait perdus sans ses buts.</div>'
+              f'<div style="margin-top: 10px; border-top: 1px solid {LINE}"></div>')
+        rang, prev = 0, None
+        for i, (_, r) in enumerate(d.iterrows(), 1):
+            v = int(r.Pts_rapportes)
+            rang = i if v != prev else rang
+            prev = v
+            o.lien(ui.rank_row(rang, r.joueur, "", v, rang == 1, sous_html=f"{ui.lien_club(r.club, e(NOMS.get(r.club, r.club)))} · {int(r.Vainqueurs)} vainq. · {int(r.Egalisateurs)} égalis."),
+                   "joueur", id=r.id_joueur)
     else:
         col, tri = {"buteurs": ("Buts", ["Buts", "Passes"]), "passeurs": ("Passes", ["Passes", "Buts"]), "bp": ("B+P", ["B+P", "Buts"])}[vue]
         d = STATS[STATS[col] > 0].sort_values(tri + ["joueur"], ascending=[False, False, True])
@@ -465,7 +518,7 @@ def page_club():
     club = qp.get("id")
     if club not in NOMS:
         entete(o, "Club", retour=("clubs", {})); o.add(ui.section(ui.empty("Club introuvable."))); o.fin(); return
-    onglet = param_choix("onglet", ["resume", "effectif", "buts", "matchs"], "resume")
+    onglet = param_choix("onglet", ["resume", "contexte", "effectif", "buts", "matchs"], "resume")
     s = base.stats_club(club)
     cl = s["classement"]
     info = base.clubs.set_index("club_court").loc[club]
@@ -479,7 +532,7 @@ def page_club():
           f'<div style="flex: 1; border: 1.5px solid #fff; border-radius: 10px; padding: 10px"><div style="font-family: {SERIF}; font-size: 30px; line-height: 1">{cl["Pts"]}</div><div style="font-family: {COND}; font-size: 11px; letter-spacing: 0.08em; color: #D9D2C6">POINTS</div></div>'
           f'<div style="flex: 1; background: {RED}; border-radius: 10px; padding: 10px"><div style="font-family: {SERIF}; font-size: 30px; line-height: 1">{cl["BP"]}-{cl["BC"]}</div><div style="font-family: {COND}; font-size: 11px; letter-spacing: 0.08em">BUTS POUR-CONTRE</div></div></div>'
           + (f'<div style="font-size: 12px; color: #D9D2C6; margin-top: 8px">Meilleure défense de D1</div>' if CLASSEMENT.BC.min() == cl["BC"] else "") + "</section>")
-    onglets(o, "club", {"id": club}, [("resume", "Résumé"), ("effectif", "Effectif"), ("buts", "Buts"), ("matchs", "Matchs")], onglet)
+    onglets(o, "club", {"id": club}, [("resume", "Résumé"), ("contexte", "Contexte"), ("effectif", "Effectif"), ("buts", "Buts"), ("matchs", "Matchs")], onglet)
     if onglet == "resume":
         o.add(ui.section(ui.kicker("Forme") + '<div style="display: flex; gap: 6px; margin-top: 10px">' + "".join(ui.form_chip(x, 30) for x in cl["forme"]) + "</div>", pad="16px 16px 0"))
         o.add(ui.section(ui.kicker("Compo type") + '<div style="margin-top: 10px">' + site_ordi.pitch(club, mobile=True) + "</div>"))
@@ -488,6 +541,13 @@ def page_club():
         top = STATS[STATS.club == club].sort_values(["B+P", "Buts"], ascending=False).head(5)
         for i, (_, r) in enumerate(top.iterrows(), 1):
             o.lien(ui.rank_row(i, r.joueur, f"{r.Buts} buts · {r.Passes} passes", r["B+P"], i == 1), "joueur", id=r.id_joueur)
+    elif onglet == "contexte":
+        ctx = contexte.contexte_club(CTX["dr"], base.buts, club)
+        du = contexte.duos(base.buts, club)
+        o.add(ui.section(ui.kicker("Évolution au classement") + '<div style="margin-top: 10px">'
+                         + blocs.courbe_rangs(CTX["rangs"][club], len(base.clubs), 360, 160, C.NB_PLAYOFFS, C.NB_DESCENTE) + "</div>", pad="16px 16px 0"))
+        o.add(ui.section(ui.kicker(f"Contexte : {NOMS[club]} vs D1") + '<div style="margin-top: 12px">'
+                         + blocs.contexte_club(ctx, du.iloc[0] if len(du) else None, mobile=True) + "</div>"))
     elif onglet == "effectif":
         st_ = STATS.set_index("id_joueur")
         o.add(ui.section(ui.kicker("Effectif") + f'<div style="display: grid; grid-template-columns: 30px minmax(0,1fr) 34px 34px; gap: 8px; padding: 10px 0 6px; border-bottom: 2px solid {INK}; '
@@ -529,7 +589,8 @@ def _section_d1(o: Sortie, i, club, mj):
     if not lignes:
         return
     o.add(ui.section(ui.kicker(f"Matchs analysés · {len(lignes)} sur {mj}") + f'<div style="font-size: 13px; color: {MUTED}; margin-top: 8px">'
-                     f'Stats détaillées des matchs diffusés et analysés. Elles ne sont pas ajoutées aux totaux de saison.</div>', pad="22px 0 0" if ORDI else "22px 16px 0"))
+                     f'Stats détaillées des matchs diffusés et analysés. Elles ne sont pas ajoutées aux totaux de saison.</div>'
+                     + blocs.cumul_analyses(lignes), pad="22px 0 0" if ORDI else "22px 16px 0"))
     for j, dom, k, jr in lignes:
         m = base.matchs[(base.matchs.journee == j) & (base.matchs.dom == dom)].iloc[0]
         adv = m.ext if k == 0 else m.dom
@@ -593,10 +654,10 @@ def page_joueur():
         o.add(ui.section(f'<div style="display: flex; align-items: flex-end; gap: 14px"><div style="font-family: {SERIF}; font-size: 96px; line-height: 0.85; color: {RED}">{nb}</div>'
                          f'<div style="padding-bottom: 6px"><div style="font-family: {COND}; font-weight: 700; font-size: 16px; letter-spacing: 0.1em">BUT{"S" if nb > 1 else ""}</div>'
                          f'<div style="font-size: 13px; color: {MUTED}">{"Meilleur buteur de D1" if rang == 1 and nb else (f"{rang}e buteur de D1" if nb else "Pas encore buteur")}</div></div></div>'
-                         + ui.tiles(ui.tile(npas, "passes déc.", "dark"), ui.tile(nb + npas, "buts + passes"), ui.tile(int(s.Pct_buts_club) if s is not None else 0, "% buts du club"))
-                         + ui.tiles(ui.tile(int(bj.ouverture.sum()), "buts d\u2019ouverture"),
-                                    ui.tile(f"{int((bj.periode == 1).sum())}/{int((bj.periode == 2).sum())}", "1re / 2e MT"), mt=8), pad="16px 16px 0"))
+                         + ui.tiles(ui.tile(npas, "passes déc.", "dark"), ui.tile(nb + npas, "buts + passes"), ui.tile(int(s.Pct_buts_club) if s is not None else 0, "% buts du club")),
+                         pad="16px 16px 0"))
         if nb:
+            o.add(ui.section(blocs.buts_qui_comptent(s, int(bj.ouverture.sum()), int((bj.periode == 1).sum()), int((bj.periode == 2).sum()), 28)))
             o.add(ui.section(ui.kicker("Quand il marque") + f'<div style="margin-top: 10px">{ui.frise([(r.minute, f"{r.minute}’") for r in bj.itertuples()])}</div>'))
             og = bj.origine_but.value_counts()
             o.add(ui.section(ui.kicker("Comment il marque") + '<div style="margin-top: 12px">'
@@ -604,6 +665,9 @@ def page_joueur():
         if npas:
             c = pj.groupby("buteur").size().sort_values(ascending=False)
             o.add(ui.section(ui.kicker("Ses passes pour") + '<div style="margin-top: 12px">' + ui.hbars([(k, int(v), INK) for k, v in c.items()], int(c.max()), label_w=170) + "</div>"))
+        duo = contexte.duo_joueur(base.buts, i)
+        if duo:
+            o.add(ui.section(blocs.duo_favori(duo), pad="0 16px"))
         section_analyses(o, i, club, mj)
     else:
         d = bj if onglet == "buts" else pj
@@ -636,6 +700,7 @@ def page_methodo():
           + p("Avant chaque mise en ligne, des contrôles automatiques vérifient l\u2019enchaînement des scores, la cohérence buteur/passeur et le rattachement "
               "de chaque joueur à un seul club. Si un contrôle échoue, rien n\u2019est publié.")
           + p("Classement : 3 points la victoire, 1 le nul. Départage par différence de buts puis buts marqués.")
+          + "".join(p(t) for t in blocs.DEFINITIONS)
           + p("Crédits : clubs, joueurs, FFF. Photos et logos avec l\u2019accord de leurs auteurs.") + "</div>"
           + ui.tiles(ui.tile(lig["nb_buts"], "buts saisis", "red"), ui.tile(lig["nb_matchs"], "matchs"), ui.tile(f'{lig["part_avec_passe"]} %', "avec passeur")), pad="16px 16px 0"))
     o.fin()
@@ -703,7 +768,7 @@ if base.bloquant:
 
 site_ordi.init(base=base, joueurs=JOUEURS, textes=TEXTES, noms=NOMS, jref=JREF, classement=CLASSEMENT, stats=STATS, derniere=DERNIERE,
                journees=base.journees, rapports=RAPPORTS, analyses=ANALYSES, bouton_pdf=bouton_pdf, section_analyses=section_analyses, orig=ORIG, lib_origine=lib_origine, param=param_int, choix=param_choix,
-               afficher_rapport=afficher_rapport, bascule=bascule, edf=EDF)
+               afficher_rapport=afficher_rapport, bascule=bascule, edf=EDF, ctx=CTX)
 
 
 def _version(nom, fonction):
