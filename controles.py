@@ -152,11 +152,10 @@ def controle_passes(pg: pd.DataFrame, pc: pd.DataFrame, bg: pd.DataFrame) -> lis
             out.append(Anomalie(BLOQUANT, src, f"{loc} : passeur sur un CSC."))
     for k in set(map(tuple, bg[CLE].values.tolist())) - vus:
         out.append(Anomalie(BLOQUANT, src, f"But sans ligne de passe : J{k[0]} {k[1]}-{k[2]} ({k[3]}-{k[4]})."))
-    # Les passeurs viennent des onglets clubs (pg). L'onglet global (pc) ne sert qu'à signaler les écarts.
-    if pg.attrs.get("source") == "global":
-        out.append(Anomalie(ALERTE, src, "Aucun onglet club lisible dans le fichier passes : passeurs lus dans l'onglet global."))
-    if pc.empty:                    # onglet global vidé ou supprimé : rien à comparer
-        return out
+    # Les passeurs viennent UNIQUEMENT des onglets clubs : l'onglet global n'est ni lu ni comparé.
+    if pg.attrs.get("source") != "clubs":
+        out.append(Anomalie(BLOQUANT, src, "Aucun onglet club lisible dans le fichier passes."))
+    return out
     cle = lambda d: d[CLE].astype("string").agg("|".join, axis=1)
     pg = pg.assign(_k=cle(pg)).drop_duplicates("_k"); pc = pc.assign(_k=cle(pc)).drop_duplicates("_k")
     for _, r in pc[~pc._k.isin(set(pg._k))].iterrows():
