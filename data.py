@@ -133,37 +133,31 @@ def lire_buts(path=C.FICHIER_BUTS) -> tuple[pd.DataFrame, pd.DataFrame]:
 
 
 def lire_passes(path=C.FICHIER_PASSES) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """Retourne (passes de référence, onglet global).
+    """Retourne (passes des onglets clubs, tableau vide).
     Les passeurs viennent UNIQUEMENT des onglets clubs, vérifiés par Victor (comme les origines des buts).
-    L'onglet global est facultatif : il peut être vidé, sans colonne joueur, ou supprimé. S'il contient
-    encore des passeurs, il ne sert qu'à signaler les écarts sur la page contrôle.
-    Un onglet club ne contient les buts que d'une équipe ; l'onglet global en contient plusieurs."""
+    L'onglet global (plusieurs équipes) est ignoré : ni lu, ni comparé.
+    Le 2e élément reste vide pour garder la même signature."""
     xl = pd.ExcelFile(path)
-    clubs, glob = [], None
+    clubs = []
     for onglet in xl.sheet_names:
         try:
             t = _lire_table(xl, onglet, 12)
         except Exception:           # onglet vide ou sans tableau (notes, modèle...)
             continue
-        if t.empty or not all(c in t for c in COLS_BUT[:11]):
+        if t.empty or "joueur" not in t or not all(c in t for c in COLS_BUT[:11]):
             continue
-        sans_passeur = "joueur" not in t
-        if sans_passeur:
-            t["joueur"] = pd.NA
         for c in COLS_BUT[:5] + ["joueur"]:
             t[c] = nettoie(t[c])
-        if t.equipe_marque.nunique() > 1:       # plusieurs équipes : c'est l'onglet global
-            glob = t if glob is None else glob
-        elif not sans_passeur:
-            clubs.append(t)
-    if clubs:
-        ref = pd.concat(clubs, ignore_index=True)
-        ref.attrs["source"] = "clubs"
-        return ref, (glob if glob is not None else ref.iloc[0:0])
-    if glob is None:
-        raise ValueError("Fichier passes : aucun onglet avec un tableau de passes lisible.")
-    glob.attrs["source"] = "global"         # secours : aucun onglet club lisible
-    return glob, glob.iloc[0:0]
+        if t.equipe_marque.nunique() > 1:       # plusieurs équipes : onglet global, ignoré
+            continue
+        clubs.append(t)
+    if not clubs:                   # le contrôle bloque la publication
+        vide = pd.DataFrame(columns=COLS_BUT[:11] + ["joueur", "_ligne_excel", "_onglet"])
+        vide.attrs["source"] = "aucun"
+        return vide, vide.copy()
+    ref = pd.concat(clubs, ignore_index=True)
+    ref.attrs["source"] = "clubs"
+    return ref, ref.iloc[0:0]
 
 
 def lire_fiches(path=C.FICHIER_FICHES) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
