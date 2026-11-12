@@ -185,7 +185,7 @@ def carte_match(m, analyse):
 
     def ligne(t, s, w):
         return (f'<div style="display: flex; align-items: center; gap: 10px">{ui.logo_or_badge(t, 28, 9)}<span style="flex: 1; font-weight: {700 if w else 500}; '
-                f'font-size: 15px">{e(N[t])}</span><span style="font-family: {SERIF}; font-size: 24px; color: {INK if w or not (wd or we) else MUTED}">{s}</span></div>')
+                f'font-size: 15px">{ui.lien_club(t, e(N[t]))}</span><span style="font-family: {SERIF}; font-size: 24px; color: {INK if w or not (wd or we) else MUTED}">{s}</span></div>')
     return (f'<div style="height: 100%; box-sizing: border-box; display: flex; flex-direction: column; gap: 8px; background: {PAPER}; border: 1.5px solid {INK}; '
             f'border-radius: 10px; padding: 14px 16px"><div style="display: flex; justify-content: space-between; align-items: center; font-family: {COND}; font-weight: 700; '
             f'font-size: 11px; letter-spacing: 0.1em; color: {MUTED}"><span>J{m.journee} · TERMINÉ · MT {m.mt_d}-{m.mt_e}</span>{ui.BADGE_ANALYSE if analyse else ""}</div>'
@@ -217,7 +217,7 @@ def classement_table(t, lieu="tous", compact=False):
         forme = f'<span style="display: inline-flex; gap: 2px">{"".join(ui.form_chip(x, 18 if compact else 20) for x in r.forme)}</span>'
         base = [f'<span style="font-family: {COND}; font-weight: 700; color: {RED if lieu == "tous" and r.Rg <= C.NB_PLAYOFFS else INK}">{r.Rg}</span>',
                 ui.logo_or_badge(r.club, 24 if compact else 26, 8),
-                f'<span style="display: block; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{e(N[r.club])}</span>',
+                f'<span style="display: block; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{ui.lien_club(r.club, e(N[r.club]))}</span>',
                 cond(r.J), cond(r.G), cond(r.N), cond(r.P)]
         base += [cond(f"{r.Diff:+d}")] if compact else [cond(r.BP), cond(r.BC), cond(f"{r.Diff:+d}")]
         rows.append(base + [chiffre(r.Pts, 19), forme])
@@ -269,7 +269,7 @@ def page_une():
         hero = (f'<div style="display: grid; grid-template-columns: minmax(0,1fr) 300px; gap: 28px; background: {INK}; color: #fff; border-radius: 14px; padding: 28px">'
                 f'<div><div style="font-family: {COND}; font-weight: 700; font-size: 12px; letter-spacing: 0.14em; color: #F2B8C0">LE MATCH DE LA JOURNÉE</div>'
                 + (f'<div style="font-family: {SERIF}; font-size: 38px; line-height: 1.05; margin-top: 12px">{e(titre)}</div>' if titre else
-                   f'<div style="font-family: {SERIF}; font-size: 38px; line-height: 1.05; margin-top: 12px">{e(N[top.dom])} - {e(N[top.ext])}</div>')
+                   f'<div style="font-family: {SERIF}; font-size: 38px; line-height: 1.05; margin-top: 12px">{ui.lien_club(top.dom, e(N[top.dom]))} - {ui.lien_club(top.ext, e(N[top.ext]))}</div>')
                 + (f'<div style="font-size: 15px; color: #D9D2C6; margin-top: 12px">{e(chapo)}</div>' if chapo else "")
                 + f'</div><div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; border-left: 1px solid #444">'
                 f'<div style="display: flex; align-items: center; gap: 18px">{ui.logo_or_badge(top.dom, 56, 14, False)}'
@@ -334,15 +334,15 @@ def page_match():
 
     def buteurs(club, align):
         d = b[b.club_marque == club]
-        return "<br>".join(f'{e(n)} ' + " ".join(f"{x}’" for x in g.minute) for n, g in d.groupby("buteur", sort=False))
+        return "<br>".join(f'{ui.lien_joueur(g.id_buteur.iloc[0], e(n))} ' + " ".join(f"{x}’" for x in g.minute) for n, g in d.groupby("buteur", sort=False))
     o = Sortie()
     o.add(f'<div style="height: 18px"></div><section style="background: {INK}; color: #fff; border-radius: 14px; padding: 26px 32px; '
           f'display: grid; grid-template-columns: minmax(0,1fr) auto minmax(0,1fr); align-items: center; gap: 24px">'
-          f'<div style="display: flex; align-items: center; gap: 16px; justify-content: flex-end"><span style="font-family: {SERIF}; font-size: 38px">{e(N[m.dom])}</span>{ui.logo_or_badge(m.dom, 64, 15, False)}</div>'
+          f'<div style="display: flex; align-items: center; gap: 16px; justify-content: flex-end"><span style="font-family: {SERIF}; font-size: 38px">{ui.lien_club(m.dom, e(N[m.dom]))}</span>{ui.logo_or_badge(m.dom, 64, 15, False)}</div>'
           f'<div style="text-align: center">{"<div style=\"margin-bottom: 8px\">" + ui.BADGE_ANALYSE + "</div>" if rapport else ""}'
           f'<div style="font-family: {SERIF}; font-size: 84px; line-height: 1">{m.bd}-{m.be}</div>'
           f'<div style="font-family: {COND}; font-weight: 700; font-size: 12px; letter-spacing: 0.12em; color: #D9D2C6; margin-top: 6px">JOURNÉE {j} · MI-TEMPS {m.mt_d}-{m.mt_e}</div></div>'
-          f'<div style="display: flex; align-items: center; gap: 16px">{ui.logo_or_badge(m.ext, 64, 15, False)}<span style="font-family: {SERIF}; font-size: 38px">{e(N[m.ext])}</span></div>'
+          f'<div style="display: flex; align-items: center; gap: 16px">{ui.logo_or_badge(m.ext, 64, 15, False)}<span style="font-family: {SERIF}; font-size: 38px">{ui.lien_club(m.ext, e(N[m.ext]))}</span></div>'
           f'<div style="text-align: right; font-size: 13px; color: #D9D2C6">{buteurs(m.dom, "right")}</div><div></div>'
           f'<div style="font-size: 13px; color: #D9D2C6">{buteurs(m.ext, "left")}</div></section>')
     o.rangee([(f'<div style="padding: 12px 18px 12px 0; font-family: {COND}; font-weight: 700; font-size: 13px; letter-spacing: 0.08em; color: {RED}">FICHE {e(N[c]).upper()} →</div>',
@@ -377,8 +377,8 @@ def page_match():
     elif onglet == "timeline":
         tpl = "grid-template-columns: 44px 120px minmax(0,1fr) minmax(0,1fr) 150px 60px"
         cols = [("Min.", "left"), ("Équipe", "left"), ("Buteur", "left"), ("Passeur", "left"), ("Origine", "left"), ("Score", "right")]
-        rows = [[f'<span style="font-family: {COND}; font-weight: 700; color: {RED}">{r.minute}’</span>', cond(e(X["noms"].get(r.club_marque, r.club_marque)), MUTED),
-                 f'<span style="font-weight: 600">{e(r.buteur)}</span>', e(r.passeur) if isinstance(r.passeur, str) else f'<span style="color: {MUTED}">sans passe</span>',
+        rows = [[f'<span style="font-family: {COND}; font-weight: 700; color: {RED}">{r.minute}’</span>', cond(ui.lien_club(r.club_marque, e(X["noms"].get(r.club_marque, r.club_marque))), MUTED),
+                 f'<span style="font-weight: 600">{ui.lien_joueur(r.id_buteur, e(r.buteur))}</span>', ui.lien_joueur(r.id_passeur, e(r.passeur)) if isinstance(r.passeur, str) else f'<span style="color: {MUTED}">sans passe</span>',
                  f'<span style="font-size: 13px">{e(X["lib_origine"](r.origine_but))}</span>', chiffre(f"{r.score_dom_apres}-{r.score_ext_apres}", 18)]
                 for r in b.itertuples()]
         head, lignes = tableau_html(cols, rows, tpl)
@@ -422,7 +422,7 @@ def page_match():
                     with st.container(key=f"eq-joueurs-{k}"):
                         head, lignes = analyse.tableau_joueurs(r, k, analyse.COLS_ORDI, pad="10px", compact=True)
                         o = Sortie()
-                        o.add(f'<div style="font-family: {SERIF}; font-size: 24px; margin: 12px 0 6px; color: {INK if k == 0 else RED}">{e(N[r["clubs"][k]])}</div>' + head)
+                        o.add(f'<div style="font-family: {SERIF}; font-size: 24px; margin: 12px 0 6px; color: {INK if k == 0 else RED}">{ui.lien_club(r["clubs"][k], e(N[r["clubs"][k]]))}</div>' + head)
                         for h, i in lignes:
                             if i:
                                 o.lien(h, "joueur", id=i)
@@ -612,7 +612,7 @@ def page_joueurs():
                    f'<span style="font-family: {COND}; font-weight: 700; color: {MUTED}">{i}</span>'
                    f'<span style="font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{e(r["joueur"])}</span>'
                    f'<span style="display: flex; align-items: center; gap: 8px; min-width: 0">{ui.logo_or_badge(r["club"], 22, 8)}'
-                   f'<span style="font-size: 13px; color: {MUTED}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{e(r["_club"])}</span></span>{cell}</div>',
+                   f'<span style="font-size: 13px; color: {MUTED}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{ui.lien_club(r["club"], e(r["_club"]))}</span></span>{cell}</div>',
                    "joueur", id=r["id_joueur"])
         o.fin()
         aff = s.assign(club=s._club)[list(COLS_STATS)].rename(columns=COLS_STATS)
@@ -638,7 +638,7 @@ def page_joueurs():
             with col:
                 st.html(card(f'<div style="display: flex; gap: 16px; align-items: center">{ui.photo(J.name, 80, 96)}<div>'
                              f'<div style="font-family: {SERIF}; font-size: 28px; line-height: 1.05">{e(J.joueur)}</div>'
-                             f'<div style="font-weight: 600; margin-top: 6px">{e(N.get(J.club, J.club))}</div></div></div>'
+                             f'<div style="font-weight: 600; margin-top: 6px">{ui.lien_club(J.club, e(N.get(J.club, J.club)))}</div></div></div>'
                              + ui.tiles(ui.tile(int(J.Buts), "buts", "red"), ui.tile(int(J.Passes), "passes", "dark"), ui.tile(int(J["B+P"]), "buts + passes")), 18))
         st.html('<div style="height: 22px"></div>' + kick("Face-à-face") + '<div style="height: 12px"></div>'
                 + card(ui.mirror(rows, A.joueur, B.joueur, mid_w=160), 20))
@@ -694,9 +694,9 @@ def pitch(club, mobile=False):
                     f'display: flex; align-items: center; justify-content: center; font-family: {COND}; font-weight: 700; font-size: {t - 10}px; line-height: 1">{e(num)}</span>') if num else ""
         h += (f'<div style="position: absolute; left: clamp(14px, calc({x}% - {L // 2}px), calc(100% - {L + 14}px)); top: calc({y}% - {D // 2}px); width: {L}px; '
               f'display: flex; flex-direction: column; align-items: center; gap: 6px">'
-              + f'<div style="position: relative">' + ui.photo_rond(i, D, "#fff") + pastille + "</div>"
+              + ui.lien_joueur(i, f'<div style="position: relative">' + ui.photo_rond(i, D, "#fff") + pastille + "</div>", bloc=True)
               + f'<span style="max-width: {L}px; font-family: {COND}; font-weight: 700; font-size: {taille}px; color: #fff; letter-spacing: 0.04em; text-align: center; '
-              f'line-height: 1.1; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden">{e(court).upper()}</span></div>')        # nom long : 2 lignes au plus
+              f'line-height: 1.1; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden">{ui.lien_joueur(i, e(court).upper())}</span></div>')        # nom long : 2 lignes au plus
     vide = "" if (len(comp) and comp.id_joueur.notna().any()) else f'<div style="font-size: 12px; color: {MUTED}; margin-top: 6px">Compo type à renseigner dans la fiche club.</div>'
     return h + "</div>" + vide
 
@@ -714,7 +714,7 @@ def page_club():
     tuile = lambda v, l, rouge=False: (f'<div style="{"background: " + RED if rouge else "border: 1.5px solid #fff"}; border-radius: 10px; padding: 12px 18px; text-align: center">'
                                        f'<div style="font-family: {SERIF}; font-size: 40px; line-height: 1">{v}</div><div style="font-family: {COND}; font-size: 11px; letter-spacing: 0.1em; color: #E9E2D5">{l}</div></div>')
     st.html(f'<div style="height: 18px"></div><section style="background: {INK}; color: #fff; border-radius: 14px; padding: 26px 32px; display: flex; align-items: center; gap: 24px">'
-            f'{ui.logo_or_badge(club, 96, 18, False)}<div style="flex: 1"><div style="font-family: {COND}; font-weight: 700; font-size: 12px; letter-spacing: 0.14em; color: #F2B8C0">CLUB</div>'
+            f'{ui.logo_or_badge(club, 96, 18, False, lien=False)}<div style="flex: 1"><div style="font-family: {COND}; font-weight: 700; font-size: 12px; letter-spacing: 0.14em; color: #F2B8C0">CLUB</div>'
             f'<div style="font-family: {SERIF}; font-size: 48px; line-height: 1; margin-top: 6px">{e(N[club])}</div>'
             + (f'<div style="color: #D9D2C6; margin-top: 8px">{e(meta)}</div>' if meta else "")
             + f'</div><div style="display: flex; gap: 10px">{tuile(str(cl["Rg"]) + "<sup style=\"font-size: 16px\">e</sup>", "RANG")}{tuile(cl["Pts"], "POINTS")}'
@@ -727,7 +727,9 @@ def page_club():
         cmp = ""
         for k in ["attaque placée", "transition off", "attaque rapide", "corner", "touche off", "power play", "coup franc"]:
             a = round(100 * s["origines"].get(k, 0) / nb_club); bl = round(100 * lig["origines"].get(k, 0) / max(lig["nb_buts"], 1))
-            cmp += (f'<div style="display: grid; grid-template-columns: 130px minmax(0,1fr) 96px; gap: 10px; align-items: center"><span style="font-size: 13px">{X["orig"][k]}</span>'
+            n = int(s["origines"].get(k, 0))          # nombre exact de buts du club sur cette origine
+            cmp += (f'<div style="display: grid; grid-template-columns: 160px minmax(0,1fr) 96px; gap: 10px; align-items: center"><span style="font-size: 13px">{X["orig"][k]} '
+                    f'<span style="font-family: {COND}; font-weight: 700">({n} but{"s" if n > 1 else ""})</span></span>'
                     f'<div style="position: relative; height: 18px; background: {SOFT}; border-radius: 3px"><div style="position: absolute; left: 0; top: 0; bottom: 0; width: {min(a * 2, 100)}%; background: {INK}; border-radius: 3px"></div>'
                     f'<div style="position: absolute; top: -3px; bottom: -3px; left: {min(bl * 2, 99)}%; width: 3px; background: {RED}"></div></div>'
                     f'<span style="font-family: {COND}; font-size: 13px"><b>{a} %</b> <span style="color: {MUTED}">/ {bl} %</span></span></div>')
@@ -759,7 +761,7 @@ def page_club():
             res = "V" if f_ > a_ else ("N" if f_ == a_ else "D")
             o.lien(f'<div style="display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid {LINE}">'
                    f'<span style="font-family: {COND}; font-weight: 700; color: {MUTED}; width: 28px">J{r.journee}</span><span style="font-family: {COND}; font-size: 12px; color: {MUTED}; width: 30px">{"DOM" if home else "EXT"}</span>'
-                   f'{ui.logo_or_badge(opp, 26, 8)}<span style="flex: 1; font-weight: 600">{e(N[opp])}</span>{ui.BADGE_ANALYSE if (r.journee, r.dom) in X["rapports"] else ""}'
+                   f'{ui.logo_or_badge(opp, 26, 8)}<span style="flex: 1; font-weight: 600">{ui.lien_club(opp, e(N[opp]))}</span>{ui.BADGE_ANALYSE if (r.journee, r.dom) in X["rapports"] else ""}'
                    f'{chiffre(f"{f_}-{a_}", 20)}{ui.form_chip(res, 22)}</div>', "match", j=r.journee, dom=r.dom)
         o.fin()
         oe = s["origines_encaisses"]
@@ -827,10 +829,11 @@ def page_joueur():
             rows = []
             for r in df.itertuples():
                 opp = r.club_ext if r.club_marque == r.club_dom else r.club_dom
-                autre = (r.passeur if isinstance(r.passeur, str) else "sans passe") if mode == "buts" else r.buteur
+                autre = ((ui.lien_joueur(r.id_passeur, e(r.passeur)) if isinstance(r.passeur, str) else "sans passe") if mode == "buts"
+                         else ui.lien_joueur(r.id_buteur, e(r.buteur)))
                 rows.append([cond(f"J{r.journee}", MUTED), f'<span style="font-family: {COND}; font-weight: 700; color: {RED}">{r.minute}’</span>',
-                             f'<span><b>{e(N[opp])}</b><br><span style="font-size: 12px; color: {MUTED}">{e(X["lib_origine"](r.origine_but))}</span></span>',
-                             f'<span style="font-size: 13px">{e(autre)}</span>', chiffre(f"{r.score_dom_apres}-{r.score_ext_apres}", 18)])
+                             f'<span><b>{ui.lien_club(opp, e(N[opp]))}</b><br><span style="font-size: 12px; color: {MUTED}">{e(X["lib_origine"](r.origine_but))}</span></span>',
+                             f'<span style="font-size: 13px">{autre}</span>', chiffre(f"{r.score_dom_apres}-{r.score_ext_apres}", 18)])
             head, lignes = tableau_html(cols, rows, tpl)
             o = Sortie(); o.add(kick(titre) + '<div style="height: 8px"></div>' + (head if rows else ui.empty("Rien pour l’instant.")))
             for r, l in zip(df.itertuples(), lignes):

@@ -9,6 +9,7 @@ import re
 import unicodedata
 import html as _html
 from pathlib import Path
+from urllib.parse import quote
 
 import streamlit as st
 
@@ -129,8 +130,77 @@ def _image(sous_dossier: str, nom: str, saisi: str | None = None) -> str | None:
     return dispo.get(_cle_image(nom))
 
 
-def logo_or_badge(club: str, size=28, fs=10, dark=True) -> str:
-    """Logo du club s'il existe dans assets/clubs, sinon pastille avec l'abréviation."""
+# ------------------------------------------------------------- liens vers les fiches
+# Logo ou nom de club, nom de joueur : cliquables partout. Lien HTML normal (adresse partageable, clic molette = nouvel onglet) ;
+# SCRIPT_LIENS le transforme en changement de page Streamlit, sans rechargement. Sans le script, le lien marche quand même (rechargement).
+CLUBS_LIENS: set = set()       # clubs qui ont une fiche, rempli par app_mobile.py
+JOUEURS_LIENS: set = set()     # id des joueurs qui ont une fiche, rempli par app_mobile.py
+
+SCRIPT_LIENS = """<script>
+/* Clic sur un lien de fiche : on demande à Streamlit de changer de page avec les bons paramètres,
+   comme ses propres liens (pas de rechargement). En cas d'échec, le lien normal prend le relais. */
+if (!window.__liensD1) { window.__liensD1 = 1;
+  var appD1 = function () {
+    if (window.__appD1) return window.__appD1;
+    var el = document.querySelector('[data-testid="stApp"]'); if (!el) return null;
+    var k = Object.keys(el).find(function (x) { return x.indexOf("__reactFiber$") === 0; }); var f = k && el[k];
+    while (f) { var s = f.stateNode; if (s && typeof s.onPageChange === "function" && s.appNavigation) return (window.__appD1 = s); f = f.return; }
+    return null;
+  };
+  document.addEventListener("click", function (ev) {
+    var a = ev.target.closest && ev.target.closest("a[data-nav]");
+    if (!a || ev.button !== 0 || ev.ctrlKey || ev.metaKey || ev.shiftKey || ev.altKey) return;
+    try {
+      var u = new URL(a.href), A = appD1(), pg = A && A.appNavigation.findPageByUrlPath(u.pathname);
+      if (!pg) return;
+      ev.preventDefault(); ev.stopPropagation();
+      A.onPageChange(pg.pageScriptHash, u.search.replace(/^\\?/, ""));
+    } catch (err) { window.location.href = a.href; }
+  }, true);
+  /* Bouton retour / avance du navigateur : Streamlit renvoie sinon les paramètres de la page quittée
+     (ex. retour sur /club avec l'id d'un joueur). On lui passe ceux de l'adresse. */
+  window.addEventListener("popstate", function (ev) {
+    try {
+      if (document.location.hash) return;
+      var A = appD1(), pg = A && A.appNavigation.findPageByUrlPath(document.location.pathname);
+      if (!pg) return;
+      ev.stopImmediatePropagation();
+      A.onPageChange(pg.pageScriptHash, document.location.search.replace(/^\\?/, ""), true);
+    } catch (err) {}
+  }, true);
+}
+</script>"""
+
+CSS_LIENS = """<style>
+a.d1l { color: inherit !important; text-decoration: none !important; position: relative; z-index: 4; cursor: pointer; }
+a.d1l:hover .d1n, a.d1l.d1n:hover { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 2px; }
+a.d1l.d1b { display: inline-flex; flex-shrink: 0; }
+.stElementContainer:has(> .stHtml script) { display: none; }
+</style>"""
+
+
+def _lien(cible, val, inner, bloc=False):
+    cls = "d1l d1b" if bloc else "d1l d1n"
+    return f'<a class="{cls}" data-nav href="{cible}?id={quote(str(val))}">{inner}</a>'
+
+
+def lien_club(club, inner, bloc=False) -> str:
+    """inner (HTML déjà échappé) cliquable vers la fiche du club, si elle existe."""
+    return _lien("club", club, inner, bloc) if club in CLUBS_LIENS else inner
+
+
+def lien_joueur(id_joueur, inner, bloc=False) -> str:
+    """inner (HTML déjà échappé) cliquable vers la fiche du joueur, si elle existe."""
+    return _lien("joueur", id_joueur, inner, bloc) if isinstance(id_joueur, str) and id_joueur in JOUEURS_LIENS else inner
+
+
+def logo_or_badge(club: str, size=28, fs=10, dark=True, lien=True) -> str:
+    """Logo du club (cliquable vers sa fiche), sinon pastille avec l'abréviation."""
+    h = _logo_brut(club, size, fs, dark)
+    return lien_club(club, h, bloc=True) if lien else h
+
+
+def _logo_brut(club: str, size=28, fs=10, dark=True) -> str:
     src = _image("clubs", club, LOGOS.get(club))
     if src:
         return f'<img src="{src}" alt="" width="{size}" height="{size}" style="width: {size}px; height: {size}px; object-fit: contain; flex-shrink: 0">'
@@ -261,7 +331,7 @@ def match_row(m, noms, analyse=False):
 
     def side(club, s, win):
         return (f'<div style="display: flex; align-items: center; gap: 10px">{logo_or_badge(club, 26, 9)}'
-                f'<span style="flex: 1; font-weight: {700 if win else 500}; font-size: 15px">{e(noms[club])}</span>'
+                f'<span style="flex: 1; font-weight: {700 if win else 500}; font-size: 15px">{lien_club(club, e(noms[club]))}</span>'
                 f'<span style="font-family: {SERIF}; font-size: 20px; line-height: 1; color: {INK if win or not (wd or we) else MUTED}">{s}</span></div>')
     return (f'<div style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; '
             f'border-bottom: 1px solid {LINE}; background: {PAPER}"><div style="width: 58px; display: flex; flex-direction: column; align-items: flex-start; gap: 5px; font-family: {COND}; font-weight: 700; '
@@ -269,12 +339,13 @@ def match_row(m, noms, analyse=False):
             f'{side(m.dom, m.bd, wd)}{side(m.ext, m.be, we)}</div>{icon("chev", 18, MUTED)}</div>')
 
 
-def rank_row(rang, titre, sous, valeur, highlight=False, pad="10px 16px"):
+def rank_row(rang, titre, sous, valeur, highlight=False, pad="10px 16px", sous_html=None):
+    """sous_html : sous-titre déjà en HTML (ex. nom de club cliquable), remplace sous."""
     return (f'<div style="display: grid; grid-template-columns: 22px minmax(0,1fr) 40px; gap: 10px; align-items: center; '
             f'padding: {pad}; border-bottom: 1px solid {LINE}; background: {PAPER}">'
             f'<span style="font-family: {COND}; font-weight: 700; color: {RED if highlight else MUTED}">{rang}</span>'
             f'<span style="min-width: 0"><span style="display: block; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{e(titre)}</span>'
-            f'<span style="display: block; font-size: 12px; color: {MUTED}">{e(sous)}</span></span>'
+            f'<span style="display: block; font-size: 12px; color: {MUTED}">{sous_html if sous_html is not None else e(sous)}</span></span>'
             f'<span style="font-family: {SERIF}; font-size: 20px; text-align: right">{valeur}</span></div>')
 
 

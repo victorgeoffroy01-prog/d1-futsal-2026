@@ -74,7 +74,8 @@ def est_ordi() -> bool:
 
 
 ORDI = est_ordi()
-st.html(CSS + nav.CSS_NAV + (site_ordi.CSS_ORDI if ORDI else ""))
+st.html(CSS + nav.CSS_NAV + ui.CSS_LIENS + (site_ordi.CSS_ORDI if ORDI else ""))
+st.html(ui.SCRIPT_LIENS, unsafe_allow_javascript=True)
 
 ORIG = {"attaque placée": "Attaque placée", "attaque rapide": "Attaque rapide", "transition off": "Transition off",
         "corner": "Corner", "touche off": "Touche off", "touche def": "Touche déf.", "coup franc": "Coup franc",
@@ -146,6 +147,8 @@ ANOM_RAPPORTS = ANOM_RAPPORTS + _anom
 JOUEURS = pd.concat([base.joueurs, pd.DataFrame(_sans_fiche)], ignore_index=True) if _sans_fiche else base.joueurs
 JREF = JOUEURS.drop_duplicates("id_joueur").set_index("id_joueur")
 ui.declarer_images(base.clubs, JOUEURS)      # noms de fichiers des logos et photos saisis dans le fichier fiches
+ui.CLUBS_LIENS.clear(); ui.CLUBS_LIENS.update(NOMS)          # logos et noms de clubs cliquables vers leur fiche
+ui.JOUEURS_LIENS.clear(); ui.JOUEURS_LIENS.update(JREF.index.dropna())
 
 
 @st.cache_data(show_spinner=False)
@@ -236,9 +239,9 @@ def page_une():
     card = (f'<div style="margin: 12px 16px 0; background: {INK}; color: #fff; border-radius: 12px; padding: 18px 16px 16px">'
             f'<div style="font-family: {COND}; font-weight: 700; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #F2B8C0">Le match de la journée</div>'
             f'<div style="display: flex; align-items: center; justify-content: space-between; margin-top: 12px">'
-            f'<div style="display: flex; flex-direction: column; align-items: center; gap: 6px; width: 96px">{ui.logo_or_badge(top.dom, 44, 12, False)}<span style="font-weight: 600; font-size: 13px">{e(NOMS[top.dom])}</span></div>'
+            f'<div style="display: flex; flex-direction: column; align-items: center; gap: 6px; width: 96px">{ui.logo_or_badge(top.dom, 44, 12, False)}<span style="font-weight: 600; font-size: 13px">{ui.lien_club(top.dom, e(NOMS[top.dom]))}</span></div>'
             f'<div style="font-family: {SERIF}; font-size: 56px; line-height: 1">{top.bd}-{top.be}</div>'
-            f'<div style="display: flex; flex-direction: column; align-items: center; gap: 6px; width: 96px">{ui.logo_or_badge(top.ext, 44, 12, False)}<span style="font-weight: 600; font-size: 13px">{e(NOMS[top.ext])}</span></div></div>'
+            f'<div style="display: flex; flex-direction: column; align-items: center; gap: 6px; width: 96px">{ui.logo_or_badge(top.ext, 44, 12, False)}<span style="font-weight: 600; font-size: 13px">{ui.lien_club(top.ext, e(NOMS[top.ext]))}</span></div></div>'
             + (f'<div style="font-family: {SERIF}; font-size: 22px; line-height: 1.15; margin-top: 14px">{e(titre)}</div>' if titre else "")
             + (f'<div style="font-size: 13px; color: #D9D2C6; margin-top: 6px">{e(chapo)}</div>' if chapo else "") + "</div>")
     o.lien(card, "match", j=j, dom=top.dom)
@@ -259,7 +262,7 @@ def page_une():
                            f'border-radius: 10px; padding: 12px 10px; display: flex; flex-direction: column; gap: 6px">'
                            f'<div style="font-family: {SERIF}; font-size: 36px; line-height: 1">{getattr(r, col)}</div>'
                            f'<div style="font-weight: 700; font-size: 13px; line-height: 1.15">{e(nom[0])}<br>{e(" ".join(nom[1:3]))}</div>'
-                           f'<div style="font-family: {COND}; font-weight: 600; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: {"#E9E2D5" if dark else MUTED}">{e(NOMS.get(r.club, r.club))}</div></div>',
+                           f'<div style="font-family: {COND}; font-weight: 600; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: {"#E9E2D5" if dark else MUTED}">{ui.lien_club(r.club, e(NOMS.get(r.club, r.club)))}</div></div>',
                            "joueur", {"id": r.id_joueur}))
         with st.container(key=f"pad-{vue}"):
             o.rangee(cartes, style="cards")
@@ -304,11 +307,11 @@ def page_match():
     def buteurs(club, align):
         d = b[b.club_marque == club]
         court = lambda n: n if n == "CSC" or len(n.split()) == 1 else " ".join(n.split()[1:])
-        parts = [f'{e(court(n))} ' + " ".join(f"{x}\u2019" for x in g.minute) for n, g in d.groupby("buteur", sort=False)]
+        parts = [f'{ui.lien_joueur(g.id_buteur.iloc[0], e(court(n)))} ' + " ".join(f"{x}\u2019" for x in g.minute) for n, g in d.groupby("buteur", sort=False)]
         return f'<div style="text-align: {align}">{" · ".join(parts)}</div>'
     entete(o, f"{NOMS[m.dom]} - {NOMS[m.ext]}", f"Journée {j} · Terminé", retour=("matchs", {"j": j}))
     equipe = lambda club, dark: (f'<div style="display: flex; flex-direction: column; align-items: center; gap: 6px; padding-top: 18px">'
-                                 f'{ui.logo_or_badge(club, 52, 13, dark)}<span style="font-weight: 600; text-align: center">{e(NOMS[club])}</span></div>')
+                                 f'{ui.logo_or_badge(club, 52, 13, dark)}<span style="font-weight: 600; text-align: center">{ui.lien_club(club, e(NOMS[club]))}</span></div>')
     score = (f'<div style="text-align: center; padding-top: 18px"><div style="font-family: {SERIF}; font-size: 60px; line-height: 1">{m.bd}<span style="color: {MUTED}">-</span>{m.be}</div>'
              f'<div style="font-family: {COND}; font-weight: 600; font-size: 12px; color: {MUTED}; letter-spacing: 0.08em; margin-top: 4px">MI-TEMPS {m.mt_d}-{m.mt_e}</div></div>')
     with st.container(key="scorebox"):
@@ -339,9 +342,9 @@ def page_match():
                       f'<div style="font-family: {COND}; font-weight: 700; font-size: 11px; letter-spacing: 0.12em">MI-TEMPS · {m.mt_d}-{m.mt_e}</div><div style="flex: 1; height: 1px; background: {INK}"></div></div>')
                 mt = True
             home = r.club_marque == m.dom
-            passe = f'<span style="font-size: 12px">passe {e(r.passeur)}</span>' if isinstance(r.passeur, str) else ""
+            passe = f'<span style="font-size: 12px">passe {ui.lien_joueur(r.id_passeur, e(r.passeur))}</span>' if isinstance(r.passeur, str) else ""
             card = (f'<div style="display: flex; flex-direction: column; gap: 2px; {"align-items: flex-end; text-align: right" if home else ""}">'
-                    f'<span style="font-weight: 700; font-size: 14px">{e(r.buteur)}</span>{passe}'
+                    f'<span style="font-weight: 700; font-size: 14px">{ui.lien_joueur(r.id_buteur, e(r.buteur))}</span>{passe}'
                     f'<span style="font-family: {COND}; font-weight: 600; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: {MUTED}">{e(lib_origine(r.origine_but))}</span></div>')
             mid = (f'<div style="display: flex; flex-direction: column; align-items: center"><span style="font-family: {COND}; font-weight: 700; font-size: 12px; color: {RED}">{r.minute}\u2019</span>'
                    f'<span style="font-family: {SERIF}; font-size: 17px; line-height: 1.1">{r.score_dom_apres}-{r.score_ext_apres}</span></div>')
@@ -432,7 +435,7 @@ def page_classements():
             v = int(r[col])
             rang = i if v != prev else rang
             prev = v
-            o.lien(ui.rank_row(rang, r.joueur, f"{NOMS.get(r.club, r.club)} · {r.Buts} b · {r.Passes} p", v, rang == 1), "joueur", id=r.id_joueur)
+            o.lien(ui.rank_row(rang, r.joueur, "", v, rang == 1, sous_html=f"{ui.lien_club(r.club, e(NOMS.get(r.club, r.club)))} · {r.Buts} b · {r.Passes} p"), "joueur", id=r.id_joueur)
     pieds(o)
 
 
@@ -466,7 +469,7 @@ def page_club():
     meta = " · ".join(x for x in [info.get("salle"), f"Coach {info.get('coach')}" if isinstance(info.get("coach"), str) else None] if isinstance(x, str) and x)
     entete(o, "Club", retour=("clubs", {}))
     o.add(f'<section style="background: {INK}; color: #fff; padding: 18px 16px 16px"><div style="display: flex; align-items: center; gap: 14px">'
-          f'{ui.logo_or_badge(club, 64, 14, False)}<div><div style="font-family: {SERIF}; font-size: 30px; line-height: 1">{e(NOMS[club])}</div>'
+          f'{ui.logo_or_badge(club, 64, 14, False, lien=False)}<div><div style="font-family: {SERIF}; font-size: 30px; line-height: 1">{e(NOMS[club])}</div>'
           + (f'<div style="font-size: 13px; color: #D9D2C6; margin-top: 6px">{e(meta)}</div>' if meta else "") + "</div></div>"
           f'<div style="display: flex; gap: 8px; margin-top: 16px">'
           f'<div style="flex: 1; border: 1.5px solid #fff; border-radius: 10px; padding: 10px"><div style="font-family: {SERIF}; font-size: 30px; line-height: 1">{cl["Rg"]}<sup style="font-size: 14px">e</sup></div><div style="font-family: {COND}; font-size: 11px; letter-spacing: 0.08em; color: #D9D2C6">CLASSEMENT</div></div>'
@@ -507,7 +510,7 @@ def page_club():
             res = "V" if f_ > a_ else ("N" if f_ == a_ else "D")
             o.lien(f'<div style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-bottom: 1px solid {LINE}">'
                    f'<span style="font-family: {COND}; font-weight: 700; color: {MUTED}; width: 26px">J{r.journee}</span><span style="font-family: {COND}; font-size: 12px; color: {MUTED}; width: 28px">{"DOM" if home else "EXT"}</span>'
-                   f'{ui.logo_or_badge(opp, 24, 8)}<span style="flex: 1; font-weight: 600">{e(NOMS[opp])}</span><span style="font-family: {SERIF}; font-size: 18px">{f_}-{a_}</span>{ui.form_chip(res, 22)}</div>',
+                   f'{ui.logo_or_badge(opp, 24, 8)}<span style="flex: 1; font-weight: 600">{ui.lien_club(opp, e(NOMS[opp]))}</span><span style="font-family: {SERIF}; font-size: 18px">{f_}-{a_}</span>{ui.form_chip(res, 22)}</div>',
                    "match", j=r.journee, dom=r.dom)
     pieds(o)
 
@@ -552,7 +555,7 @@ def page_joueurs():
         d = STATS.sort_values(["B+P", "Buts"], ascending=False).head(30)
     o.add(ui.section(ui.kicker("Résultats" if q else "Les plus décisifs"), pad="10px 16px 6px"))
     for i, (_, r) in enumerate(d.iterrows(), 1):
-        o.lien(ui.rank_row(i, r.joueur, f"{NOMS.get(r.club, r.club)} · {r.Buts} b · {r.Passes} p", r["B+P"]), "joueur", id=r.id_joueur)
+        o.lien(ui.rank_row(i, r.joueur, "", r["B+P"], sous_html=f"{ui.lien_club(r.club, e(NOMS.get(r.club, r.club)))} · {r.Buts} b · {r.Passes} p"), "joueur", id=r.id_joueur)
     if q and d.empty:
         o.add(ui.section(ui.empty("Aucun joueur trouvé.")))
     pieds(o)
@@ -606,10 +609,11 @@ def page_joueur():
         for r in d.itertuples():
             home = r.club_marque == r.club_dom
             opp = r.club_ext if home else r.club_dom
-            detail = (f"passe {r.passeur}" if isinstance(r.passeur, str) else "sans passe") if onglet == "buts" else f"but de {r.buteur}"
+            detail = ((f"passe {ui.lien_joueur(r.id_passeur, e(r.passeur))}" if isinstance(r.passeur, str) else "sans passe") if onglet == "buts"
+                      else f"but de {ui.lien_joueur(r.id_buteur, e(r.buteur))}")
             o.lien(f'<div style="display: grid; grid-template-columns: 30px 38px minmax(0,1fr) 44px; align-items: center; gap: 8px; padding: 10px 16px; border-bottom: 1px solid {LINE}">'
                    f'<span style="font-family: {COND}; font-weight: 700; color: {MUTED}">J{r.journee}</span><span style="font-family: {COND}; font-weight: 700; color: {RED}">{r.minute}\u2019</span>'
-                   f'<span><span style="display: block; font-weight: 600">vs {e(NOMS[opp])}</span><span style="font-size: 12px; color: {MUTED}">{e(lib_origine(r.origine_but))} · {e(detail)}</span></span>'
+                   f'<span><span style="display: block; font-weight: 600">vs {ui.lien_club(opp, e(NOMS[opp]))}</span><span style="font-size: 12px; color: {MUTED}">{e(lib_origine(r.origine_but))} · {detail}</span></span>'
                    f'<span style="font-family: {SERIF}; font-size: 17px; text-align: right">{r.score_dom_apres}-{r.score_ext_apres}</span></div>', "match", j=r.journee, dom=r.club_dom)
         if d.empty:
             o.add(ui.section(ui.empty("Rien pour l\u2019instant.")))
