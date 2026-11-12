@@ -35,6 +35,10 @@ def _inverser(r):
             "joueurs": r["joueurs"][::-1], "gardiens": r["gardiens"][::-1]}
 
 
+# Nom écrit dans un rapport -> id de la fiche, quand le nom du rapport ne ressemble pas à celui de la fiche.
+ALIAS_RAPPORTS = {("GOAL", "COELHO"): "pedro-oliveira-martins"}
+
+
 def _id_joueur(nom, effectif):
     """Retrouve le joueur du rapport dans l'effectif du club (nom de famille, surnom ou initiale)."""
     morceaux = [m for m in re.split(r"[\s.]+", _sa(nom)) if m]
@@ -53,7 +57,11 @@ def _id_joueur(nom, effectif):
         if n:
             scores[r.id_joueur] = n
     if not scores:
-        return None
+        # nom coupé dans la feuille de tag (« SANTAGA » pour SANTAGATA) : début de mot, un seul joueur possible
+        prefixe = {r.id_joueur for r in effectif.itertuples() for m in mots if len(m) >= 5
+                   and (not initiale or _sa(r.nom_base).startswith(initiale))
+                   and any(c.startswith(m) for c in re.split(r"[\s\-']+", _sa(r.nom_base) + " " + _sa(r.nom_affiche)))}
+        return prefixe.pop() if len(prefixe) == 1 else None
     mx = max(scores.values())
     gagnants = [i for i, n in scores.items() if n == mx]
     return gagnants[0] if len(gagnants) == 1 else None
@@ -91,7 +99,7 @@ def preparer(base, fichiers: dict) -> tuple[dict, list]:
         for k, club in enumerate(r["clubs"]):
             eff = base.joueurs[base.joueurs.club_court == club]
             for jr in r["joueurs"][k]:
-                jr["id"] = _id_joueur(jr["nom"], eff)
+                jr["id"] = ALIAS_RAPPORTS.get((club, _sa(jr["nom"]).strip())) or _id_joueur(jr["nom"], eff)
                 if jr["id"] is None:
                     # pas de fiche : on en crée une provisoire pour que le joueur soit quand même cliquable
                     i = data.slug(jr["nom"])

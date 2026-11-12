@@ -245,6 +245,9 @@ def page_une():
             + (f'<div style="font-family: {SERIF}; font-size: 22px; line-height: 1.15; margin-top: 14px">{e(titre)}</div>' if titre else "")
             + (f'<div style="font-size: 13px; color: #D9D2C6; margin-top: 6px">{e(chapo)}</div>' if chapo else "") + "</div>")
     o.lien(card, "match", j=j, dom=top.dom)
+    fr_html, fr_id = edf.encart_une(EDF, mobile=True)
+    if fr_html:
+        o.lien(f'<div style="margin: 14px 16px 0">{fr_html}</div>', "edfmatch", id=fr_id)
     ecart = m.assign(d=(m.bd - m.be).abs()).sort_values("d", ascending=False).iloc[0]
     o.add(f'<div style="padding: 0 16px">' + ui.tiles(ui.tile(len(b), f"buts en J{j}", "red"), ui.tile(fr(len(b) / len(m)), "buts / match"),
           ui.tile(f"{max(ecart.bd, ecart.be)}-{min(ecart.bd, ecart.be)}", "plus large écart"), mt=10) + "</div>")
