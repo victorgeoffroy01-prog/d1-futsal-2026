@@ -7,16 +7,13 @@ MUTED = "#5E574C"   # texte secondaire
 LINE = "#D6CDBD"    # filets
 SOFT = "#E9E2D5"    # fonds discrets
 
-# Titres et grands chiffres : Archivo en gras (le nom D1T sert de repère au CSS ci-dessous pour mettre le gras)
-SERIF = "'Archivo', D1T, 'Helvetica Neue', Arial, sans-serif"
+SERIF = "'DM Serif Display', Georgia, serif"
 SANS = "'Archivo', 'Helvetica Neue', Arial, sans-serif"
 COND = "'Archivo Narrow', 'Archivo', Arial, sans-serif"
 
 CSS = f"""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@500;600;700&family=Archivo:wght@400;500;600;700;800&display=swap');
-/* titres et grands chiffres : gras, légèrement resserrés */
-[style*="D1T"] {{ font-weight: 700 !important; letter-spacing: -0.02em; }}
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@500;600;700&family=Archivo:wght@400;500;600;700;800&family=DM+Serif+Display&display=swap');
 /* --- on efface l'habillage Streamlit --- */
 header[data-testid="stHeader"], footer, #MainMenu, [data-testid="stToolbar"],
 [data-testid="stDecoration"], [data-testid="stStatusWidget"] {{ display: none !important; }}
@@ -31,7 +28,7 @@ a {{ color: {INK}; text-decoration: none; }}
 a:focus-visible, button:focus-visible {{ outline: 3px solid {RED}; outline-offset: 2px; }}
 /* champ de recherche */
 [data-testid="stTextInput"] {{ padding: 12px 16px 4px; }}
-[data-testid="stTextInput"] input {{ background: {PAPER}; border: 1px solid {LINE}; border-radius: 4px;
+[data-testid="stTextInput"] input {{ background: {PAPER}; border: 1.5px solid {INK}; border-radius: 999px;
   height: 44px; padding: 0 16px; font-family: {SANS}; font-size: 15px; color: {INK} !important; -webkit-text-fill-color: {INK} !important; caret-color: {INK}; }}
 [data-testid="stTextInput"] input::placeholder {{ color: {MUTED} !important; -webkit-text-fill-color: {MUTED} !important; }}
 [data-testid="stTextInput"] div {{ background: transparent !important; border-color: transparent !important; overflow: visible !important; height: auto !important; }}
@@ -76,7 +73,7 @@ CSS += """
 CSS += """
 <style>
 .st-key-editeur textarea, .st-key-editeur [data-baseweb="select"] > div { background: #FBF8F2 !important; color: #111 !important;
-  -webkit-text-fill-color: #111 !important; border: 1.5px solid #111 !important; border-radius: 4px !important; font-size: 15px !important; }
+  -webkit-text-fill-color: #111 !important; border: 1.5px solid #111 !important; border-radius: 8px !important; font-size: 15px !important; }
 .st-key-editeur [data-baseweb="select"] svg { fill: #111 !important; }
 .st-key-editeur p, .st-key-editeur label, .st-key-editeur summary, .st-key-editeur [data-testid="stText"],
 .st-key-editeur [data-testid="stCaptionContainer"] { color: #111 !important; }

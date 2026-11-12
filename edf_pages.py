@@ -28,7 +28,7 @@ def _sec(F, inner, pad="22px 16px 0"):
 def _carte(F, inner, pad=18):
     if F["mobile"]:
         return inner
-    return f'<div style="background: {PAPER}; border: 1px solid {LINE}; border-radius: 4px; padding: {pad}px">{inner}</div>'
+    return f'<div style="background: {PAPER}; border: 1.5px solid {INK}; border-radius: 12px; padding: {pad}px">{inner}</div>'
 
 
 # ================================================================== calendrier

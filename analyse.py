@@ -208,7 +208,7 @@ def carte_gardien(g, club_nom, couleur):
             mot = lib if v == 1 else (lib.replace("passe loupée", "passes loupées") if " " in lib else lib + "s")
             hc.append(f"{v} {mot}")
     hors = f'<div style="font-size: 12px; color: {MUTED}; margin-top: 4px">Hors de sa cage : {", ".join(hc)}</div>' if hc else ""
-    return (f'<div style="flex: 1; min-width: 0; box-sizing: border-box; background: {PAPER}; border: 1px solid {LINE}; border-top: 5px solid {couleur}; border-radius: 4px; padding: 12px 14px">'
+    return (f'<div style="flex: 1; min-width: 0; box-sizing: border-box; background: {PAPER}; border: 1.5px solid {INK}; border-top: 5px solid {couleur}; border-radius: 10px; padding: 12px 14px">'
             f'<div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px"><div><div style="font-weight: 700">{e(nom_rapport(g["nom"]))}</div>'
             f'<div style="font-family: {COND}; font-size: 11px; letter-spacing: 0.08em; color: {MUTED}; text-transform: uppercase">{e(club_nom)}</div></div>'
             f'<div style="font-family: {SERIF}; font-size: 32px; line-height: 1">{pct} %</div></div>'
@@ -269,7 +269,7 @@ def carte_joueur_match(journee, lieu, adversaire, score, jr, entete=None):
     g, t = duels(jr)
     case = lambda v, l, rouge=False: (f'<div style="background: {PAPER}; padding: 12px"><div style="font-family: {SERIF}; font-size: 28px; line-height: 1; color: {RED if rouge else INK}">{v}</div>'
                                       f'<div style="font-family: {COND}; font-size: 11px; letter-spacing: 0.08em; color: {MUTED}; text-transform: uppercase">{l}</div></div>')
-    return (f'<div style="background: {PAPER}; border: 1px solid {LINE}; border-radius: 4px; overflow: hidden; margin-top: 12px">'
+    return (f'<div style="background: {PAPER}; border: 1.5px solid {INK}; border-radius: 12px; overflow: hidden; margin-top: 12px">'
             f'<div style="display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: {INK}; color: #fff">'
             f'<span style="font-family: {COND}; font-weight: 700; font-size: 12px; letter-spacing: 0.08em; color: #D9D2C6">{e(entete) if entete else f"J{journee} · {lieu}"}</span>'
             f'<span style="flex: 1; font-weight: 600">vs {e(adversaire)}</span><span style="font-family: {SERIF}; font-size: 22px">{score}</span></div>'

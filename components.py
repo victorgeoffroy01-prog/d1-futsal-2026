@@ -206,15 +206,15 @@ def _logo_brut(club: str, size=28, fs=10, dark=True) -> str:
         return f'<img src="{src}" alt="" width="{size}" height="{size}" style="width: {size}px; height: {size}px; object-fit: contain; flex-shrink: 0">'
     bg, fg = (INK, "#fff") if dark else (PAPER, INK)
     return (f'<span style="display: inline-flex; align-items: center; justify-content: center; width: {size}px; height: {size}px; '
-            f'flex-shrink: 0; border-radius: 50%; background: {bg}; color: {fg}; border: 1px solid {LINE}; font-family: {COND}; '
+            f'flex-shrink: 0; border-radius: 50%; background: {bg}; color: {fg}; border: 1.5px solid {INK}; font-family: {COND}; '
             f'font-weight: 700; font-size: {fs}px">{C.ABREV_CLUBS.get(club, club[:3])}</span>')
 
 
 def photo(id_joueur: str, w=96, h=116) -> str:
     src = _image("joueurs", id_joueur, PHOTOS.get(id_joueur))
     if src:
-        return f'<img src="{src}" alt="" style="width: {w}px; height: {h}px; object-fit: cover; border-radius: 4px; flex-shrink: 0">'
-    return (f'<div style="width: {w}px; height: {h}px; flex-shrink: 0; border-radius: 4px; background: {SOFT}; display: flex; '
+        return f'<img src="{src}" alt="" style="width: {w}px; height: {h}px; object-fit: cover; border-radius: 10px; flex-shrink: 0">'
+    return (f'<div style="width: {w}px; height: {h}px; flex-shrink: 0; border-radius: 10px; background: {SOFT}; display: flex; '
             f'align-items: flex-end; justify-content: center; overflow: hidden">'
             + svg_img(f'<svg width="{w*0.8:.0f}" height="{h*0.8:.0f}" viewBox="0 0 24 24" fill="{LINE}">'
                       f'<circle cx="12" cy="8" r="4.5"/><path d="M2 24c1-6 5-9 10-9s9 3 10 9z"/></svg>', int(w*0.8), int(h*0.8)) + '</div>')
@@ -232,10 +232,9 @@ def photo_rond(id_joueur, d=56, bord="#fff") -> str:
 
 
 # ------------------------------------------------------------- blocs texte
-def kicker(txt, mt=0, color=INK):
-    """Titre de section, façon presse : texte noir gras, filet noir dessous."""
+def kicker(txt, mt=0, color=RED):
     return (f'<div style="margin-top: {mt}px; display: flex; flex-direction: column; gap: 6px">'
-            f'<div style="font-family: {SANS}; font-weight: 800; font-size: 15px; letter-spacing: 0; color: {color}">{e(txt)}</div>'
+            f'<div style="font-family: {COND}; font-weight: 700; font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: {color}">{e(txt)}</div>'
             f'<div style="height: 2px; background: {INK}"></div></div>')
 
 
@@ -244,19 +243,18 @@ def section(inner, pad="22px 16px 0"):
 
 
 def tile(num, label, style="paper", numsize=34):
-    """Chiffre clé : un nombre et son libellé, sans boîte. Le style colore seulement le nombre (rouge = le plus important)."""
-    fg = {"paper": INK, "dark": INK, "red": RED}[style]
-    taille = round(numsize * (0.85 if len(re.sub(r"<[^>]+>", "", str(num))) < 6 else 0.65))      # « 152-119 » tient sur une ligne
-    return (f'<div style="flex: 1; min-width: 0; padding: 2px 12px; border-left: 1px solid {LINE}; display: flex; flex-direction: column; gap: 4px">'
-            f'<div style="font-family: {SERIF}; font-size: {taille}px; line-height: 1; color: {fg}; white-space: nowrap">{num}</div>'
-            f'<div style="font-family: {SANS}; font-size: 12px; color: {MUTED}; line-height: 1.25">{label}</div></div>')
+    bg, fg, lc, bd = {
+        "paper": (PAPER, INK, MUTED, f"1.5px solid {INK}"),
+        "dark": (INK, "#fff", "#E9E2D5", "none"),
+        "red": (RED, "#fff", "#fff", "none"),
+    }[style]
+    return (f'<div style="flex: 1; min-width: 0; background: {bg}; color: {fg}; border: {bd}; border-radius: 10px; padding: 12px 12px 10px; '
+            f'display: flex; flex-direction: column; gap: 4px"><div style="font-family: {SERIF}; font-size: {numsize}px; line-height: 1">{num}</div>'
+            f'<div style="font-family: {COND}; font-weight: 600; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: {lc}">{label}</div></div>')
 
 
 def tiles(*t, mt=12):
-    t = list(t)
-    if t:      # pas de filet devant le premier chiffre
-        t[0] = t[0].replace(f"padding: 2px 12px; border-left: 1px solid {LINE}", "padding: 2px 12px 2px 0", 1)
-    return f'<div style="display: flex; margin-top: {mt}px">{"".join(t)}</div>'
+    return f'<div style="display: flex; gap: 8px; margin-top: {mt}px">{"".join(t)}</div>'
 
 
 def form_chip(r, s=20):
@@ -266,17 +264,18 @@ def form_chip(r, s=20):
         return f'<span title="Victoire" style="{base}; background: {INK}; color: #fff">V</span>'
     if r == "D":
         return f'<span title="Défaite" style="{base}; background: {RED}; color: #fff">D</span>'
-    return f'<span title="Nul" style="{base}; background: {PAPER}; border: 1px solid {LINE}; color: {INK}">N</span>'
+    return f'<span title="Nul" style="{base}; background: {PAPER}; border: 1.5px solid {INK}; color: {INK}">N</span>'
 
 
 def empty(msg):
-    return (f'<div style="margin-top: 12px; padding: 14px; border: 1.5px dashed {LINE}; border-radius: 4px; '
+    return (f'<div style="margin-top: 12px; padding: 14px; border: 1.5px dashed {LINE}; border-radius: 10px; '
             f'font-size: 13px; color: {MUTED}">{msg}</div>')
 
 
 # ------------------------------------------------------------- navigation (contenu des zones cliquables, voir nav.py)
 def titre_bar(title, sub=None):
-    s = f'<div style="font-size: 13px; color: {MUTED}; margin-top: 3px">{e(sub)}</div>' if sub else ""
+    s = (f'<div style="font-family: {COND}; font-weight: 600; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; '
+         f'color: {RED}; margin-top: 4px">{e(sub)}</div>') if sub else ""
     return f'<div style="min-width: 0"><div style="font-family: {SERIF}; font-size: 26px; line-height: 1.05">{e(title)}</div>{s}</div>'
 
 
@@ -287,7 +286,7 @@ def back_btn():
 def fleche(sens, actif, taille=40):
     """Bouton rond précédent (-1) / suivant (+1), grisé s'il n'y a nulle part où aller."""
     return (f'<div title="{"Page précédente" if sens < 0 else "Page suivante"}" style="display: flex; width: {taille}px; height: {taille}px; '
-            f'align-items: center; justify-content: center; border-radius: 4px; border: 1.5px solid {INK if actif else LINE}; '
+            f'align-items: center; justify-content: center; border-radius: 999px; border: 1.5px solid {INK if actif else LINE}; '
             f'background: {PAPER}; opacity: {1 if actif else 0.45}; box-sizing: border-box">'
             f'{icon("back" if sens < 0 else "chev", int(taille * 0.5), INK if actif else MUTED, 2.2)}</div>')
 
@@ -300,13 +299,13 @@ def tab_item(lab, on):
 
 
 def pill_item(lab, on):
-    s = (f"background: {INK}; color: #fff; border: 1px solid {LINE}" if on else f"background: {PAPER}; color: {INK}; border: 1px solid {LINE}")
-    return (f'<div style="{s}; border-radius: 4px; min-width: 48px; height: 36px; padding: 0 14px; box-sizing: border-box; display: flex; '
+    s = (f"background: {INK}; color: #fff; border: 1.5px solid {INK}" if on else f"background: {PAPER}; color: {INK}; border: 1.5px solid {INK}")
+    return (f'<div style="{s}; border-radius: 999px; min-width: 48px; height: 36px; padding: 0 14px; box-sizing: border-box; display: flex; '
             f'align-items: center; justify-content: center; font-family: {COND}; font-weight: 700; font-size: 14px; white-space: nowrap">{e(lab)}</div>')
 
 
 def seg_item(lab, on):
-    return (f'<div style="height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 4px; '
+    return (f'<div style="height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 8px; '
             f'background: {INK if on else "transparent"}; color: {"#fff" if on else INK}; font-family: {COND}; font-weight: 700; font-size: 13px">{e(lab)}</div>')
 
 
@@ -411,9 +410,9 @@ def score_progressif(buts, dom, ext, noms):
         return d + f" H{xs(C.DUREE_MATCH):.1f}"
     step = 1 if mx <= 6 else 2
     grid = "".join(f'<line x1="{PL}" x2="{W-8}" y1="{ys(v):.1f}" y2="{ys(v):.1f}" stroke="{LINE}"/>'
-                   f'<text x="{PL-6}" y="{ys(v)+4:.1f}" font-size="10" text-anchor="end" fill="{MUTED}" font-family="Archivo, Arial, Helvetica, sans-serif">{v}</text>'
+                   f'<text x="{PL-6}" y="{ys(v)+4:.1f}" font-size="10" text-anchor="end" fill="{MUTED}" font-family="Archivo">{v}</text>'
                    for v in range(0, mx + 1, step))
-    xt = "".join(f'<text x="{xs(m):.1f}" y="{H-6}" font-size="10" text-anchor="middle" fill="{MUTED}" font-family="Archivo, Arial, Helvetica, sans-serif">{m}\u2019</text>'
+    xt = "".join(f'<text x="{xs(m):.1f}" y="{H-6}" font-size="10" text-anchor="middle" fill="{MUTED}" font-family="Archivo">{m}\u2019</text>'
                  for m in (0, 10, 20, 30, 40))
     legend = (f'<div style="display: flex; gap: 14px; font-size: 12px; margin-bottom: 4px"><span style="display: inline-flex; align-items: center; gap: 6px">'
               f'<span style="width: 18px; height: 3px; background: {INK}"></span>{e(noms[dom])}</span><span style="display: inline-flex; align-items: center; gap: 6px">'
@@ -431,12 +430,12 @@ def frise(minutes_labels):
     for m, lab in minutes_labels:
         x = 14 + (W - 28) * m / C.DUREE_MATCH
         dots += (f'<circle cx="{x:.1f}" cy="34" r="8" fill="{RED}" stroke="{CR}" stroke-width="2"/>'
-                 f'<text x="{x:.1f}" y="60" font-size="10" text-anchor="middle" fill="{INK}" font-family="Archivo, Arial, Helvetica, sans-serif" font-weight="700">{e(lab)}</text>')
+                 f'<text x="{x:.1f}" y="60" font-size="10" text-anchor="middle" fill="{INK}" font-family="Archivo" font-weight="700">{e(lab)}</text>')
     return svg_img(f'<svg width="{W}" height="70" viewBox="0 0 {W} 70"><rect x="14" y="31" width="{W-28}" height="6" rx="3" fill="{SOFT}"/>'
             f'<line x1="{W/2}" x2="{W/2}" y1="18" y2="48" stroke="{INK}" stroke-width="1.5"/>'
-            f'<text x="{W/2}" y="12" font-size="9" text-anchor="middle" fill="{MUTED}" font-family="Archivo Narrow, Arial Narrow, Arial, sans-serif" letter-spacing="1">MI-TEMPS</text>'
-            f'<text x="14" y="12" font-size="9" fill="{MUTED}" font-family="Archivo, Arial, Helvetica, sans-serif">0\u2019</text>'
-            f'<text x="{W-14}" y="12" font-size="9" text-anchor="end" fill="{MUTED}" font-family="Archivo, Arial, Helvetica, sans-serif">40\u2019</text>{dots}</svg>', alt="Minutes des buts")
+            f'<text x="{W/2}" y="12" font-size="9" text-anchor="middle" fill="{MUTED}" font-family="Archivo Narrow" letter-spacing="1">MI-TEMPS</text>'
+            f'<text x="14" y="12" font-size="9" fill="{MUTED}" font-family="Archivo">0\u2019</text>'
+            f'<text x="{W-14}" y="12" font-size="9" text-anchor="end" fill="{MUTED}" font-family="Archivo">40\u2019</text>{dots}</svg>', alt="Minutes des buts")
 
 
 def tranches_miroir(marques: dict, encaisses: dict):

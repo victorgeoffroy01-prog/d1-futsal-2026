@@ -41,23 +41,23 @@ CSS_ORDI = f"""
 [data-testid="stTextInput"] input::placeholder {{ color: {MUTED} !important; -webkit-text-fill-color: {MUTED} !important; }}
 [class*="st-key-rw-seg"] {{ margin: 12px 0 0 !important; width: 100% !important; }}
 [data-testid="stSelectbox"], [data-testid="stMultiSelect"], [data-testid="stSlider"], [data-testid="stRadio"] {{ padding: 0 !important; }}
-[data-testid="stDataFrame"] {{ border: 1px solid {LINE}; border-radius: 4px; overflow: hidden; }}
+[data-testid="stDataFrame"] {{ border: 1.5px solid {INK}; border-radius: 10px; overflow: hidden; }}
 [data-testid="stTextInput"] {{ padding: 0 !important; }}
-.st-key-filtres {{ background: {SOFT}; border-radius: 4px; padding: 14px 16px; gap: 14px !important; margin: 10px 0 14px; }}
+.st-key-filtres {{ background: {SOFT}; border-radius: 10px; padding: 14px 16px; gap: 14px !important; margin: 10px 0 14px; }}
 .st-key-eq-joueurs {{ flex-wrap: wrap !important; gap: 0 48px !important; }}
 .st-key-eq-joueurs > div {{ flex: 1 1 680px !important; min-width: 0 !important; width: auto !important; }}
 .st-key-filtres label p {{ font-family: {COND}; font-weight: 700; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: {MUTED}; }}
 /* filtres des statistiques : mêmes cases que le reste du site (fond papier, filet noir, bords ronds) */
 .st-key-filtres [data-testid="stSelectbox"] > div > div, .st-key-filtres [data-testid="stMultiSelect"] > div > div {{ background: {PAPER} !important;
-  border: 1px solid {LINE} !important; border-radius: 4px !important; min-height: 44px; padding-left: 8px; font-family: {SANS}; font-size: 15px; box-shadow: none !important; }}
+  border: 1.5px solid {INK} !important; border-radius: 22px !important; min-height: 44px; padding-left: 8px; font-family: {SANS}; font-size: 15px; box-shadow: none !important; }}
 .st-key-filtres [data-testid="stSelectbox"] input, .st-key-filtres [data-testid="stMultiSelect"] input {{ color: {INK} !important; -webkit-text-fill-color: {INK} !important; }}
 .st-key-filtres [data-testid="stSelectbox"] svg, .st-key-filtres [data-testid="stMultiSelect"] svg {{ color: {INK}; }}
-.st-key-filtres [data-testid="stMultiSelectTagsContainer"] > span > span {{ background: {INK} !important; border-radius: 4px !important; padding: 0 4px 0 10px; }}
+.st-key-filtres [data-testid="stMultiSelectTagsContainer"] > span > span {{ background: {INK} !important; border-radius: 999px !important; padding: 0 4px 0 10px; }}
 .st-key-filtres [data-testid="stWidgetLabel"] {{ margin-bottom: 6px; min-height: 0; }}
 .st-key-filtres [data-testid="stSlider"] [data-testid="stSliderThumbValue"] {{ font-family: {COND}; font-weight: 700; color: {INK} !important; }}
 .st-key-filtres [data-testid="stSliderTickBar"] {{ font-family: {COND}; color: {MUTED}; }}
 .st-key-export {{ margin-top: 16px; }}
-.st-key-export button {{ background: {PAPER} !important; border: 1px solid {LINE} !important; border-radius: 4px !important; color: {INK} !important; padding: 8px 18px !important; }}
+.st-key-export button {{ background: {PAPER} !important; border: 1.5px solid {INK} !important; border-radius: 999px !important; color: {INK} !important; padding: 8px 18px !important; }}
 .st-key-export button p {{ font-family: {COND}; font-weight: 700; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; }}
 .st-key-export button:hover {{ background: {INK} !important; color: #fff !important; }}
 </style>
@@ -76,7 +76,7 @@ def P(nom, defaut):
 
 # ------------------------------------------------------------------ briques
 def card(inner, pad=18):
-    return f'<div style="background: {PAPER}; border: 1px solid {LINE}; border-radius: 4px; padding: {pad}px">{inner}</div>'
+    return f'<div style="background: {PAPER}; border: 1.5px solid {INK}; border-radius: 12px; padding: {pad}px">{inner}</div>'
 
 
 def sous_titre(t):
@@ -96,7 +96,8 @@ def entete_site(active):
           f'<span>Saison {C.SAISON} · Après la journée {X["derniere"]} · {lig["nb_buts"]} buts</span>'
           f'<span>Données collectées par V. Geoffroy · non officielles · crédits clubs, joueurs, FFF</span></div>')
     o.add(f'<div style="padding-top: 22px"><div style="font-family: {SERIF}; font-size: 60px; line-height: 0.95">D1 Futsal</div>'
-          f'<div style="font-size: 14px; color: {MUTED}; margin-top: 8px">Saison {C.SAISON}</div></div>')
+          f'<div style="font-family: {COND}; font-weight: 700; font-size: 13px; letter-spacing: 0.16em; text-transform: uppercase; color: {RED}; margin-top: 8px">'
+          f'Le championnat en données</div></div>')
     items = [("une", "La Une", "une"), ("matchs", "Résultats", "matchs"), ("classements", "Classements", "classements"),
              ("stats", "Statistiques", "joueurs"), ("clubs", "Clubs", "clubs"), ("annuaire", "Joueurs", "joueurs"), ("edf", "Équipe de France", "edf"), ("methodo", "Méthodologie", "methodo")]
     nav_items = []
@@ -141,11 +142,11 @@ def vbars(dic, w=420, h=210, hi=(), color=INK, aria="Graphique"):
     for i, k in enumerate(ks):
         v = dic[k]; bh = (h - 46) * v / mx; x = 30 + i * bw + bw * 0.18; y = h - 24 - bh
         s += (f'<rect x="{x:.1f}" y="{y:.1f}" width="{bw*0.64:.1f}" height="{bh:.1f}" fill="{RED if k in hi else color}" rx="2"/>'
-              f'<text x="{x+bw*0.32:.1f}" y="{y-6:.1f}" text-anchor="middle" font-size="12" font-weight="700" font-family="Archivo Narrow, Arial Narrow, Arial, sans-serif" fill="{INK}">{v}</text>'
-              f'<text x="{x+bw*0.32:.1f}" y="{h-6}" text-anchor="middle" font-size="11" font-family="Archivo, Arial, Helvetica, sans-serif" fill="{MUTED}">{k}’</text>')
+              f'<text x="{x+bw*0.32:.1f}" y="{y-6:.1f}" text-anchor="middle" font-size="12" font-weight="700" font-family="Archivo Narrow" fill="{INK}">{v}</text>'
+              f'<text x="{x+bw*0.32:.1f}" y="{h-6}" text-anchor="middle" font-size="11" font-family="Archivo" fill="{MUTED}">{k}’</text>')
     s += (f'<line x1="26" x2="{w-6}" y1="{h-24}" y2="{h-24}" stroke="{INK}" stroke-width="1.5"/>'
           f'<line x1="{30+4*bw-2:.1f}" x2="{30+4*bw-2:.1f}" y1="12" y2="{h-24}" stroke="{INK}" stroke-dasharray="3 3"/>'
-          f'<text x="{30+4*bw+4:.1f}" y="22" font-size="10" font-family="Archivo Narrow, Arial Narrow, Arial, sans-serif" fill="{MUTED}" letter-spacing="1">2E MI-TEMPS</text>')
+          f'<text x="{30+4*bw+4:.1f}" y="22" font-size="10" font-family="Archivo Narrow" fill="{MUTED}" letter-spacing="1">2E MI-TEMPS</text>')
     return svg_img(f'<svg width="{w}" height="{h}" viewBox="0 0 {w} {h}">{s}</svg>', alt=aria)
 
 
@@ -158,8 +159,8 @@ def bars_groupees(a: dict, b: dict, w=620, h=230):
             bh = (h - 50) * v / mx; xx = x + bw * 0.15 + j * bw * 0.34
             s += f'<rect x="{xx:.1f}" y="{h-26-bh:.1f}" width="{bw*0.3:.1f}" height="{bh:.1f}" fill="{c}" rx="2"/>'
             if v:
-                s += f'<text x="{xx+bw*0.15:.1f}" y="{h-32-bh:.1f}" font-size="11" text-anchor="middle" font-family="Archivo Narrow, Arial Narrow, Arial, sans-serif" font-weight="700" fill="{INK}">{v}</text>'
-        s += f'<text x="{x+bw/2:.1f}" y="{h-8}" font-size="11" text-anchor="middle" font-family="Archivo, Arial, Helvetica, sans-serif" fill="{MUTED}">{k}’</text>'
+                s += f'<text x="{xx+bw*0.15:.1f}" y="{h-32-bh:.1f}" font-size="11" text-anchor="middle" font-family="Archivo Narrow" font-weight="700" fill="{INK}">{v}</text>'
+        s += f'<text x="{x+bw/2:.1f}" y="{h-8}" font-size="11" text-anchor="middle" font-family="Archivo" fill="{MUTED}">{k}’</text>'
     s += (f'<line x1="36" x2="{w-6}" y1="{h-26}" y2="{h-26}" stroke="{INK}" stroke-width="1.5"/>'
           f'<line x1="{40+4*bw:.1f}" x2="{40+4*bw:.1f}" y1="10" y2="{h-26}" stroke="{INK}" stroke-dasharray="3 3"/>')
     leg = (f'<div style="display: flex; gap: 16px; margin-bottom: 8px; font-size: 12px"><span style="display: inline-flex; align-items: center; gap: 6px">'
@@ -193,8 +194,8 @@ def carte_match(m, analyse):
     def ligne(t, s, w):
         return (f'<div style="display: flex; align-items: center; gap: 10px">{ui.logo_or_badge(t, 28, 9)}<span style="flex: 1; font-weight: {700 if w else 500}; '
                 f'font-size: 15px">{ui.lien_club(t, e(N[t]))}</span><span style="font-family: {SERIF}; font-size: 24px; color: {INK if w or not (wd or we) else MUTED}">{s}</span></div>')
-    return (f'<div style="height: 100%; box-sizing: border-box; display: flex; flex-direction: column; gap: 8px; background: {PAPER}; border: 1px solid {LINE}; '
-            f'border-radius: 4px; padding: 14px 16px"><div style="display: flex; justify-content: space-between; align-items: center; font-family: {COND}; font-weight: 700; '
+    return (f'<div style="height: 100%; box-sizing: border-box; display: flex; flex-direction: column; gap: 8px; background: {PAPER}; border: 1.5px solid {INK}; '
+            f'border-radius: 10px; padding: 14px 16px"><div style="display: flex; justify-content: space-between; align-items: center; font-family: {COND}; font-weight: 700; '
             f'font-size: 11px; letter-spacing: 0.1em; color: {MUTED}"><span>J{m.journee} · TERMINÉ · MT {m.mt_d}-{m.mt_e}</span>{ui.BADGE_ANALYSE if analyse else ""}</div>'
             f'{ligne(m.dom, m.bd, wd)}{ligne(m.ext, m.be, we)}</div>')
 
@@ -280,7 +281,7 @@ def page_une():
         ecart = m.assign(dd=(m.bd - m.be).abs()).sort_values("dd", ascending=False).iloc[0]
         chiffre_j = lambda v, l: (f'<div style="flex: 1; padding: 0 14px; border-left: 1px solid #444"><div style="font-family: {SERIF}; font-size: 30px; line-height: 1">{v}</div>'
                                   f'<div style="font-family: {COND}; font-weight: 600; font-size: 11px; letter-spacing: 0.08em; color: #D9D2C6; margin-top: 4px">{l}</div></div>')
-        hero = (f'<div style="background: {INK}; color: #fff; border-radius: 4px; overflow: hidden">'
+        hero = (f'<div style="background: {INK}; color: #fff; border-radius: 14px; overflow: hidden">'
                 f'<div style="display: grid; grid-template-columns: minmax(0,1fr) 300px; gap: 28px; padding: 28px">'
                 f'<div><div style="font-family: {COND}; font-weight: 700; font-size: 12px; letter-spacing: 0.14em; color: #F2B8C0">LE MATCH DE LA JOURNÉE</div>'
                 + (f'<div style="font-family: {SERIF}; font-size: 36px; line-height: 1.05; margin-top: 12px">{e(titre)}</div>' if titre else
@@ -345,7 +346,7 @@ def page_une():
 def lien_d(txt, page, **params):
     """Lien rouge « tout voir » sous une liste de la Une."""
     o = Sortie()
-    o.lien(f'<div style="display: flex; justify-content: flex-end; padding: 10px 0 0; font-family: {COND}; font-weight: 700; font-size: 12px; letter-spacing: 0.08em; color: {RED}">{txt}</div>',
+    o.lien(f'<div style="display: flex; justify-content: flex-end; padding: 10px 0 0; font-family: {COND}; font-weight: 700; font-size: 12px; letter-spacing: 0.08em; color: {RED}">{txt} →</div>',
            page, **params)
     o.fin()
 
@@ -400,7 +401,7 @@ def page_match():
         d = b[b.club_marque == club]
         return "<br>".join(f'{ui.lien_joueur(g.id_buteur.iloc[0], e(n))} ' + " ".join(f"{x}’" for x in g.minute) for n, g in d.groupby("buteur", sort=False))
     o = Sortie()
-    o.add(f'<div style="height: 18px"></div><section style="background: {INK}; color: #fff; border-radius: 4px; padding: 26px 32px; '
+    o.add(f'<div style="height: 18px"></div><section style="background: {INK}; color: #fff; border-radius: 14px; padding: 26px 32px; '
           f'display: grid; grid-template-columns: minmax(0,1fr) auto minmax(0,1fr); align-items: center; gap: 24px">'
           f'<div style="display: flex; align-items: center; gap: 16px; justify-content: flex-end"><span style="font-family: {SERIF}; font-size: 38px">{ui.lien_club(m.dom, e(N[m.dom]))}</span>{ui.logo_or_badge(m.dom, 64, 15, False)}</div>'
           f'<div style="text-align: center">{"<div style=\"margin-bottom: 8px\">" + ui.BADGE_ANALYSE + "</div>" if rapport else ""}'
@@ -409,7 +410,7 @@ def page_match():
           f'<div style="display: flex; align-items: center; gap: 16px">{ui.logo_or_badge(m.ext, 64, 15, False)}<span style="font-family: {SERIF}; font-size: 38px">{ui.lien_club(m.ext, e(N[m.ext]))}</span></div>'
           f'<div style="text-align: right; font-size: 13px; color: #D9D2C6">{buteurs(m.dom, "right")}</div><div></div>'
           f'<div style="font-size: 13px; color: #D9D2C6">{buteurs(m.ext, "left")}</div></section>')
-    o.rangee([(f'<div style="padding: 12px 18px 12px 0; font-family: {COND}; font-weight: 700; font-size: 13px; letter-spacing: 0.08em; color: {RED}">FICHE {e(N[c]).upper()}</div>',
+    o.rangee([(f'<div style="padding: 12px 18px 12px 0; font-family: {COND}; font-weight: 700; font-size: 13px; letter-spacing: 0.08em; color: {RED}">FICHE {e(N[c]).upper()} →</div>',
                "club", {"id": c}, "content") for c in (m.dom, m.ext)], style="cards")
     o.fin()
     onglets_d("match", {"j": j, "dom": dom}, [("resume", "Résumé"), ("timeline", "Timeline")] + ([("rapport", "Analyse du match")] if rapport else []), onglet)
@@ -581,8 +582,8 @@ def page_annuaire():
     clubs = sorted(N, key=lambda c: N[c])
     club = X["choix"]("club", ["tous"] + clubs, "tous")
     o = Sortie()
-    o.add(f'<h1 style="margin: 28px 0 0; font-family: {SERIF}; font-weight: 400; font-size: 40px; line-height: 1">Joueurs de D1</h1>'
-          f'<div style="font-size: 14px; color: {MUTED}; margin-top: 8px">{len(J)} fiches</div>')
+    o.add(f'<div style="height: 24px"></div><div style="font-family: {COND}; font-weight: 700; font-size: 12px; letter-spacing: 0.14em; color: {RED}">JOUEURS · {len(J)} FICHES</div>'
+          f'<h1 style="margin: 6px 0 0; font-family: {SERIF}; font-weight: 400; font-size: 44px; line-height: 1">Tous les joueurs de D1</h1>')
     o.rangee([(ui.pill_item("Tous", club == "tous"), "joueurs", {"vue": "annuaire"}, "content")]
              + [(ui.pill_item(N[c], c == club), "joueurs", {"vue": "annuaire", "club": c}, "content") for c in clubs], style="pillsw")
     o.fin()
@@ -601,7 +602,7 @@ def page_annuaire():
         poste = r.poste if isinstance(getattr(r, "poste", None), str) else None
         sous = " · ".join(x for x in [num, poste, "match analysé" if r.id_joueur in vus else None] if x) or "Fiche à compléter"
         return (f'<div style="height: 100%; box-sizing: border-box; display: flex; gap: 12px; align-items: center; padding: 10px 12px; background: {PAPER}; '
-                f'border: 1px solid {LINE}; border-radius: 4px">{ui.photo(r.id_joueur, 46, 56)}<div style="flex: 1; min-width: 0">'
+                f'border: 1.5px solid {INK}; border-radius: 12px">{ui.photo(r.id_joueur, 46, 56)}<div style="flex: 1; min-width: 0">'
                 f'<div style="font-weight: 700; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{e(r.nom_affiche)}</div>'
                 f'<div style="font-size: 12px; color: {MUTED}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{e(sous)}</div></div>'
                 f'<div style="text-align: right; font-family: {COND}; font-weight: 700; white-space: nowrap"><span style="font-family: {SERIF}; font-weight: 400; font-size: 22px; color: {RED if b else MUTED}">{b}</span> b'
@@ -631,8 +632,8 @@ def page_joueurs():
         return page_annuaire()
     entete_site("stats")
     o = Sortie()
-    o.add(f'<h1 style="margin: 28px 0 0; font-family: {SERIF}; font-weight: 400; font-size: 40px; line-height: 1">Statistiques des joueurs</h1>'
-          f'<div style="font-size: 14px; color: {MUTED}; margin-top: 8px">Buteurs et passeurs de D1</div>')
+    o.add(f'<div style="height: 24px"></div><div style="font-family: {COND}; font-weight: 700; font-size: 12px; letter-spacing: 0.14em; color: {RED}">STATISTIQUES · JOUEURS</div>'
+          f'<h1 style="margin: 6px 0 0; font-family: {SERIF}; font-weight: 400; font-size: 44px; line-height: 1">Tous les buteurs et passeurs de D1</h1>')
     o.rangee([(ui.pill_item(lab, k == vue), "joueurs", {"vue": k}, "content") for k, lab in [("tableau", "Tableau complet"), ("comparer", "Comparer 2 joueurs")]], style="pills")
     o.fin()
     js = X["journees"]
@@ -743,7 +744,7 @@ def page_clubs():
     lst = list(t.itertuples())
     for k in range(0, len(lst), 4):
         o.rangee([(f'<div style="height: 100%; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 22px 10px; '
-                   f'background: {PAPER}; border: 1px solid {LINE}; border-radius: 4px">{ui.logo_or_badge(r.club, 64, 15)}'
+                   f'background: {PAPER}; border: 1.5px solid {INK}; border-radius: 12px">{ui.logo_or_badge(r.club, 64, 15)}'
                    f'<span style="font-family: {SERIF}; font-size: 24px; text-align: center">{e(N[r.club])}</span>'
                    f'<span style="font-family: {COND}; font-size: 13px; color: {MUTED}">{r.Rg}e · {r.Pts} pts · {r.BP}-{r.BC}</span>'
                    f'<span style="display: inline-flex; gap: 3px">{"".join(ui.form_chip(x, 20) for x in r.forme)}</span></div>', "club", {"id": r.club})
@@ -764,7 +765,7 @@ def pitch(club, mobile=False):
     else:
         pos = {"GB": (10, 46), "Fixo": (35, 46), "Ailier G": (60, 22), "Ailier D": (60, 70), "Pivot": (87, 46)}
         D, L, taille, haut = 64, 104, 14, 330
-    h = (f'<div style="position: relative; width: 100%; height: {haut}px; background: {INK}; border-radius: 4px; overflow: hidden">'
+    h = (f'<div style="position: relative; width: 100%; height: {haut}px; background: {INK}; border-radius: 12px; overflow: hidden">'
          f'<div style="position: absolute; inset: 12px; border: 1.5px solid #5A5A5A"></div><div style="position: absolute; left: 50%; top: 12px; bottom: 12px; width: 1.5px; background: #5A5A5A"></div>')
     for p, (x, y) in pos.items():
         i = None
@@ -799,9 +800,9 @@ def page_club():
     cl = s["classement"]
     info = base.clubs.set_index("club_court").loc[club]
     meta = " · ".join(x for x in [info.get("salle"), f"Coach {info.get('coach')}" if isinstance(info.get("coach"), str) else None, info.get("site_web")] if isinstance(x, str) and x)
-    tuile = lambda v, l, rouge=False: (f'<div style="{"background: " + RED if rouge else "border: 1.5px solid #fff"}; border-radius: 4px; padding: 12px 18px; text-align: center">'
+    tuile = lambda v, l, rouge=False: (f'<div style="{"background: " + RED if rouge else "border: 1.5px solid #fff"}; border-radius: 10px; padding: 12px 18px; text-align: center">'
                                        f'<div style="font-family: {SERIF}; font-size: 40px; line-height: 1">{v}</div><div style="font-family: {COND}; font-size: 11px; letter-spacing: 0.1em; color: #E9E2D5">{l}</div></div>')
-    st.html(f'<div style="height: 18px"></div><section style="background: {INK}; color: #fff; border-radius: 4px; padding: 26px 32px; display: flex; align-items: center; gap: 24px">'
+    st.html(f'<div style="height: 18px"></div><section style="background: {INK}; color: #fff; border-radius: 14px; padding: 26px 32px; display: flex; align-items: center; gap: 24px">'
             f'{ui.logo_or_badge(club, 96, 18, False, lien=False)}<div style="flex: 1"><div style="font-family: {COND}; font-weight: 700; font-size: 12px; letter-spacing: 0.14em; color: #F2B8C0">CLUB</div>'
             f'<div style="font-family: {SERIF}; font-size: 48px; line-height: 1; margin-top: 6px">{e(N[club])}</div>'
             + (f'<div style="color: #D9D2C6; margin-top: 8px">{e(meta)}</div>' if meta else "")
@@ -942,7 +943,8 @@ def page_methodo():
     entete_site("methodo")
     lig = X["base"].stats_ligue()
     p = lambda t: f'<p style="font-size: 16px; line-height: 1.6; max-width: 760px">{t}</p>'
-    st.html(f'<h1 style="font-family: {SERIF}; font-weight: 400; font-size: 40px; margin: 28px 0 14px">Comment sont faites ces données</h1>'
+    st.html('<div style="height: 26px"></div>' + kick("Méthodologie et sources")
+            + f'<h1 style="font-family: {SERIF}; font-weight: 400; font-size: 44px; margin: 14px 0">Comment sont faites ces données</h1>'
             + p("Toutes les données sont collectées à la main par Victor Geoffroy à partir des matchs de D1 Futsal. Elles ne sont pas officielles. "
                 "Chaque but est saisi avec sa minute, son score, son buteur, son passeur et la phase de jeu qui l’a amené.")
             + p("Avant chaque mise en ligne, des contrôles automatiques vérifient l’enchaînement des scores, la cohérence buteur/passeur et le rattachement "
@@ -962,8 +964,9 @@ def _F_ordi():
     def haut(o, titre, sous, retour):
         entete_site("edf")
         if retour is None:      # page calendrier : grand titre ; page match : le bandeau du match suffit
-            o.add(f'<h1 style="margin: 28px 0 0; font-family: {SERIF}; font-weight: 400; font-size: 40px; line-height: 1">Équipe de France</h1>'
-                  + (f'<div style="font-size: 14px; color: {MUTED}; margin-top: 8px">{e(sous)}</div>' if sous else ""))
+            o.add(f'<div style="height: 24px"></div><div style="font-family: {COND}; font-weight: 700; font-size: 12px; letter-spacing: 0.14em; color: {RED}">'
+                  f'ÉQUIPE DE FRANCE{" · " + e(sous).upper() if sous else ""}</div>'
+                  f'<h1 style="margin: 6px 0 0; font-family: {SERIF}; font-weight: 400; font-size: 44px; line-height: 1">Les matchs des Bleus</h1>')
 
     def onglets(o, page, params, liste, actif):
         o.fin()
