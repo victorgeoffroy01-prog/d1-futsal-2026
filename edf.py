@@ -74,7 +74,7 @@ def logo(c, size=40, dark=True) -> str:
         return f'<img src="{src}" alt="" style="width: {size}px; height: {size}px; object-fit: contain; flex-shrink: 0">'
     bg, fg = (INK, "#fff") if dark else (PAPER, INK)
     return (f'<span style="display: inline-flex; align-items: center; justify-content: center; width: {size}px; height: {size}px; flex-shrink: 0; '
-            f'border-radius: 50%; background: {bg}; color: {fg}; border: 1.5px solid {INK}; font-family: {COND}; font-weight: 700; '
+            f'border-radius: 50%; background: {bg}; color: {fg}; border: 1px solid {LINE}; font-family: {COND}; font-weight: 700; '
             f'font-size: {max(9, size // 3)}px">{e(str(c)[:3])}</span>')
 
 
@@ -236,7 +236,7 @@ def ligne_match(m, analyse_ok, compact=False):
     meta = " · ".join(x for x in [m["date"], m["phase"], m["lieu"]] if x) or m["competition"]
     badge = ui.BADGE_ANALYSE if analyse_ok else ""
     etat = "" if joue else f'<span style="font-family: {COND}; font-size: 11px; letter-spacing: 0.1em; color: {RED}">À VENIR</span>'
-    return (f'<div style="display: flex; flex-direction: column; gap: 8px; background: {PAPER}; border: 1.5px solid {INK}; border-radius: 10px; '
+    return (f'<div style="display: flex; flex-direction: column; gap: 8px; background: {PAPER}; border: 1px solid {LINE}; border-radius: 4px; '
             f'padding: 14px 16px; height: 100%; box-sizing: border-box">'
             f'<div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; font-family: {COND}; font-weight: 700; '
             f'font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: {MUTED}"><span>{e(meta)}</span><span>{badge}{etat}</span></div>'
@@ -263,13 +263,13 @@ def encart_une(E, mobile=False, court=False):
         return None, None
     m = joues[-1]
     if court:
-        return (f'<div style="background: {PAPER}; border: 2px solid {ui.BLEU_FR}; border-radius: 12px; overflow: hidden">{ui.bande_fr(5)}'
+        return (f'<div style="background: {PAPER}; border: 2px solid {ui.BLEU_FR}; border-radius: 4px; overflow: hidden">{ui.bande_fr(5)}'
                 f'<div style="padding: 12px 14px; display: flex; align-items: center; gap: 12px">'
-                f'<div style="flex: 1; min-width: 0"><div style="font-family: {COND}; font-weight: 800; font-size: 11px; letter-spacing: 0.14em; color: {ui.BLEU_FR}">ÉQUIPE DE FRANCE · ANALYSE COMPLÈTE</div>'
-                f'<div style="font-family: {SERIF}; font-size: 19px; line-height: 1.15; margin-top: 4px">Les Bleus à la loupe</div>'
+                f'<div style="flex: 1; min-width: 0"><div style="font-family: {COND}; font-weight: 800; font-size: 11px; letter-spacing: 0.14em; color: {ui.BLEU_FR}">ÉQUIPE DE FRANCE</div>'
+                f'<div style="font-family: {SERIF}; font-size: 19px; line-height: 1.15; margin-top: 4px">Analyse du dernier match</div>'
                 f'<div style="font-size: 12px; color: {MUTED}; margin-top: 2px">{e(nom_pays(m["domicile"]))} - {e(nom_pays(m["exterieur"]))}{" · " + e(m["date"]) if m.get("date") else ""}</div></div>'
                 f'<div style="display: flex; align-items: center; gap: 6px">{logo(m["domicile"], 24)}<span style="font-family: {SERIF}; font-size: 28px; line-height: 1">{m["sd"]}-{m["se"]}</span>{logo(m["exterieur"], 24)}</div></div>'
-                f'<div style="padding: 0 14px 10px; font-family: {COND}; font-weight: 800; font-size: 12px; letter-spacing: 0.08em; color: {RED}">VOIR L\'ANALYSE →</div></div>'), m["id"]
+                f'<div style="padding: 0 14px 10px; font-family: {COND}; font-weight: 800; font-size: 12px; letter-spacing: 0.08em; color: {RED}">Voir l\'analyse</div></div>'), m["id"]
     d = E["donnees"].get(m["id"]) or {}
     contenu = [lab for k, lab in onglets_dispo(m, E["analyses"].get(m["id"]), d) if k != "resume"]
     suivant = next((x for x in E["matchs"] if x["sd"] is None), None)
@@ -280,19 +280,18 @@ def encart_une(E, mobile=False, court=False):
              f'<div style="text-align: center; font-weight: 700; font-size: {t + 1}px; margin-top: 8px">{e(nom_pays(m["domicile"]))} - {e(nom_pays(m["exterieur"]))}</div>'
              f'<div style="text-align: center; font-family: {COND}; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: {MUTED}; margin-top: 2px">'
              f'{e(" · ".join(x for x in [m["phase"], m["date"]] if x))}</div>')
-    puces = "".join(f'<span style="border: 1.5px solid {ui.BLEU_FR}; color: {ui.BLEU_FR}; border-radius: 999px; padding: 3px 10px; font-family: {COND}; '
+    puces = "".join(f'<span style="border: 1.5px solid {ui.BLEU_FR}; color: {ui.BLEU_FR}; border-radius: 4px; padding: 3px 10px; font-family: {COND}; '
                     f'font-weight: 700; font-size: 12px; white-space: nowrap">{e(c)}</span>' for c in contenu)
     prochain = (f'<div style="margin-top: 12px; font-size: {t - 1}px; color: {MUTED}">Prochain match : <b style="color: {INK}">{e(nom_pays(suivant["domicile"]))} - '
                 f'{e(nom_pays(suivant["exterieur"]))}</b>{" · " + e(suivant["date"]) if suivant.get("date") else ""}</div>') if suivant else ""
-    html = (f'<div style="background: {PAPER}; border: 2px solid {ui.BLEU_FR}; border-radius: 14px; overflow: hidden">{ui.bande_fr(6)}'
+    html = (f'<div style="background: {PAPER}; border: 2px solid {ui.BLEU_FR}; border-radius: 4px; overflow: hidden">{ui.bande_fr(6)}'
             f'<div style="padding: {"16px" if mobile else "20px 22px"}">'
             f'<div style="display: flex; justify-content: space-between; align-items: center; gap: 8px">'
             f'<span style="font-family: {COND}; font-weight: 800; font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: {ui.BLEU_FR}">Équipe de France</span>'
-            f'<span style="font-family: {COND}; font-weight: 700; font-size: 10px; letter-spacing: 0.1em; color: #fff; background: {ui.BLEU_FR}; border-radius: 3px; padding: 2px 6px">ANALYSE COMPLÈTE</span></div>'
-            f'<div style="font-family: {SERIF}; font-size: {22 if mobile else 26}px; line-height: 1.1; margin-top: 8px">Les Bleus à la loupe</div>'
-            f'<div style="font-size: {t}px; color: {MUTED}; margin-top: 4px">Chaque match analysé action par action, avec bien plus de stats que la D1.</div>'
+            f'</div>'
+            f'<div style="font-family: {SERIF}; font-size: {22 if mobile else 26}px; line-height: 1.1; margin-top: 8px">Analyse du dernier match</div>'
             f'{score}<div style="display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 12px">{puces}</div>{prochain}'
-            f'<div style="margin-top: 14px; text-align: center; font-family: {COND}; font-weight: 800; font-size: 13px; letter-spacing: 0.08em; color: {RED}">VOIR L\'ANALYSE →</div>'
+            f'<div style="margin-top: 14px; text-align: center; font-family: {COND}; font-weight: 800; font-size: 13px; letter-spacing: 0.04em; color: {RED}">Voir l\'analyse</div>'
             f'</div></div>')
     return html, m["id"]
 
@@ -498,8 +497,8 @@ def momentum_svg(d, mobile=False) -> str:
               f' stroke="#fff" stroke-width="3" paint-order="stroke">{int(mn) + 1}’</text>')
     for m_ in range(0, 41, 5 if not mobile else 10):
         h += f'<text x="{g + m_ * bw:.1f}" y="{H - 2}" text-anchor="middle" font-size="12" font-family="Archivo, Arial" fill="{MUTED}">{m_}’</text>'
-    noms = (f'<text x="{g}" y="28" font-size="15" font-family="DM Serif Display, Georgia" fill="{COUL[0]}">{e(nom_pays(eqs[0]))}</text>'
-            f'<text x="{g}" y="{H - 24}" font-size="15" font-family="DM Serif Display, Georgia" fill="{COUL[1]}">{e(nom_pays(eqs[1]))}</text>')
+    noms = (f'<text x="{g}" y="28" font-size="15" font-family="Arial, Helvetica, sans-serif" font-weight="700" fill="{COUL[0]}">{e(nom_pays(eqs[0]))}</text>'
+            f'<text x="{g}" y="{H - 24}" font-size="15" font-family="Arial, Helvetica, sans-serif" font-weight="700" fill="{COUL[1]}">{e(nom_pays(eqs[1]))}</text>')
     return ui.svg_img(f'<svg viewBox="0 0 {Wd} {H}" width="{Wd}" height="{H}">{h}{noms}</svg>', alt="Temps forts du match")
 
 

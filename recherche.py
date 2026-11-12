@@ -59,7 +59,7 @@ _CSS = f"""
 .lab:empty {{ display: none; }}
 .boite {{ position: relative; }}
 input {{ box-sizing: border-box; width: 100%; height: 44px; padding: 0 84px 0 16px; background: {PAPER}; color: {INK};
-  border: 1.5px solid {INK}; border-radius: 22px; font-family: {SANS}; font-size: 15px; outline: none; -webkit-appearance: none; }}
+  border: 1px solid {LINE}; border-radius: 4px; font-family: {SANS}; font-size: 15px; outline: none; -webkit-appearance: none; }}
 input::placeholder {{ color: {MUTED}; opacity: 1; }}
 input:focus {{ box-shadow: 0 0 0 2px {RED}; }}
 button {{ position: absolute; top: 4px; border: 0; padding: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; }}
@@ -68,7 +68,7 @@ button[hidden] {{ display: none; }}
 .loupe:hover, .loupe:focus-visible {{ background: {RED}; outline: none; }}
 .vider {{ right: 46px; top: 8px; width: 28px; height: 28px; border-radius: 50%; background: transparent; color: {MUTED}; }}
 .vider:hover, .vider:focus-visible {{ background: {SOFT}; color: {INK}; outline: none; }}
-.liste {{ position: absolute; left: 0; right: 0; top: 50px; z-index: 50; background: {PAPER}; border: 1.5px solid {INK}; border-radius: 12px;
+.liste {{ position: absolute; left: 0; right: 0; top: 50px; z-index: 50; background: {PAPER}; border: 1px solid {LINE}; border-radius: 4px;
   overflow: hidden; box-shadow: 0 8px 20px rgba(17, 17, 17, 0.18); }}
 .liste[hidden] {{ display: none; }}
 .item {{ display: flex; align-items: baseline; gap: 10px; padding: 10px 14px; cursor: pointer; border-bottom: 1px solid {LINE}; }}

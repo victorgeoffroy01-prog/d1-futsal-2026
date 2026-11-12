@@ -24,7 +24,7 @@ def buts_qui_comptent(s, nb_ouverture: int, mt1: int, mt2: int, numsize=30) -> s
     total = max(int(s.Mene + s.Egal + s.Devant), 1)
     seg = lambda v, c, fg: (f'<div style="flex: {int(v)} 1 0; min-width: {24 if v else 0}px; background: {c}; color: {fg}; display: {"flex" if v else "none"}; '
                             f'align-items: center; justify-content: center; font-family: {COND}; font-weight: 700; font-size: 12px">{int(v)}</div>')
-    barre = (f'<div style="display: flex; height: 24px; border-radius: 4px; overflow: hidden; border: 1.5px solid {INK}; margin-top: 8px">'
+    barre = (f'<div style="display: flex; height: 24px; border-radius: 4px; overflow: hidden; border: 1px solid {LINE}; margin-top: 8px">'
              f'{seg(s.Mene, RED, "#fff")}{seg(s.Egal, SOFT, INK)}{seg(s.Devant, INK, "#fff")}</div>'
              f'<div style="display: flex; justify-content: space-between; font-family: {COND}; font-size: 11px; letter-spacing: 0.06em; color: {MUTED}; margin-top: 4px">'
              f'<span>ÉQUIPE MENÉE {round(100 * s.Mene / total)} %</span><span>ÉGALITÉ {round(100 * s.Egal / total)} %</span><span>ÉQUIPE DEVANT {round(100 * s.Devant / total)} %</span></div>')
@@ -79,7 +79,7 @@ def cumul_analyses(lignes) -> str:
              case(som("inter"), "interceptions", moy(som("inter"))),
              case(som("passes_loupees"), "passes loupées", moy(som("passes_loupees"))),
              case(f"{fs}/{fc}", "fautes subies / commises")]
-    return (f'<div style="background: {PAPER}; border: 1.5px solid {INK}; border-radius: 12px; overflow: hidden; margin-top: 12px">'
+    return (f'<div style="background: {PAPER}; border: 1px solid {LINE}; border-radius: 4px; overflow: hidden; margin-top: 12px">'
             f'<div style="padding: 12px 14px; background: {RED}; color: #fff; font-family: {COND}; font-weight: 700; font-size: 12px; letter-spacing: 0.08em">'
             f'CUMUL SUR SES {n} MATCHS ANALYSÉS</div>'
             f'<div style="display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 1px; background: {LINE}">{"".join(cases)}</div></div>')
@@ -103,7 +103,7 @@ def courbe_rangs(points, nb_clubs: int, w=420, h=170, playoffs=4, descente=2) ->
     pts = "".join(f'<circle cx="{xs(i):.1f}" cy="{ys(r):.1f}" r="{5 if i == len(points) - 1 else 3.5}" fill="{RED if i == len(points) - 1 else INK}"/>'
                   for i, (_, r) in enumerate(points))
     fin = points[-1][1]
-    lab = f'<text x="{xs(len(points) - 1) - 9:.1f}" y="{ys(fin) + (16 if fin < 3 else -9):.1f}" text-anchor="end" font-family="DM Serif Display, Georgia" font-size="15" fill="{RED}">{fin}e</text>'
+    lab = f'<text x="{xs(len(points) - 1) - 9:.1f}" y="{ys(fin) + (16 if fin < 3 else -9):.1f}" text-anchor="end" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="15" fill="{RED}">{fin}e</text>'
     svg = (f'<svg viewBox="0 0 {w} {h}" width="{w}" height="{h}" xmlns="http://www.w3.org/2000/svg">'
            f'{zone}{grille}{axe}<polyline points="{ligne}" fill="none" stroke="{INK}" stroke-width="2.2" stroke-linejoin="round"/>{pts}{lab}</svg>')
     return ui.svg_img(svg, alt="Évolution au classement journée par journée") + _note(f'Zone rouge : top {playoffs}, play-offs. Zone grise : les {descente} places de descente.', 4)
@@ -133,7 +133,7 @@ def _ligne(lib, club_html, d1_html, aide="", fort=False, mobile=False):
 def temps_score(t: dict, d1: dict) -> str:
     seg = lambda v, c, fg, lab: (f'<div style="flex: {v} 1 0; min-width: {30 if v else 0}px; background: {c}; color: {fg}; display: {"flex" if v else "none"}; align-items: center; '
                                  f'justify-content: center; font-family: {COND}; font-weight: 700; font-size: 12px" title="{lab}">{v} %</div>')
-    return (f'<div style="display: flex; height: 26px; border-radius: 4px; overflow: hidden; border: 1.5px solid {INK}">'
+    return (f'<div style="display: flex; height: 26px; border-radius: 4px; overflow: hidden; border: 1px solid {LINE}">'
             f'{seg(t["devant"], INK, "#fff", "Devant")}{seg(t["egal"], SOFT, INK, "Égalité")}{seg(t["derriere"], RED, "#fff", "Derrière")}</div>'
             f'<div style="display: flex; justify-content: space-between; font-family: {COND}; font-size: 11px; letter-spacing: 0.06em; color: {MUTED}; margin-top: 4px">'
             f'<span>DEVANT</span><span>ÉGALITÉ</span><span>DERRIÈRE</span></div>'
@@ -200,6 +200,6 @@ def series_ligne(series, pad="0") -> str:
     lib = {"victoires": "victoires de suite", "invaincu": "sans défaite", "sans_victoire": "sans victoire"}
     items = "".join(f'<div style="display: flex; align-items: baseline; gap: 8px"><span style="font-family: {SERIF}; font-size: 20px; line-height: 1; color: {RED}; min-width: 18px">{e(r["valeur"])}</span>'
                     f'<span style="font-size: 13px"><b>{e(lib[r["cle"]])}</b> · {e(r["detail"])}</span></div>' for r in series)
-    return (f'<div style="padding: {pad}"><div style="background: {PAPER}; border: 1.5px solid {INK}; border-radius: 10px; padding: 10px 12px">'
+    return (f'<div style="padding: {pad}"><div style="background: {PAPER}; border: 1px solid {LINE}; border-radius: 4px; padding: 10px 12px">'
             f'<div style="font-family: {COND}; font-weight: 700; font-size: 11px; letter-spacing: 0.1em; color: {MUTED}; margin-bottom: 6px">SÉRIES EN COURS</div>'
             f'<div style="display: flex; flex-direction: column; gap: 6px">{items}</div></div></div>')

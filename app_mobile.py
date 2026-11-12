@@ -69,7 +69,7 @@ with _VERROU:
     from theme import CSS, PAPER, INK, RED, MUTED, LINE, SERIF, COND
     _dater_modules()
 
-st.set_page_config(page_title="D1 Futsal", page_icon="⚽", layout="centered", initial_sidebar_state="collapsed")
+st.set_page_config(page_title="D1 Futsal", page_icon=str(C.ASSETS_DIR / "favicon.png"), layout="centered", initial_sidebar_state="collapsed")
 nav.reset()
 
 
@@ -259,7 +259,7 @@ def page_une():
     # 1. le match de la journée, avec les chiffres de la journée en pied de carte
     chiffre = lambda v, l: (f'<div style="flex: 1; text-align: center"><div style="font-family: {SERIF}; font-size: 22px; line-height: 1">{v}</div>'
                             f'<div style="font-family: {COND}; font-size: 10px; letter-spacing: 0.08em; color: #D9D2C6; margin-top: 3px">{l}</div></div>')
-    card = (f'<div style="margin: 4px 16px 0; background: {INK}; color: #fff; border-radius: 12px; overflow: hidden"><div style="padding: 16px 16px 14px">'
+    card = (f'<div style="margin: 4px 16px 0; background: {INK}; color: #fff; border-radius: 4px; overflow: hidden"><div style="padding: 16px 16px 14px">'
             f'<div style="font-family: {COND}; font-weight: 700; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #F2B8C0">Le match de la journée {j}</div>'
             f'<div style="display: flex; align-items: center; justify-content: space-between; margin-top: 12px">'
             f'<div style="display: flex; flex-direction: column; align-items: center; gap: 6px; width: 96px">{ui.logo_or_badge(top.dom, 44, 12, False)}<span style="font-weight: 600; font-size: 13px">{ui.lien_club(top.dom, e(NOMS[top.dom]))}</span></div>'
@@ -293,8 +293,8 @@ def page_une():
     for i, r in enumerate(STATS[STATS.Buts > 0].head(3).itertuples()):
         dark = i == 0
         nom = r.joueur.split()
-        cartes.append((f'<div style="height: 100%; box-sizing: border-box; background: {INK if dark else PAPER}; color: {"#fff" if dark else INK}; border: 1.5px solid {INK}; '
-                       f'border-radius: 10px; padding: 12px 10px; display: flex; flex-direction: column; gap: 6px">'
+        cartes.append((f'<div style="height: 100%; box-sizing: border-box; background: {INK if dark else PAPER}; color: {"#fff" if dark else INK}; border: 1px solid {LINE}; '
+                       f'border-radius: 4px; padding: 12px 10px; display: flex; flex-direction: column; gap: 6px">'
                        f'<div style="font-family: {SERIF}; font-size: 34px; line-height: 1">{r.Buts}</div>'
                        f'<div style="font-weight: 700; font-size: 13px; line-height: 1.15">{e(nom[0])}<br>{e(" ".join(nom[1:3]))}</div>'
                        f'<div style="font-family: {COND}; font-weight: 600; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: {"#E9E2D5" if dark else MUTED}">{ui.lien_club(r.club, e(NOMS.get(r.club, r.club)))}</div></div>',
@@ -522,7 +522,7 @@ def page_clubs():
     for k in range(0, len(clubs), 2):
         paire = []
         for r in clubs.iloc[k:k + 2].itertuples():
-            paire.append((f'<div style="display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 16px 8px; background: {PAPER}; border: 1.5px solid {INK}; border-radius: 12px">'
+            paire.append((f'<div style="display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 16px 8px; background: {PAPER}; border: 1px solid {LINE}; border-radius: 4px">'
                           f'{ui.logo_or_badge(r.club, 48, 12)}<span style="font-weight: 700; text-align: center">{e(NOMS[r.club])}</span>'
                           f'<span style="font-family: {COND}; font-size: 12px; color: {MUTED}">{r.Rg}e · {r.Pts} pts</span></div>', "club", {"id": r.club}))
         o.rangee(paire, style="grid")
@@ -545,9 +545,9 @@ def page_club():
           f'{ui.logo_or_badge(club, 64, 14, False, lien=False)}<div><div style="font-family: {SERIF}; font-size: 30px; line-height: 1">{e(NOMS[club])}</div>'
           + (f'<div style="font-size: 13px; color: #D9D2C6; margin-top: 6px">{e(meta)}</div>' if meta else "") + "</div></div>"
           f'<div style="display: flex; gap: 8px; margin-top: 16px">'
-          f'<div style="flex: 1; border: 1.5px solid #fff; border-radius: 10px; padding: 10px"><div style="font-family: {SERIF}; font-size: 30px; line-height: 1">{cl["Rg"]}<sup style="font-size: 14px">e</sup></div><div style="font-family: {COND}; font-size: 11px; letter-spacing: 0.08em; color: #D9D2C6">CLASSEMENT</div></div>'
-          f'<div style="flex: 1; border: 1.5px solid #fff; border-radius: 10px; padding: 10px"><div style="font-family: {SERIF}; font-size: 30px; line-height: 1">{cl["Pts"]}</div><div style="font-family: {COND}; font-size: 11px; letter-spacing: 0.08em; color: #D9D2C6">POINTS</div></div>'
-          f'<div style="flex: 1; background: {RED}; border-radius: 10px; padding: 10px"><div style="font-family: {SERIF}; font-size: 30px; line-height: 1">{cl["BP"]}-{cl["BC"]}</div><div style="font-family: {COND}; font-size: 11px; letter-spacing: 0.08em">BUTS POUR-CONTRE</div></div></div>'
+          f'<div style="flex: 1; border: 1.5px solid #fff; border-radius: 4px; padding: 10px"><div style="font-family: {SERIF}; font-size: 30px; line-height: 1">{cl["Rg"]}<sup style="font-size: 14px">e</sup></div><div style="font-family: {COND}; font-size: 11px; letter-spacing: 0.08em; color: #D9D2C6">CLASSEMENT</div></div>'
+          f'<div style="flex: 1; border: 1.5px solid #fff; border-radius: 4px; padding: 10px"><div style="font-family: {SERIF}; font-size: 30px; line-height: 1">{cl["Pts"]}</div><div style="font-family: {COND}; font-size: 11px; letter-spacing: 0.08em; color: #D9D2C6">POINTS</div></div>'
+          f'<div style="flex: 1; background: {RED}; border-radius: 4px; padding: 10px"><div style="font-family: {SERIF}; font-size: 30px; line-height: 1">{cl["BP"]}-{cl["BC"]}</div><div style="font-family: {COND}; font-size: 11px; letter-spacing: 0.08em">BUTS POUR-CONTRE</div></div></div>'
           + (f'<div style="font-size: 12px; color: #D9D2C6; margin-top: 8px">Meilleure défense de D1</div>' if CLASSEMENT.BC.min() == cl["BC"] else "") + "</section>")
     onglets(o, "club", {"id": club}, [("resume", "Résumé"), ("contexte", "Contexte"), ("effectif", "Effectif"), ("buts", "Buts"), ("matchs", "Matchs")], onglet)
     if onglet == "resume":
