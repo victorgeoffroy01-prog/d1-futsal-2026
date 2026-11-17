@@ -390,7 +390,7 @@ def page_match():
         ess = f'<div style="font-family: {SERIF}; font-size: 21px; line-height: 1.2; margin-top: 10px">{e(txt)}</div>' if txt else ""
         o.add(ui.section(ui.kicker("L\u2019essentiel") + ess + ui.tiles(ui.tile(len(b), "buts", "dark"), ui.tile(f"{n_d}-{n_e}", "buteurs différents"),
                                                                        ui.tile(int(b.id_passeur.notna().sum()), "buts avec passe", "red")), pad="16px 16px 0"))
-        o.add(ui.section(ui.kicker("Score minute par minute") + f'<div style="margin-top: 10px">{ui.score_progressif(b, m.dom, m.ext, NOMS)}</div>'))
+        o.add(ui.section(ui.kicker("Le fil du match") + f'<div style="margin-top: 10px">{blocs.fil_du_match(b, m.dom, m.ext, NOMS, ORIG, 358, 230)}</div>'))
         o_d, o_e = b[b.club_marque == m.dom].origine_but.value_counts(), b[b.club_marque == m.ext].origine_but.value_counts()
         keys = sorted(set(o_d.index) | set(o_e.index), key=lambda k: -(o_d.get(k, 0) + o_e.get(k, 0)))
         o.add(ui.section(ui.kicker("D\u2019où viennent les buts") + '<div style="margin-top: 10px">'
@@ -562,7 +562,7 @@ def page_club():
         ctx = contexte.contexte_club(CTX["dr"], base.buts, club)
         du = contexte.duos(base.buts, club)
         o.add(ui.section(ui.kicker("Évolution au classement") + '<div style="margin-top: 10px">'
-                         + blocs.courbe_rangs(CTX["rangs"][club], len(base.clubs), 360, 160, C.NB_PLAYOFFS, C.NB_DESCENTE) + "</div>", pad="16px 16px 0"))
+                         + blocs.courbe_rangs(CTX["rangs"][club], len(base.clubs), 360, 160, C.NB_PLAYOFFS, C.NB_DESCENTE, contexte.matchs_du_club(CTX["dr"], club, NOMS)) + "</div>", pad="16px 16px 0"))
         o.add(ui.section(ui.kicker(f"Contexte : {NOMS[club]} vs D1") + '<div style="margin-top: 12px">'
                          + blocs.contexte_club(ctx, du.iloc[0] if len(du) else None, mobile=True) + "</div>"))
     elif onglet == "effectif":

@@ -206,12 +206,18 @@ def contexte_club(dr: pd.DataFrame, b: pd.DataFrame, club: str) -> dict:
 
 
 def rangs(base) -> dict:
-    """Rang de chaque club après chaque journée : {club: [(journee, rang), ...]}."""
+    """Rang et points de chaque club après chaque journée : {club: [(journee, rang, points), ...]}."""
     out = {c: [] for c in base.clubs.club_court}
     for j in base.journees:
         for r in base.classement(jusqua=j).itertuples():
-            out[r.club].append((j, r.Rg))
+            out[r.club].append((j, r.Rg, r.Pts))
     return out
+
+
+def matchs_du_club(dr: pd.DataFrame, club: str, noms: dict) -> dict:
+    """Résultat du club à chaque journée, pour la bulle de la courbe : {journee: "V 4-2 contre LAVAL (dom.)"}."""
+    d = dr[dr.club == club]
+    return {r.journee: f"{r.res} {r.BP}-{r.BC} contre {noms.get(r.adv, r.adv)} ({'dom.' if r.club == r.dom else 'ext.'})" for r in d.itertuples()}
 
 
 # ================================================================== records et séries de la D1

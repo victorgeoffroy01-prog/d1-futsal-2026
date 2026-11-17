@@ -5,6 +5,7 @@ Les calculs sont dans contexte.py ; ici, seulement la mise en forme (même DA qu
 from __future__ import annotations
 
 import components as ui
+import config as C
 from components import e, fr
 from theme import PAPER, INK, RED, MUTED, LINE, SOFT, SERIF, COND
 
@@ -86,10 +87,39 @@ def cumul_analyses(lignes) -> str:
 
 
 # ================================================================== club
-def courbe_rangs(points, nb_clubs: int, w=420, h=170, playoffs=4, descente=2) -> str:
-    """Évolution au classement journée par journée (1er en haut). points = [(journee, rang)]."""
+# ================================================================== survol (souris) / toucher (téléphone)
+# Les graphiques restent des images (st.html n'accepte pas le SVG direct) ; on pose par-dessus des points HTML
+# qui affichent une bulle au survol, ou au toucher sur téléphone (tabindex = le point prend le focus).
+SURVOL_CSS = f"""<style>
+.d1-graph {{ position: relative; }}
+.d1-graph img {{ display: block; width: 100%; height: auto; }}
+.d1-pt {{ position: absolute; transform: translate(-50%, -50%); outline: none; cursor: pointer; z-index: 2; }}
+.d1-pt:hover, .d1-pt:focus {{ z-index: 5; }}
+.d1-bulle {{ position: absolute; left: 50%; transform: translateX(-50%); width: max-content; max-width: 220px; background: {INK}; color: #fff;
+  font-family: Archivo, Arial, sans-serif; font-size: 12px; line-height: 1.35; padding: 7px 9px; border-radius: 6px; text-align: left;
+  opacity: 0; visibility: hidden; transition: opacity .12s; pointer-events: none; box-shadow: 0 4px 12px rgba(0,0,0,.18); }}
+.d1-bulle b {{ font-weight: 700; }}
+.d1-bulle.haut {{ bottom: calc(100% + 8px); }}
+.d1-bulle.bas {{ top: calc(100% + 8px); }}
+.d1-bulle.g {{ left: 0; transform: none; }}
+.d1-bulle.d {{ left: auto; right: 0; transform: none; }}
+.d1-pt:hover .d1-bulle, .d1-pt:focus .d1-bulle {{ opacity: 1; visibility: visible; }}
+</style>"""
+
+
+def _point(x_pct, y_pct, rond, bulle, sens="haut"):
+    """Un point survolable : rond = HTML du marqueur, bulle = HTML de la bulle. Près des bords, la bulle s'aligne pour ne pas sortir."""
+    cote = " g" if x_pct < 18 else (" d" if x_pct > 82 else "")
+    return (f'<div class="d1-pt" tabindex="0" style="left: {x_pct:.2f}%; top: {y_pct:.2f}%">{rond}'
+            f'<div class="d1-bulle {sens}{cote}">{bulle}</div></div>')
+
+
+def courbe_rangs(points, nb_clubs: int, w=420, h=170, playoffs=4, descente=2, details=None) -> str:
+    """Évolution au classement journée par journée (1er en haut). points = [(journee, rang, points)].
+    Survol d'un point : journée, rang, points et résultat du match (details = {journee: texte})."""
     if len(points) < 2:
         return ""
+    details = details or {}
     pg, pd_, ph, pb = 34, 14, 14, 26
     xs = lambda i: pg + i * (w - pg - pd_) / (len(points) - 1)
     ys = lambda r: ph + (r - 1) * (h - ph - pb) / max(nb_clubs - 1, 1)
@@ -97,16 +127,84 @@ def courbe_rangs(points, nb_clubs: int, w=420, h=170, playoffs=4, descente=2) ->
             f'<rect x="{pg}" y="{ys(nb_clubs - descente + 1) - 6}" width="{w - pg - pd_}" height="{h - pb - ys(nb_clubs - descente + 1) + 12}" fill="{INK}" opacity="0.07"/>')
     grille = "".join(f'<text x="{pg - 8}" y="{ys(r) + 4}" text-anchor="end" font-family="Archivo Narrow, Arial" font-size="11" fill="{MUTED}">{r}e</text>'
                      for r in (1, playoffs, nb_clubs))
-    axe = "".join(f'<text x="{xs(i)}" y="{h - 6}" text-anchor="middle" font-family="Archivo Narrow, Arial" font-size="11" fill="{MUTED}">J{j}</text>'
-                  for i, (j, _) in enumerate(points))
-    ligne = " ".join(f"{xs(i):.1f},{ys(r):.1f}" for i, (_, r) in enumerate(points))
-    pts = "".join(f'<circle cx="{xs(i):.1f}" cy="{ys(r):.1f}" r="{5 if i == len(points) - 1 else 3.5}" fill="{RED if i == len(points) - 1 else INK}"/>'
-                  for i, (_, r) in enumerate(points))
+    axe = "".join(f'<text x="{xs(i)}" y="{h - 6}" text-anchor="middle" font-family="Archivo Narrow, Arial" font-size="11" fill="{MUTED}">J{p[0]}</text>'
+                  for i, p in enumerate(points))
+    ligne = " ".join(f"{xs(i):.1f},{ys(p[1]):.1f}" for i, p in enumerate(points))
     fin = points[-1][1]
     lab = f'<text x="{xs(len(points) - 1) - 9:.1f}" y="{ys(fin) + (16 if fin < 3 else -9):.1f}" text-anchor="end" font-family="DM Serif Display, Georgia" font-size="15" fill="{RED}">{fin}e</text>'
     svg = (f'<svg viewBox="0 0 {w} {h}" width="{w}" height="{h}" xmlns="http://www.w3.org/2000/svg">'
-           f'{zone}{grille}{axe}<polyline points="{ligne}" fill="none" stroke="{INK}" stroke-width="2.2" stroke-linejoin="round"/>{pts}{lab}</svg>')
-    return ui.svg_img(svg, alt="Évolution au classement journée par journée") + _note(f'Zone rouge : top {playoffs}, play-offs. Zone grise : les {descente} places de descente.', 4)
+           f'{zone}{grille}{axe}<polyline points="{ligne}" fill="none" stroke="{INK}" stroke-width="2.2" stroke-linejoin="round"/>{lab}</svg>')
+    pts = ""
+    for i, p in enumerate(points):
+        j, r = p[0], p[1]
+        dernier = i == len(points) - 1
+        rond = (f'<div style="width: {12 if dernier else 10}px; height: {12 if dernier else 10}px; border-radius: 50%; background: {RED if dernier else INK}; '
+                f'border: 2px solid {PAPER}; box-sizing: content-box"></div>')
+        bulle = (f'<b>J{j} · {r}e</b>' + (f' · {p[2]} pts' if len(p) > 2 else "")
+                 + (f'<br>{e(details[j])}' if j in details else ""))
+        pts += _point(100 * xs(i) / w, 100 * ys(r) / h, rond, bulle, "haut" if r > 3 else "bas")
+    return (SURVOL_CSS + f'<div class="d1-graph">{ui.svg_img(svg, alt="Évolution au classement journée par journée")}{pts}</div>'
+            + _note(f'Zone rouge : top {playoffs}, play-offs. Zone grise : les {descente} places de descente. Survolez ou touchez un point pour le détail.', 4))
+
+
+def fil_du_match(buts, dom, ext, noms, orig=None, W=720, H=210) -> str:
+    """Fil du match : buts du domicile au-dessus de la ligne du temps, de l'extérieur en dessous,
+    bande centrale = écart au score (noir quand le domicile mène, rouge quand l'extérieur mène).
+    Survol / toucher d'un but : buteur, passeur, score, origine."""
+    orig = orig or {}
+    b = buts.assign(_t=buts.score_dom_apres + buts.score_ext_apres).sort_values(["periode", "minute", "_t"])
+    PL, PR = 14, 14
+    axe = H / 2
+    xs = lambda m: PL + (W - PL - PR) * m / C.DUREE_MATCH
+    # bande de l'écart : hauteur proportionnelle à l'écart, plafonnée
+    ecarts = (b.score_dom_apres - b.score_ext_apres).tolist()
+    k = min(14.0, (H * 0.22) / max([abs(x) for x in ecarts] + [1]))
+    seg, t0, ec = [], 0.0, 0
+    for r, e2 in zip(b.itertuples(), ecarts):
+        t = r.minute - 0.5
+        seg.append((t0, t, ec)); t0, ec = t, e2
+    seg.append((t0, C.DUREE_MATCH, ec))
+    bande = ""
+    for a, z, v in seg:
+        if v and z > a:
+            y, hh = (axe - v * k, v * k) if v > 0 else (axe, -v * k)
+            bande += f'<rect x="{xs(a):.1f}" y="{y:.1f}" width="{xs(z) - xs(a):.1f}" height="{hh:.1f}" fill="{INK if v > 0 else RED}" opacity="0.16"/>'
+    mi = xs(C.DUREE_MATCH / 2)
+    graduations = "".join(f'<line x1="{xs(m):.1f}" x2="{xs(m):.1f}" y1="{axe - 4}" y2="{axe + 4}" stroke="{MUTED}"/>'
+                          f'<text x="{xs(m):.1f}" y="{axe + 18}" text-anchor="middle" font-family="Archivo, Arial" font-size="10" fill="{MUTED}">{m}’</text>'
+                          for m in (0, 5, 10, 15, 25, 30, 35, 40))
+    svg = (f'<svg viewBox="0 0 {W} {H}" width="{W}" height="{H}" xmlns="http://www.w3.org/2000/svg">{bande}'
+           f'<line x1="{xs(0)}" x2="{xs(C.DUREE_MATCH)}" y1="{axe}" y2="{axe}" stroke="{INK}" stroke-width="1.5"/>{graduations}'
+           f'<line x1="{mi:.1f}" x2="{mi:.1f}" y1="8" y2="{H - 8}" stroke="{INK}" stroke-dasharray="3 3"/>'
+           f'<text x="{mi + 5:.1f}" y="16" font-family="Archivo Narrow, Arial" font-size="10" fill="{MUTED}" letter-spacing="1">MI-TEMPS</text></svg>')
+    # marqueurs : décalés vers l'extérieur quand deux buts du même camp sont trop proches
+    pts, etages = "", {dom: {}, ext: {}}       # par camp : {étage: [x des buts déjà placés]}
+    for r in b.itertuples():
+        haut = r.club_marque == dom
+        x = xs(r.minute)
+        etage = 0                                 # premier étage sans but trop proche (34 unités = largeur d'un marqueur + marge)
+        while any(abs(xp - x) < 34 for xp in etages[r.club_marque].get(etage, [])):
+            etage += 1
+        etages[r.club_marque].setdefault(etage, []).append(x)
+        y = axe - 46 - 30 * etage if haut else axe + 46 + 30 * etage
+        y = max(14, min(H - 14, y))
+        csc = bool(r.est_csc)
+        fond, texte = (INK, "#fff") if haut else (RED, "#fff")
+        rond = (f'<div style="min-width: 30px; height: 26px; padding: 0 4px; box-sizing: border-box; border-radius: 13px; display: flex; align-items: center; '
+                f'justify-content: center; font-family: Archivo Narrow, Arial, sans-serif; font-weight: 700; font-size: 12px; '
+                + (f'background: {PAPER}; color: {fond}; border: 2px dashed {fond}' if csc else f'background: {fond}; color: {texte}; border: 2px solid {PAPER}')
+                + f'">{r.minute}’</div>')
+        tige = f'<div style="position: absolute; left: 50%; width: 1px; background: {fond}; opacity: .5; {"top: 100%" if haut else "bottom: 100%"}; height: {abs(y - axe) - 13:.0f}px"></div>'
+        bulle = (f'<b>{r.minute}’ · {e(noms[r.club_marque])} {r.score_dom_apres}-{r.score_ext_apres}</b><br>'
+                 + ("But contre son camp" if csc else f'{e(r.buteur or "")}' + (f'<br>Passe : {e(r.passeur)}' if r.passeur and r.passeur == r.passeur else ""))
+                 + (f'<br><span style="color: #D9D2C6">{e(orig.get(r.origine_but, r.origine_but))}</span>' if r.origine_but and r.origine_but == r.origine_but else ""))
+        pts += _point(100 * x / W, 100 * y / H, f'<div style="position: relative">{tige}{rond}</div>', bulle, "haut" if haut else "bas")
+    legende = (f'<div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px">'
+               f'<span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 12px; height: 12px; border-radius: 50%; background: {INK}"></span>{e(noms[dom])} (dom.)</span>'
+               f'<span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 12px; height: 12px; border-radius: 50%; background: {RED}"></span>{e(noms[ext])} (ext.)</span></div>')
+    return (SURVOL_CSS + legende + f'<div class="d1-graph">{ui.svg_img(svg, alt="Fil du match")}{pts}</div>'
+            + _note("Bande grise : le domicile mène, bande rouge : l'extérieur mène (plus elle est haute, plus l'écart est grand). Pointillés : but contre son camp. "
+                    "Survolez ou touchez un but pour le détail.", 6))
 
 
 def _bilan(b, ppm=True):

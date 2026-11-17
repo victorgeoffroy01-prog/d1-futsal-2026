@@ -39,3 +39,10 @@ NB_PLAYOFFS = 4       # qualifiés pour les play-offs
 # Grammaire des noms de clubs dans les textes : (forme avec article, pluriel ?)
 ARTICLES_CLUBS = {"SPORTING": ("le Sporting", False), "ARTISTES": ("les Artistes", True)}
 NB_DESCENTE = 2        # relégués en D2
+
+
+# Noms partiels déjà vérifiés par Victor : (nom saisi, club). Rattachés sans alerte.
+RATTACHEMENTS_CONFIRMES = {
+    ("JULES CASAMAYOU DIT BOUCAU", "ARTISTES"),
+    ("FRANCIS LOKOKA KOLOMONI", "SPORTING"),
+}

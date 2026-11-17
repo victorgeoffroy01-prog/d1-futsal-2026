@@ -415,9 +415,10 @@ def charger(f_buts=C.FICHIER_BUTS, f_passes=C.FICHIER_PASSES, f_fiches=C.FICHIER
                     and (set(slug(n).split("-")) <= mots or mots <= set(slug(n).split("-")))}
             if len(cand) == 1:
                 connu = cand.pop()
-                anomalies.append(controles.Anomalie(controles.ALERTE, "orthographe",
-                                 f"{nom} ({club}) rattaché à la fiche « {ids_noms.get(connu, connu)} » (nom partiel). "
-                                 "Vérifier que c'est bien le même joueur."))
+                if (nom, club) not in C.RATTACHEMENTS_CONFIRMES:
+                    anomalies.append(controles.Anomalie(controles.ALERTE, "orthographe",
+                                     f"{nom} ({club}) rattaché à la fiche « {ids_noms.get(connu, connu)} » (nom partiel). "
+                                     "Vérifier que c'est bien le même joueur."))
         if connu:
             ref[(nom, club)] = connu
             return connu
