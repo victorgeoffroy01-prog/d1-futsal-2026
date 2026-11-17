@@ -551,9 +551,9 @@ def page_club():
           + (f'<div style="font-size: 12px; color: #D9D2C6; margin-top: 8px">Meilleure défense de D1</div>' if CLASSEMENT.BC.min() == cl["BC"] else "") + "</section>")
     onglets(o, "club", {"id": club}, [("resume", "Résumé"), ("contexte", "Contexte"), ("effectif", "Effectif"), ("buts", "Buts"), ("matchs", "Matchs")], onglet)
     if onglet == "resume":
-        o.add(ui.section(ui.kicker("Forme") + '<div style="display: flex; gap: 6px; margin-top: 10px">' + "".join(ui.form_chip(x, 30) for x in cl["forme"]) + "</div>", pad="16px 16px 0"))
+        o.add(ui.section(ui.kicker("Forme") + '<div style="display: flex; gap: 6px; margin-top: 10px">' + blocs.forme_survol(cl["forme"], contexte.matchs_du_club(CTX["dr"], club, NOMS), 30) + "</div>", pad="16px 16px 0"))
         o.add(ui.section(ui.kicker("Compo type") + '<div style="margin-top: 10px">' + site_ordi.pitch(club, mobile=True) + "</div>"))
-        o.add(ui.section(ui.kicker("Buts par tranche de 5 min") + '<div style="margin-top: 10px">' + ui.tranches_miroir(s["tranches_marques"], s["tranches_encaisses"]) + "</div>"))
+        o.add(ui.section(ui.kicker("Buts par tranche de 5 min") + '<div style="margin-top: 10px">' + blocs.SURVOL_CSS + ui.tranches_miroir(s["tranches_marques"], s["tranches_encaisses"], blocs.bulles_tranches(base.buts, ORIG, club, NOMS)) + "</div>"))
         o.add(ui.section(ui.kicker("Joueurs clés"), pad="22px 16px 4px"))
         top = STATS[STATS.club == club].sort_values(["B+P", "Buts"], ascending=False).head(5)
         for i, (_, r) in enumerate(top.iterrows(), 1):
@@ -675,7 +675,7 @@ def page_joueur():
                          pad="16px 16px 0"))
         if nb:
             o.add(ui.section(blocs.buts_qui_comptent(s, int(bj.ouverture.sum()), int((bj.periode == 1).sum()), int((bj.periode == 2).sum()), 28)))
-            o.add(ui.section(ui.kicker("Quand il marque") + f'<div style="margin-top: 10px">{ui.frise([(r.minute, f"{r.minute}’") for r in bj.itertuples()])}</div>'))
+            o.add(ui.section(ui.kicker("Quand il marque") + f'<div style="margin-top: 10px">{blocs.frise_buts(bj, NOMS, ORIG)}</div>'))
             og = bj.origine_but.value_counts()
             o.add(ui.section(ui.kicker("Comment il marque") + '<div style="margin-top: 12px">'
                              + ui.hbars([(ORIG.get(k, k), int(v), RED if n == 0 else INK) for n, (k, v) in enumerate(og.items())], int(og.max())) + "</div>"))

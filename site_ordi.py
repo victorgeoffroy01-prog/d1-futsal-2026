@@ -333,7 +333,8 @@ def page_une():
     with c1:
         tr = lig["tranches"]; mx = max(tr.values())
         st.html(kick("Quand tombent les buts") + sous_titre("Par tranche de 5 minutes, toute la D1.")
-                + card(vbars(tr, 380, 220, hi=[k for k, v in tr.items() if v == mx], aria="Buts par tranche de 5 minutes"), 12))
+                + card(blocs.zones_barres(vbars(tr, 380, 220, hi=[k for k, v in tr.items() if v == mx], aria="Buts par tranche de 5 minutes"), 380, 30, (380 - 40) / 8,
+                                    blocs.bulles_tranches(base.buts, X["orig"])), 12))
     with c2:
         org = lig["origines"]; n = lig["nb_buts"]
         st.html(kick("D’où viennent les buts") + sous_titre(f"Origine des {n} buts saisis.")
@@ -812,7 +813,8 @@ def page_club():
     lig = base.stats_ligue(); nb_club = max(sum(s["origines"].values()), 1)
     with g:
         st.html(kick("Marqués / encaissés par tranche de 5 min") + '<div style="height: 12px"></div>'
-                + card(bars_groupees(s["tranches_marques"], s["tranches_encaisses"]), 14))
+                + card(blocs.zones_barres(bars_groupees(s["tranches_marques"], s["tranches_encaisses"]), 620, 40, (620 - 50) / 8,
+                                    blocs.bulles_tranches(base.buts, X["orig"], club, N)), 14))
         cmp = ""
         for k in ["attaque placée", "transition off", "attaque rapide", "corner", "touche off", "power play", "coup franc"]:
             a = round(100 * s["origines"].get(k, 0) / nb_club); bl = round(100 * lig["origines"].get(k, 0) / max(lig["nb_buts"], 1))
@@ -846,7 +848,7 @@ def page_club():
             o.lien(l, "joueur", id=ids[i])
         o.fin()
     with d:
-        st.html(kick("Forme") + f'<div style="display: flex; gap: 6px; margin-top: 12px">{"".join(ui.form_chip(x, 32) for x in cl["forme"])}</div>'
+        st.html(kick("Forme") + f'<div style="display: flex; gap: 6px; margin-top: 12px">{blocs.forme_survol(cl["forme"], contexte.matchs_du_club(X["ctx"]["dr"], club, N), 32)}</div>'
                 + kick("Évolution au classement", mt=28) + '<div style="height: 12px"></div>'
                 + card(blocs.courbe_rangs(X["ctx"]["rangs"][club], len(base.clubs), 420, 180, C.NB_PLAYOFFS, C.NB_DESCENTE, contexte.matchs_du_club(X["ctx"]["dr"], club, N)), 14)
                 + kick("Compo type", mt=28) + '<div style="height: 12px"></div>' + pitch(club))
@@ -904,7 +906,7 @@ def page_joueur():
         h = ""
         if nb:
             og = bj.origine_but.value_counts()
-            h += (kick("Quand il marque") + '<div style="height: 10px"></div>' + card(ui.frise([(r.minute, f"{r.minute}’") for r in bj.itertuples()]), 14)
+            h += (kick("Quand il marque") + '<div style="height: 10px"></div>' + card(blocs.frise_buts(bj, N, X["orig"], 600), 14)
                   + kick("Comment il marque", mt=26) + '<div style="height: 12px"></div>'
                   + card(ui.hbars([(X["orig"].get(k, k), int(v), RED if n == 0 else INK) for n, (k, v) in enumerate(og.items())], int(og.max())), 16))
         if npas:

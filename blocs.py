@@ -103,7 +103,13 @@ SURVOL_CSS = f"""<style>
 .d1-bulle.bas {{ top: calc(100% + 8px); }}
 .d1-bulle.g {{ left: 0; transform: none; }}
 .d1-bulle.d {{ left: auto; right: 0; transform: none; }}
-.d1-pt:hover .d1-bulle, .d1-pt:focus .d1-bulle {{ opacity: 1; visibility: visible; }}
+.d1-zone {{ position: absolute; top: 0; bottom: 18px; outline: none; cursor: pointer; border-radius: 4px; }}
+.d1-zone:hover, .d1-zone:focus {{ background: rgba(17,17,17,.06); z-index: 5; }}
+.d1-zone .d1-bulle {{ top: 4px; }}
+.d1-ligne {{ position: relative; outline: none; cursor: pointer; }}
+.d1-ligne:hover, .d1-ligne:focus {{ z-index: 5; }}
+.d1-pt:hover .d1-bulle, .d1-pt:focus .d1-bulle, .d1-zone:hover .d1-bulle, .d1-zone:focus .d1-bulle,
+.d1-ligne:hover .d1-bulle, .d1-ligne:focus .d1-bulle {{ opacity: 1; visibility: visible; }}
 </style>"""
 
 
@@ -301,3 +307,89 @@ def series_ligne(series, pad="0") -> str:
     return (f'<div style="padding: {pad}"><div style="background: {PAPER}; border: 1.5px solid {INK}; border-radius: 10px; padding: 10px 12px">'
             f'<div style="font-family: {COND}; font-weight: 700; font-size: 11px; letter-spacing: 0.1em; color: {MUTED}; margin-bottom: 6px">SÉRIES EN COURS</div>'
             f'<div style="display: flex; flex-direction: column; gap: 6px">{items}</div></div></div>')
+
+
+# ================================================================== survols : barres par tranche, pastilles de forme, frise du joueur
+def zones_barres(img_html, W, x0, bw, bulles) -> str:
+    """Pose une zone survolable sur chaque barre (ou groupe de barres) d'un graphique image.
+    x0 = début de la 1re zone, bw = largeur d'une zone (unités du SVG, W = largeur du SVG)."""
+    n = len(bulles)
+    z = "".join(f'<div class="d1-zone" tabindex="0" style="left: {100 * (x0 + i * bw) / W:.2f}%; width: {100 * bw / W:.2f}%">'
+                f'<div class="d1-bulle bas{" g" if i < 2 else (" d" if i > n - 3 else "")}">{b}</div></div>' for i, b in enumerate(bulles))
+    return SURVOL_CSS + f'<div class="d1-graph">{img_html}{z}</div>'
+
+
+def _tranche(m):
+    a = (int(m) - 1) // 5 * 5
+    return f"{a + 1}-{a + 5}"
+
+
+def bulles_tranches(b, orig, club=None, noms=None) -> list:
+    """Texte de la bulle de chaque tranche de 5 min. club=None : toute la D1 ; sinon marqués / encaissés du club."""
+    out = []
+    t = b.assign(_tr=b.minute.map(_tranche))
+    total = max(len(t), 1)
+    for a in C.TRANCHES[:-1]:
+        k = f"{a + 1}-{a + 5}"
+        g = t[t._tr == k]
+        if club is None:
+            org = g.origine_but.value_counts().head(2)
+            txt = f"<b>{k}’ : {len(g)} buts</b> ({round(100 * len(g) / total)} % du total)"
+            if len(org):
+                txt += "<br>" + " · ".join(f"{e(orig.get(o, o))} : {n}" for o, n in org.items())
+        else:
+            mq, enc = g[g.club_marque == club], g[g.club_encaisse == club]
+            txt = f"<b>{k}’</b> : {len(mq)} marqué{'s' if len(mq) > 1 else ''}, {len(enc)} encaissé{'s' if len(enc) > 1 else ''}"
+            buteurs = mq[mq.buteur.notna()].groupby("buteur").size().sort_values(ascending=False).head(3)
+            if len(buteurs):
+                txt += "<br>" + ", ".join(f"{e(n)}{' x' + str(v) if v > 1 else ''}" for n, v in buteurs.items())
+        out.append(txt)
+    return out
+
+
+def forme_survol(forme: str, details: dict, s=20) -> str:
+    """Pastilles V/N/D avec, au survol ou au toucher, le match correspondant. details = contexte.matchs_du_club(...)."""
+    js = sorted(details)[-len(forme):] if forme else []
+    out = []
+    for i, (x, j) in enumerate(zip(forme, js)):
+        cote = " g" if i == 0 else (" d" if i == len(forme) - 1 else "")
+        out.append(f'<span class="d1-ligne" tabindex="0" style="display: inline-flex">{ui.form_chip(x, s)}'
+                   f'<span class="d1-bulle bas{cote}"><b>J{j}</b> · {e(details[j])}</span></span>')
+    return SURVOL_CSS + "".join(out)
+
+
+def frise_buts(bj, noms, orig, W=358) -> str:
+    """Frise 0-40' des buts d'un joueur ; survol / toucher d'un but : journée, adversaire, score, passeur, origine.
+    Deux buts trop proches s'étagent vers le bas (la hauteur s'adapte)."""
+    b = bj.sort_values(["minute", "journee"])
+    xs = lambda m: 14 + (W - 28) * m / C.DUREE_MATCH
+    axe = 30
+    places, etages = [], {}
+    for r in b.itertuples():
+        x = xs(r.minute)
+        et = 0
+        while any(abs(xp - x) < 22 for xp in etages.get(et, [])):
+            et += 1
+        etages.setdefault(et, []).append(x)
+        places.append((r, x, et))
+    H = axe + 26 * len(etages) + 18
+    svg = (f'<svg width="{W}" height="{H}" viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg">'
+           f'<rect x="14" y="{axe - 3}" width="{W - 28}" height="6" rx="3" fill="{SOFT}"/>'
+           f'<line x1="{W / 2}" x2="{W / 2}" y1="{axe - 14}" y2="{axe + 14}" stroke="{INK}" stroke-width="1.5"/>'
+           f'<text x="{W / 2}" y="10" font-size="9" text-anchor="middle" fill="{MUTED}" font-family="Archivo Narrow, Arial" letter-spacing="1">MI-TEMPS</text>'
+           f'<text x="14" y="10" font-size="9" fill="{MUTED}" font-family="Archivo, Arial">0’</text>'
+           f'<text x="{W - 14}" y="10" font-size="9" text-anchor="end" fill="{MUTED}" font-family="Archivo, Arial">40’</text></svg>')
+    pts = ""
+    for r, x, et in places:
+        y = axe + 26 * et
+        adv = r.club_ext if r.club_marque == r.club_dom else r.club_dom
+        rond = (f'<div style="display: flex; flex-direction: column; align-items: center; gap: 1px; padding-top: 12px">'
+                f'<div style="width: 14px; height: 14px; border-radius: 50%; background: {RED}; border: 2px solid {PAPER}"></div>'
+                f'<div style="font-family: Archivo Narrow, Arial, sans-serif; font-weight: 700; font-size: 10px; line-height: 1">{r.minute}’</div></div>')
+        bulle = (f'<b>J{r.journee} · {r.minute}’ contre {e(noms.get(adv, adv))}</b><br>'
+                 f'{e(noms.get(r.club_dom, r.club_dom))} {r.score_dom_apres}-{r.score_ext_apres} {e(noms.get(r.club_ext, r.club_ext))}'
+                 + (f'<br>Passe : {e(r.passeur)}' if isinstance(r.passeur, str) and r.passeur else "")
+                 + (f'<br><span style="color: #D9D2C6">{e(orig.get(r.origine_but, r.origine_but))}</span>' if isinstance(r.origine_but, str) else ""))
+        pts += _point(100 * x / W, 100 * (y + 6) / H, rond, bulle, "haut" if et == 0 else "bas")
+    return (SURVOL_CSS + f'<div class="d1-graph">{ui.svg_img(svg, alt="Minutes de ses buts")}{pts}</div>'
+            + _note("Survolez ou touchez un but pour le détail.", 4))

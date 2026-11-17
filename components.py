@@ -438,16 +438,21 @@ def frise(minutes_labels):
             f'<text x="{W-14}" y="12" font-size="9" text-anchor="end" fill="{MUTED}" font-family="Archivo">40\u2019</text>{dots}</svg>', alt="Minutes des buts")
 
 
-def tranches_miroir(marques: dict, encaisses: dict):
+def tranches_miroir(marques: dict, encaisses: dict, bulles=None):
+    """bulles : texte affiché au survol / toucher de chaque ligne (CSS blocs.SURVOL_CSS à inclure dans la page)."""
     mx = max(list(marques.values()) + list(encaisses.values()) + [1])
     out = (f'<div style="display: flex; justify-content: space-between; font-family: {COND}; font-weight: 700; font-size: 11px; letter-spacing: 0.08em">'
            f'<span>MARQUÉS</span><span style="color: {RED}">ENCAISSÉS</span></div><div style="display: flex; flex-direction: column; gap: 6px; margin-top: 8px">')
-    for k in marques:
+    for n, k in enumerate(marques):
         a, b = marques[k], encaisses.get(k, 0)
+        if bulles:
+            out += f'<div class="d1-ligne" tabindex="0"><div class="d1-bulle bas">{bulles[n]}</div>'
         out += (f'<div style="display: grid; grid-template-columns: minmax(0,1fr) 52px minmax(0,1fr); align-items: center; gap: 6px">'
                 f'<div style="display: flex; justify-content: flex-end; align-items: center; gap: 6px"><span style="font-family: {COND}; font-weight: 700; font-size: 12px">{a or ""}</span>'
                 f'<div style="height: 14px; width: {80*a/mx:.0f}%; background: {INK}; border-radius: 2px"></div></div>'
                 f'<span style="text-align: center; font-family: {COND}; font-size: 11px; color: {MUTED}">{k}\u2019</span>'
                 f'<div style="display: flex; align-items: center; gap: 6px"><div style="height: 14px; width: {80*b/mx:.0f}%; background: {RED}; border-radius: 2px"></div>'
                 f'<span style="font-family: {COND}; font-weight: 700; font-size: 12px">{b or ""}</span></div></div>')
+        if bulles:
+            out += "</div>"
     return out + "</div>"
