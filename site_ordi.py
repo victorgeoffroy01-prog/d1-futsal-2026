@@ -424,7 +424,7 @@ def page_match():
                     + ui.tiles(ui.tile(len(b), "buts", "dark", 38), ui.tile(f"{n_d}-{n_e}", "buteurs différents", numsize=38),
                                ui.tile(int(b.id_passeur.notna().sum()), "buts avec passe", "red", 38),
                                ui.tile(int((b.minute > 35).sum()), "buts 5 dern. min.", numsize=38), mt=16)
-                    + kick("Score minute par minute", mt=26) + '<div style="height: 10px"></div>' + card(ui.score_progressif(b, m.dom, m.ext, N), 16))
+                    + kick("Le fil du match", mt=26) + '<div style="height: 10px"></div>' + card(blocs.fil_du_match(b, m.dom, m.ext, N, X["orig"], 720, 230), 16))
         with d:
             o_d, o_e = b[b.club_marque == m.dom].origine_but.value_counts(), b[b.club_marque == m.ext].origine_but.value_counts()
             keys = sorted(set(o_d.index) | set(o_e.index), key=lambda k: -(o_d.get(k, 0) + o_e.get(k, 0)))
@@ -848,7 +848,7 @@ def page_club():
     with d:
         st.html(kick("Forme") + f'<div style="display: flex; gap: 6px; margin-top: 12px">{"".join(ui.form_chip(x, 32) for x in cl["forme"])}</div>'
                 + kick("Évolution au classement", mt=28) + '<div style="height: 12px"></div>'
-                + card(blocs.courbe_rangs(X["ctx"]["rangs"][club], len(base.clubs), 420, 180, C.NB_PLAYOFFS, C.NB_DESCENTE), 14)
+                + card(blocs.courbe_rangs(X["ctx"]["rangs"][club], len(base.clubs), 420, 180, C.NB_PLAYOFFS, C.NB_DESCENTE, contexte.matchs_du_club(X["ctx"]["dr"], club, N)), 14)
                 + kick("Compo type", mt=28) + '<div style="height: 12px"></div>' + pitch(club))
         o = Sortie(); o.add(kick("Matchs", mt=28))
         for r in s["matchs"].itertuples():
