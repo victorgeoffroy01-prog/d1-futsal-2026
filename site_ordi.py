@@ -402,7 +402,9 @@ def page_match():
         d = b[b.club_marque == club]
         return "<br>".join(f'{ui.lien_joueur(g.id_buteur.iloc[0], e(n))} ' + " ".join(f"{x}’" for x in g.minute) for n, g in d.groupby("buteur", sort=False))
     o = Sortie()
-    o.add(f'<div style="height: 18px"></div><section style="background: {INK}; color: #fff; border-radius: 14px; padding: 26px 32px; '
+    cm = ui.couleurs_match(m.dom, m.ext)
+    o.add(f'<div style="height: 18px"></div><div style="display: flex; gap: 6px; margin-bottom: 6px"><div style="flex: 1">{ui.bande_club(cols=cm[0], h=6)}</div>'
+          f'<div style="flex: 1">{ui.bande_club(cols=cm[1], h=6)}</div></div><section style="background: {INK}; color: #fff; border-radius: 14px; padding: 26px 32px; '
           f'display: grid; grid-template-columns: minmax(0,1fr) auto minmax(0,1fr); align-items: center; gap: 24px">'
           f'<div style="display: flex; align-items: center; gap: 16px; justify-content: flex-end"><span style="font-family: {SERIF}; font-size: 38px">{ui.lien_club(m.dom, e(N[m.dom]))}</span>{ui.logo_or_badge(m.dom, 64, 15, False)}</div>'
           f'<div style="text-align: center">{"<div style=\"margin-bottom: 8px\">" + ui.BADGE_ANALYSE + "</div>" if rapport else ""}'
@@ -425,7 +427,7 @@ def page_match():
                     + ui.tiles(ui.tile(len(b), "buts", "dark", 38), ui.tile(f"{n_d}-{n_e}", "buteurs différents", numsize=38),
                                ui.tile(int(b.id_passeur.notna().sum()), "buts avec passe", "red", 38),
                                ui.tile(int((b.minute > 35).sum()), "buts 5 dern. min.", numsize=38), mt=16)
-                    + kick("Le fil du match", mt=26) + '<div style="height: 10px"></div>' + card(blocs.fil_du_match(b, m.dom, m.ext, N, X["orig"], 720, 230), 16))
+                    + kick("Le fil du match", mt=26) + '<div style="height: 10px"></div>' + card(blocs.fil_du_match(b, m.dom, m.ext, N, X["orig"], 720, 230, cols=ui.couleurs_match(m.dom, m.ext)), 16))
         with d:
             o_d, o_e = b[b.club_marque == m.dom].origine_but.value_counts(), b[b.club_marque == m.ext].origine_but.value_counts()
             keys = sorted(set(o_d.index) | set(o_e.index), key=lambda k: -(o_d.get(k, 0) + o_e.get(k, 0)))
@@ -434,8 +436,8 @@ def page_match():
                            ("Buts avec passe", lambda x: x.id_passeur.notna().sum()), ("Buteurs différents", lambda x: x.id_buteur.nunique())]:
                 rows.append((lab, int(f(b[b.club_marque == m.dom])), int(f(b[b.club_marque == m.ext]))))
             st.html(kick("D’où viennent les buts") + '<div style="height: 12px"></div>'
-                    + card(ui.mirror([(X["orig"].get(k, k), int(o_d.get(k, 0)), int(o_e.get(k, 0))) for k in keys], N[m.dom], N[m.ext], mid_w=130), 16)
-                    + kick("Face-à-face", mt=26) + '<div style="height: 12px"></div>' + card(ui.mirror(rows, N[m.dom], N[m.ext], mid_w=140), 16))
+                    + card(ui.mirror([(X["orig"].get(k, k), int(o_d.get(k, 0)), int(o_e.get(k, 0))) for k in keys], N[m.dom], N[m.ext], mid_w=130, cols=cm), 16)
+                    + kick("Face-à-face", mt=26) + '<div style="height: 12px"></div>' + card(ui.mirror(rows, N[m.dom], N[m.ext], mid_w=140, cols=cm), 16))
             if rapport:
                 st.html(card(f'<div style="font-family: {COND}; font-weight: 700; font-size: 12px; letter-spacing: 0.1em; color: {RED}">MATCH ANALYSÉ</div>'
                              f'<div style="font-size: 14px; margin-top: 6px">Tirs, duels, pertes, gardiens, joueur par joueur : voir l’onglet Analyse du match.</div>', 14)
@@ -803,7 +805,7 @@ def page_club():
     meta = " · ".join(x for x in [info.get("salle"), f"Coach {info.get('coach')}" if isinstance(info.get("coach"), str) else None, info.get("site_web")] if isinstance(x, str) and x)
     tuile = lambda v, l, rouge=False: (f'<div style="{"background: " + RED if rouge else "border: 1.5px solid #fff"}; border-radius: 10px; padding: 12px 18px; text-align: center">'
                                        f'<div style="font-family: {SERIF}; font-size: 40px; line-height: 1">{v}</div><div style="font-family: {COND}; font-size: 11px; letter-spacing: 0.1em; color: #E9E2D5">{l}</div></div>')
-    st.html(f'<div style="height: 18px"></div><section style="background: {INK}; color: #fff; border-radius: 14px; padding: 26px 32px; display: flex; align-items: center; gap: 24px">'
+    st.html(f'<div style="height: 18px"></div><div style="margin-bottom: 6px">{ui.bande_club(club, 8)}</div><section style="background: {INK}; color: #fff; border-radius: 14px; padding: 26px 32px; display: flex; align-items: center; gap: 24px">'
             f'{ui.logo_or_badge(club, 96, 18, False, lien=False)}<div style="flex: 1"><div style="font-family: {COND}; font-weight: 700; font-size: 12px; letter-spacing: 0.14em; color: #F2B8C0">CLUB</div>'
             f'<div style="font-family: {SERIF}; font-size: 48px; line-height: 1; margin-top: 6px">{e(N[club])}</div>'
             + (f'<div style="color: #D9D2C6; margin-top: 8px">{e(meta)}</div>' if meta else "")

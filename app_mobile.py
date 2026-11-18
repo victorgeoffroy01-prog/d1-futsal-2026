@@ -375,8 +375,10 @@ def page_match():
         parts = [f'{ui.lien_joueur(g.id_buteur.iloc[0], e(court(n)))} ' + " ".join(f"{x}\u2019" for x in g.minute) for n, g in d.groupby("buteur", sort=False)]
         return f'<div style="text-align: {align}">{" · ".join(parts)}</div>'
     entete(o, f"{NOMS[m.dom]} - {NOMS[m.ext]}", f"Journée {j} · Terminé", retour=("matchs", {"j": j}))
+    cm = dict(zip((m.dom, m.ext), ui.couleurs_match(m.dom, m.ext)))
     equipe = lambda club, dark: (f'<div style="display: flex; flex-direction: column; align-items: center; gap: 6px; padding-top: 18px">'
-                                 f'{ui.logo_or_badge(club, 52, 13, dark)}<span style="font-weight: 600; text-align: center">{ui.lien_club(club, e(NOMS[club]))}</span></div>')
+                                 f'{ui.logo_or_badge(club, 52, 13, dark)}<span style="font-weight: 600; text-align: center">{ui.lien_club(club, e(NOMS[club]))}</span>'
+                                 f'<div style="width: 56px">{ui.bande_club(cols=cm[club], h=5)}</div></div>')
     score = (f'<div style="text-align: center; padding-top: 18px"><div style="font-family: {SERIF}; font-size: 60px; line-height: 1">{m.bd}<span style="color: {MUTED}">-</span>{m.be}</div>'
              f'<div style="font-family: {COND}; font-weight: 600; font-size: 12px; color: {MUTED}; letter-spacing: 0.08em; margin-top: 4px">MI-TEMPS {m.mt_d}-{m.mt_e}</div></div>')
     with st.container(key="scorebox"):
@@ -393,11 +395,11 @@ def page_match():
         ess = f'<div style="font-family: {SERIF}; font-size: 21px; line-height: 1.2; margin-top: 10px">{e(txt)}</div>' if txt else ""
         o.add(ui.section(ui.kicker("L\u2019essentiel") + ess + ui.tiles(ui.tile(len(b), "buts", "dark"), ui.tile(f"{n_d}-{n_e}", "buteurs différents"),
                                                                        ui.tile(int(b.id_passeur.notna().sum()), "buts avec passe", "red")), pad="16px 16px 0"))
-        o.add(ui.section(ui.kicker("Le fil du match") + f'<div style="margin-top: 10px">{blocs.fil_du_match(b, m.dom, m.ext, NOMS, ORIG, 358, 230)}</div>'))
+        o.add(ui.section(ui.kicker("Le fil du match") + f'<div style="margin-top: 10px">{blocs.fil_du_match(b, m.dom, m.ext, NOMS, ORIG, 358, 230, cols=ui.couleurs_match(m.dom, m.ext))}</div>'))
         o_d, o_e = b[b.club_marque == m.dom].origine_but.value_counts(), b[b.club_marque == m.ext].origine_but.value_counts()
         keys = sorted(set(o_d.index) | set(o_e.index), key=lambda k: -(o_d.get(k, 0) + o_e.get(k, 0)))
         o.add(ui.section(ui.kicker("D\u2019où viennent les buts") + '<div style="margin-top: 10px">'
-                         + ui.mirror([(ORIG.get(k, k), int(o_d.get(k, 0)), int(o_e.get(k, 0))) for k in keys], NOMS[m.dom], NOMS[m.ext]) + "</div>"))
+                         + ui.mirror([(ORIG.get(k, k), int(o_d.get(k, 0)), int(o_e.get(k, 0))) for k in keys], NOMS[m.dom], NOMS[m.ext], cols=ui.couleurs_match(m.dom, m.ext)) + "</div>"))
     elif onglet == "timeline":
         o.add(ui.section(ui.kicker(f"Les {len(b)} buts"), pad="16px 16px 6px"))
         mt = False
@@ -425,7 +427,7 @@ def page_match():
                        ("Buts avec passe", lambda d: d.id_passeur.notna().sum()), ("Buteurs différents", lambda d: d.id_buteur.nunique()),
                        ("Buts 5 dernières min.", lambda d: (d.minute > 35).sum())]:
             rows.append((lab, int(f(b[b.club_marque == m.dom])), int(f(b[b.club_marque == m.ext]))))
-        o.add(ui.section(ui.kicker("Face-à-face") + '<div style="margin-top: 10px">' + ui.mirror(rows, NOMS[m.dom], NOMS[m.ext], mid_w=130) + "</div>", pad="16px 16px 0"))
+        o.add(ui.section(ui.kicker("Face-à-face") + '<div style="margin-top: 10px">' + ui.mirror(rows, NOMS[m.dom], NOMS[m.ext], mid_w=130, cols=ui.couleurs_match(m.dom, m.ext)) + "</div>", pad="16px 16px 0"))
         o.add(ui.section(ui.empty("Stats détaillées (tirs, duels, pertes, gardiens) : voir l’onglet Analyse." if rapport
                                   else "Stats détaillées (tirs, duels, pertes, gardiens) disponibles quand le match est analysé.")))
     else:
@@ -544,7 +546,7 @@ def page_club():
     info = base.clubs.set_index("club_court").loc[club]
     meta = " · ".join(x for x in [info.get("salle"), f"Coach {info.get('coach')}" if isinstance(info.get("coach"), str) else None] if isinstance(x, str) and x)
     entete(o, "Club", retour=("clubs", {}))
-    o.add(f'<section style="background: {INK}; color: #fff; padding: 18px 16px 16px"><div style="display: flex; align-items: center; gap: 14px">'
+    o.add(ui.bande_club(club, 8) + f'<section style="background: {INK}; color: #fff; padding: 18px 16px 16px"><div style="display: flex; align-items: center; gap: 14px">'
           f'{ui.logo_or_badge(club, 64, 14, False, lien=False)}<div><div style="font-family: {SERIF}; font-size: 30px; line-height: 1">{e(NOMS[club])}</div>'
           + (f'<div style="font-size: 13px; color: #D9D2C6; margin-top: 6px">{e(meta)}</div>' if meta else "") + "</div></div>"
           f'<div style="display: flex; gap: 8px; margin-top: 16px">'

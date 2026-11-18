@@ -153,11 +153,15 @@ def courbe_rangs(points, nb_clubs: int, w=420, h=170, playoffs=4, descente=2, de
             + _note(f'Zone rouge : top {playoffs}, play-offs. Zone grise : les {descente} places de descente. Survolez ou touchez un point pour le détail.', 4))
 
 
-def fil_du_match(buts, dom, ext, noms, orig=None, W=720, H=210) -> str:
+def fil_du_match(buts, dom, ext, noms, orig=None, W=720, H=210, cols=None) -> str:
     """Fil du match : buts du domicile au-dessus de la ligne du temps, de l'extérieur en dessous,
     bande centrale = écart au score (noir quand le domicile mène, rouge quand l'extérieur mène).
     Survol / toucher d'un but : buteur, passeur, score, origine."""
     orig = orig or {}
+    (fd, bd), (fe, be) = cols or ((INK, PAPER), (RED, PAPER))
+    # couleur d'une équipe sur fond crème : son fond, ou son bord si le fond est trop clair (blanc)
+    vis = lambda f, b_: b_ if ui.proches(f, PAPER) else f
+    cd_, ce_ = vis(fd, bd), vis(fe, be)
     b = buts.assign(_t=buts.score_dom_apres + buts.score_ext_apres).sort_values(["periode", "minute", "_t"])
     PL, PR = 14, 14
     axe = H / 2
@@ -174,7 +178,7 @@ def fil_du_match(buts, dom, ext, noms, orig=None, W=720, H=210) -> str:
     for a, z, v in seg:
         if v and z > a:
             y, hh = (axe - v * k, v * k) if v > 0 else (axe, -v * k)
-            bande += f'<rect x="{xs(a):.1f}" y="{y:.1f}" width="{xs(z) - xs(a):.1f}" height="{hh:.1f}" fill="{INK if v > 0 else RED}" opacity="0.16"/>'
+            bande += f'<rect x="{xs(a):.1f}" y="{y:.1f}" width="{xs(z) - xs(a):.1f}" height="{hh:.1f}" fill="{cd_ if v > 0 else ce_}" opacity="0.18"/>'
     mi = xs(C.DUREE_MATCH / 2)
     graduations = "".join(f'<line x1="{xs(m):.1f}" x2="{xs(m):.1f}" y1="{axe - 4}" y2="{axe + 4}" stroke="{MUTED}"/>'
                           f'<text x="{xs(m):.1f}" y="{axe + 18}" text-anchor="middle" font-family="Archivo, Arial" font-size="10" fill="{MUTED}">{m}’</text>'
@@ -195,21 +199,23 @@ def fil_du_match(buts, dom, ext, noms, orig=None, W=720, H=210) -> str:
         y = axe - 46 - 30 * etage if haut else axe + 46 + 30 * etage
         y = max(14, min(H - 14, y))
         csc = bool(r.est_csc)
-        fond, texte = (INK, "#fff") if haut else (RED, "#fff")
+        fond, bord = (fd, bd) if haut else (fe, be)
+        texte = ui.texte_sur(fond)
+        trait = vis(fond, bord)
         rond = (f'<div style="min-width: 30px; height: 26px; padding: 0 4px; box-sizing: border-box; border-radius: 13px; display: flex; align-items: center; '
                 f'justify-content: center; font-family: Archivo Narrow, Arial, sans-serif; font-weight: 700; font-size: 12px; '
-                + (f'background: {PAPER}; color: {fond}; border: 2px dashed {fond}' if csc else f'background: {fond}; color: {texte}; border: 2px solid {PAPER}')
+                + (f'background: {PAPER}; color: {trait}; border: 2px dashed {trait}' if csc else f'background: {fond}; color: {texte}; border: 2px solid {bord}')
                 + f'">{r.minute}’</div>')
-        tige = f'<div style="position: absolute; left: 50%; width: 1px; background: {fond}; opacity: .5; {"top: 100%" if haut else "bottom: 100%"}; height: {abs(y - axe) - 13:.0f}px"></div>'
+        tige = f'<div style="position: absolute; left: 50%; width: 1px; background: {trait}; opacity: .5; {"top: 100%" if haut else "bottom: 100%"}; height: {abs(y - axe) - 13:.0f}px"></div>'
         bulle = (f'<b>{r.minute}’ · {e(noms[r.club_marque])} {r.score_dom_apres}-{r.score_ext_apres}</b><br>'
                  + ("But contre son camp" if csc else f'{e(r.buteur or "")}' + (f'<br>Passe : {e(r.passeur)}' if r.passeur and r.passeur == r.passeur else ""))
                  + (f'<br><span style="color: #D9D2C6">{e(orig.get(r.origine_but, r.origine_but))}</span>' if r.origine_but and r.origine_but == r.origine_but else ""))
         pts += _point(100 * x / W, 100 * y / H, f'<div style="position: relative">{tige}{rond}</div>', bulle, "haut" if haut else "bas")
     legende = (f'<div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px">'
-               f'<span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 12px; height: 12px; border-radius: 50%; background: {INK}"></span>{e(noms[dom])} (dom.)</span>'
-               f'<span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 12px; height: 12px; border-radius: 50%; background: {RED}"></span>{e(noms[ext])} (ext.)</span></div>')
+               f'<span style="display: inline-flex; align-items: center; gap: 6px">{ui.pastille_club((fd, bd))}{e(noms[dom])} (dom.)</span>'
+               f'<span style="display: inline-flex; align-items: center; gap: 6px">{ui.pastille_club((fe, be))}{e(noms[ext])} (ext.)</span></div>')
     return (SURVOL_CSS + legende + f'<div class="d1-graph">{ui.svg_img(svg, alt="Fil du match")}{pts}</div>'
-            + _note("Bande grise : le domicile mène, bande rouge : l'extérieur mène (plus elle est haute, plus l'écart est grand). Pointillés : but contre son camp. "
+            + _note("Bande au-dessus de la ligne : le domicile mène, en dessous : l'extérieur mène (plus elle est haute, plus l'écart est grand), aux couleurs de chaque club. Pointillés : but contre son camp. "
                     "Survolez ou touchez un but pour le détail.", 6))
 
 

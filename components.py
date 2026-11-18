@@ -100,6 +100,60 @@ def _images(dossier: str, empreinte: tuple, cote: int = 160) -> dict:
 # Ex. LOGOS = {"ACASA": "8.png"} : le site prend alors assets/clubs/8.png pour ACASA.
 LOGOS: dict = {}
 PHOTOS: dict = {}
+COULEURS: dict = {}       # club -> (couleur_1, couleur_2), codes hex du fichier fiches
+
+
+def _hex(v):
+    v = str(v or "").strip()
+    return v.upper() if re.fullmatch(r"#[0-9A-Fa-f]{6}", v) else None
+
+
+def _lab(h):
+    r, g, b = [int(h[i:i + 2], 16) / 255 for i in (1, 3, 5)]
+    f = lambda c: c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4
+    r, g, b = f(r), f(g), f(b)
+    X, Y, Z = (0.4124 * r + 0.3576 * g + 0.1805 * b) / 0.9505, 0.2126 * r + 0.7152 * g + 0.0722 * b, (0.0193 * r + 0.1192 * g + 0.9505 * b) / 1.089
+    t = lambda v: v ** (1 / 3) if v > 0.008856 else 7.787 * v + 16 / 116
+    return 116 * t(Y) - 16, 500 * (t(X) - t(Y)), 200 * (t(Y) - t(Z))
+
+
+def proches(a, b) -> bool:
+    """Deux couleurs qu'on confondrait à l'œil."""
+    la, lb = _lab(a), _lab(b)
+    return sum((x - y) ** 2 for x, y in zip(la, lb)) ** 0.5 < 25
+
+
+def texte_sur(fond) -> str:
+    return "#FFFFFF" if _lab(fond)[0] < 62 else INK
+
+
+def couleurs_club(club):
+    """(fond, bord) d'un club ; à défaut, noir et crème."""
+    return COULEURS.get(club, (INK, PAPER))
+
+
+def couleurs_match(dom, ext):
+    """(fond, bord) du domicile et de l'extérieur. Si les deux clubs se ressemblent, l'extérieur inverse ses couleurs."""
+    d = COULEURS.get(dom, (INK, PAPER))
+    x = COULEURS.get(ext, (RED, PAPER))
+    if proches(d[0], x[0]):
+        x = (x[1], x[0])
+    return d, x
+
+
+def bande_club(club=None, h=6, cols=None) -> str:
+    """Bande aux 2 couleurs du club (2/3 couleur 1, 1/3 couleur 2), comme la bande tricolore de la France."""
+    c1, c2 = cols or couleurs_club(club)
+    return (f'<div style="display: flex; height: {h}px; width: 100%; overflow: hidden; flex-shrink: 0">'
+            f'<span style="flex: 2; background: {c1}"></span><span style="flex: 1; background: {c2}; box-shadow: inset 0 0 0 0.5px {LINE}"></span></div>')
+
+
+def pastille_club(cols, size=12) -> str:
+    """Petit rond aux couleurs d'une équipe (légendes) : fond couleur 1, anneau couleur 2."""
+    c1, c2 = cols
+    bord = c2 if not proches(c2, PAPER) else LINE
+    return (f'<span style="display: inline-block; width: {size}px; height: {size}px; border-radius: 50%; background: {c1}; '
+            f'box-shadow: 0 0 0 2px {bord}; flex-shrink: 0"></span>')
 
 
 def declarer_images(clubs, joueurs) -> None:
@@ -109,6 +163,11 @@ def declarer_images(clubs, joueurs) -> None:
             return {}
         return {k: str(v).strip() for k, v in zip(df[cle], df[col]) if isinstance(v, str) and v.strip()}
     LOGOS.clear(); LOGOS.update(lire(clubs, "club_court", "logo"))
+    COULEURS.clear()
+    if "couleur_1" in clubs:
+        for c, a1, a2 in zip(clubs.club_court, clubs.couleur_1, clubs.get("couleur_2", clubs.couleur_1)):
+            if _hex(a1):
+                COULEURS[c] = (_hex(a1), _hex(a2) or PAPER)
     PHOTOS.clear(); PHOTOS.update(lire(joueurs, "id_joueur", "photo"))
 
 
@@ -378,18 +437,20 @@ def hbars(items, maxv, label_w=130, bh=14, fs=12):
     return f'<div style="display: flex; flex-direction: column; gap: 10px">{out}</div>'
 
 
-def mirror(rows, left_label, right_label, unit=20, mid_w=112):
-    """Barres face à face : rows = [(libellé, gauche, droite)]."""
+def mirror(rows, left_label, right_label, unit=20, mid_w=112, cols=None):
+    """Barres face à face : rows = [(libellé, gauche, droite)]. cols = ((fond, bord) gauche, (fond, bord) droite)."""
+    (cg, bg_), (cd, bd_) = cols or ((INK, PAPER), (RED, PAPER))
     out = (f'<div style="display: flex; justify-content: space-between; font-family: {COND}; font-weight: 700; font-size: 12px; '
-           f'letter-spacing: 0.06em; text-transform: uppercase"><span>{e(left_label)}</span><span style="color: {RED}">{e(right_label)}</span></div>')
+           f'letter-spacing: 0.06em; text-transform: uppercase"><span style="display: inline-flex; align-items: center; gap: 6px">{pastille_club((cg, bg_), 10)}{e(left_label)}</span>'
+           f'<span style="display: inline-flex; align-items: center; gap: 6px">{e(right_label)}{pastille_club((cd, bd_), 10)}</span></div>')
     out += '<div style="display: flex; flex-direction: column; gap: 10px; margin-top: 8px">'
     mx = max([max(a, b) for _, a, b in rows] + [1])
     for lab, a, b in rows:
         out += (f'<div style="display: grid; grid-template-columns: 24px minmax(0,1fr) {mid_w}px minmax(0,1fr) 24px; align-items: center; gap: 6px">'
                 f'<span style="font-family: {SERIF}; font-size: 16px; text-align: right">{a}</span>'
-                f'<div style="display: flex; justify-content: flex-end"><div style="height: 12px; width: {100*a/mx:.0f}%; background: {INK}; border-radius: 2px"></div></div>'
+                f'<div style="display: flex; justify-content: flex-end"><div style="height: 12px; width: {100*a/mx:.0f}%; background: {cg}; box-shadow: inset 0 0 0 1.5px {bg_ if cg.upper() in ("#FFFFFF",) else cg}; border-radius: 2px"></div></div>'
                 f'<span style="text-align: center; font-size: 12px">{e(lab)}</span>'
-                f'<div><div style="height: 12px; width: {100*b/mx:.0f}%; background: {RED}; border-radius: 2px"></div></div>'
+                f'<div><div style="height: 12px; width: {100*b/mx:.0f}%; background: {cd}; box-shadow: inset 0 0 0 1.5px {bd_ if cd.upper() in ("#FFFFFF",) else cd}; border-radius: 2px"></div></div>'
                 f'<span style="font-family: {SERIF}; font-size: 16px">{b}</span></div>')
     return out + "</div>"
 

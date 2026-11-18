@@ -25,7 +25,7 @@ DELAI = 10 / 60                       # 10 secondes, en minutes de jeu
 TIRS = {"Tir cadré", "Tir contré", "Tir hors cadre", "Poteau", "But"}
 GAINS = {"Récupération", "Interception"}
 PERTES = {"Perte de balle", "Passe loupée"}
-DISTANCES = [("Moins de 6 m", 0, 6), ("6 à 10 m", 6, 10), ("Plus de 10 m", 10, 99)]
+DISTANCES = [("Dans la surface", 0, 6), ("Jusqu'à 10 m", 6, 10), ("Plus de 10 m", 10, 99)]
 COULOIRS = ["Gauche", "Axe", "Droite"]
 
 
@@ -73,11 +73,17 @@ def pertes_dangereuses(d, eq):
 
 
 # ------------------------------------------------------------------ zones de tir
+def _dans_surface(x, y):
+    """Surface de réparation officielle : à moins de 6 m du segment entre les poteaux (x 8,5 à 11,5)."""
+    px = min(max(x, 8.5), 11.5)
+    return math.hypot(x - px, y) < 6
+
+
 def _zone(a):
     """(ligne distance, colonne couloir) d'un tir, vu par l'équipe qui tire."""
-    dist = math.hypot(a["x"] - 10, 40 - a["y"])
-    i = next(k for k, (_, lo, hi) in enumerate(DISTANCES) if lo <= dist < hi)
-    j = 0 if a["x"] < 7 else (1 if a["x"] <= 13 else 2)
+    x, y = a["x"], 40 - a["y"]
+    i = 0 if _dans_surface(x, y) else (1 if math.hypot(x - 10, y) < 10 else 2)
+    j = 0 if x < 7 else (1 if x <= 13 else 2)
     return i, j
 
 
@@ -93,44 +99,75 @@ def zones_tir(donnees, eq):
     return g
 
 
+def _centre_zone(i, j):
+    """Centre approximatif d'une zone (en mètres), pour y poser les chiffres."""
+    x0, x1 = [(0, 7), (7, 13), (13, 20)][j]
+    pts = []
+    for xx in range(int(x0 * 4), int(x1 * 4)):
+        for yy in range(0, 80):
+            x, y = xx / 4 + 0.125, yy / 4 + 0.125
+            z = 0 if _dans_surface(x, y) else (1 if math.hypot(x - 10, y) < 10 else 2)
+            if z == i:
+                pts.append((x, y))
+    if not pts:
+        return (x0 + x1) / 2, [3, 8, 15][i]
+    return sum(p[0] for p in pts) / len(pts), sum(p[1] for p in pts) / len(pts)
+
+
 def zones_svg(g, couleur=INK, mobile=False) -> str:
-    """Demi-terrain vu de face (but en haut), 9 zones colorées selon le nombre de tirs."""
-    w, h = 300, 260
+    """Vrai demi-terrain de futsal (20 x 20 m, but en haut), zones en transparence par-dessus.
+    Les zones suivent la distance réelle au but (moins de 6 m, 6-10 m, plus de 10 m) et 3 couloirs."""
+    k = 15                                   # pixels par mètre
+    W = H = 20 * k
     mx = max([c["tirs"] for r in g for c in r] + [1])
-    # Bandes de distance dessinées du but (haut) vers le milieu (bas) : hauteurs 6 m, 4 m, 10 m sur 20 m
-    hauteurs = [6, 4, 10]
-    ys = [0]
-    for hh in hauteurs:
-        ys.append(ys[-1] + hh * h / 20)
-    xs = [0, 7 * w / 20, 13 * w / 20, w]
-    s = ""
+    gx, gy = 10 * k, 0                       # centre du but
+    court, ligne = "#D9B98C", "#FFFFFF"
+    defs = '<defs>'
+    for j, (x0, x1) in enumerate([(0, 7), (7, 13), (13, 20)]):
+        defs += f'<clipPath id="couloir{j}"><rect x="{x0 * k}" y="0" width="{(x1 - x0) * k}" height="{H}"/></clipPath>'
+    defs += '</defs>'
+    p1, p2 = 8.5 * k, 11.5 * k
+    surface = (f'M{p1 - 6 * k},0 A{6 * k},{6 * k} 0 0 0 {p1},{6 * k} L{p2},{6 * k} A{6 * k},{6 * k} 0 0 0 {p2 + 6 * k},0 Z')
+    cercle10 = f'M{gx - 10 * k},0 A{10 * k},{10 * k} 0 0 0 {gx + 10 * k},0 Z'
+    tout = f'M0,0 H{W} V{H} H0 Z'
+    bandes = [surface, cercle10 + " " + surface, tout + " " + cercle10]
+    zones = ""
+    for i, (_, lo, hi) in enumerate(DISTANCES):
+        for j in range(3):
+            c = g[i][j]
+            op = 0.12 + 0.48 * c["tirs"] / mx if c["tirs"] else 0.0
+            zones += (f'<path d="{bandes[i]}" fill-rule="evenodd" clip-path="url(#couloir{j})" fill="{couleur}" fill-opacity="{op:.2f}" '
+                      f'stroke="#fff" stroke-opacity="0.55" stroke-width="1.2" stroke-dasharray="3 3"/>')
+    # tracé officiel : surface (quarts de cercle de 6 m autour des poteaux), points de penalty à 6 et 10 m, ligne médiane
+    lignes = (f'<rect x="1" y="1" width="{W - 2}" height="{H - 2}" fill="none" stroke="{ligne}" stroke-width="2.5"/>'
+              f'<path d="M{p1 - 6 * k},0 A{6 * k},{6 * k} 0 0 0 {p1},{6 * k} L{p2},{6 * k} A{6 * k},{6 * k} 0 0 0 {p2 + 6 * k},0" '
+              f'fill="none" stroke="{ligne}" stroke-width="2.5"/>'
+              f'<circle cx="{gx}" cy="{6 * k}" r="2.5" fill="{ligne}"/><circle cx="{gx}" cy="{10 * k}" r="2.5" fill="{ligne}"/>'
+              f'<path d="M{gx - 3 * k},{H} A{3 * k},{3 * k} 0 0 1 {gx + 3 * k},{H}" fill="none" stroke="{ligne}" stroke-width="2.5"/>'
+              f'<circle cx="{gx}" cy="{H}" r="3" fill="{ligne}"/>'
+              f'<rect x="{p1}" y="-7" width="{3 * k}" height="7" fill="none" stroke="{INK}" stroke-width="2"/>')
+    chiffres = ""
     for i in range(3):
         for j in range(3):
             c = g[i][j]
-            op = 0.08 + 0.75 * c["tirs"] / mx if c["tirs"] else 0
-            x0, x1, y0, y1 = xs[j], xs[j + 1], ys[i], ys[i + 1]
-            s += f'<rect x="{x0:.1f}" y="{y0:.1f}" width="{x1 - x0:.1f}" height="{y1 - y0:.1f}" fill="{couleur}" fill-opacity="{op:.2f}" stroke="#fff" stroke-width="2"/>'
-            if c["tirs"]:
-                fonce = op > 0.45
-                tc = "#fff" if fonce else INK
-                cx, cy = (x0 + x1) / 2, (y0 + y1) / 2 + 5
-                s += (f'<text x="{cx:.1f}" y="{cy:.1f}" text-anchor="middle" font-family="DM Serif Display, Georgia, serif" font-size="24" fill="{tc}">{c["tirs"]}</text>'
-                      f'<text x="{cx:.1f}" y="{cy + 16:.1f}" text-anchor="middle" font-family="Archivo Narrow, Arial, sans-serif" font-size="11" '
-                      f'font-weight="700" fill="{tc}">{c["buts"]} BUT{"S" if c["buts"] > 1 else ""}</text>')
-    # but, repères de distance (à gauche de chaque bande) et cadre
-    s += f'<rect x="{w / 2 - 22:.1f}" y="-6" width="44" height="6" fill="{INK}"/>'
-    for i, (lab, _, _) in enumerate(DISTANCES):
-        s += (f'<text x="5" y="{ys[i] + 12:.1f}" font-family="Archivo Narrow, Arial, sans-serif" font-size="9" font-weight="700" '
-              f'fill="{MUTED}" letter-spacing="0.5">{lab.upper()}</text>')
-    s += f'<rect x="0" y="0" width="{w}" height="{h}" fill="none" stroke="{INK}" stroke-width="1.5"/>'
-    svg = (f'<svg width="{w}" height="{h + 8}" viewBox="0 -8 {w} {h + 8}" xmlns="http://www.w3.org/2000/svg">'
-           f'<rect x="0" y="0" width="{w}" height="{h}" fill="#EFE8DA"/>{s}</svg>')
+            if not c["tirs"]:
+                continue
+            cx, cy = _centre_zone(i, j)
+            # zones latérales près du but : positions fixées à la main pour que les chiffres ne se touchent pas
+            cx, cy = {(0, 0): (5.9, 2.0), (0, 2): (14.1, 2.0), (1, 0): (2.3, 5.4), (1, 2): (17.7, 5.4)}.get((i, j), (cx, cy))
+            cx, cy = cx * k, cy * k + (6 if i == 0 else 0)
+            halo = f'paint-order="stroke" stroke="{INK}" stroke-width="3" stroke-opacity="0.55"'
+            chiffres += (f'<text x="{cx:.1f}" y="{cy:.1f}" text-anchor="middle" font-family="DM Serif Display, Georgia, serif" font-size="24" fill="#fff" {halo}>{c["tirs"]}</text>'
+                         f'<text x="{cx:.1f}" y="{cy + 15:.1f}" text-anchor="middle" font-family="Archivo Narrow, Arial, sans-serif" font-size="10.5" '
+                         f'font-weight="700" fill="#fff" {halo}>{c["buts"]} BUT{"S" if c["buts"] > 1 else ""}</text>')
+    svg = (f'<svg width="{W}" height="{H + 8}" viewBox="0 -8 {W} {H + 8}" xmlns="http://www.w3.org/2000/svg">{defs}'
+           f'<rect x="0" y="0" width="{W}" height="{H}" fill="{court}"/>{zones}{lignes}{chiffres}</svg>')
     return ui.svg_img(svg, alt="Zones de tir : nombre de tirs et de buts par zone")
 
 
 def zones_note() -> str:
     return (f'<div style="font-size: 12px; color: {MUTED}; margin-top: 8px; line-height: 1.5">Vue de face, but en haut. '
-            f'Chiffre : tirs tentés depuis la zone (buts compris). Plus la case est foncée, plus on y a tiré. Distance mesurée jusqu\'au centre du but.</div>')
+            f'Chiffre : tirs tentés depuis la zone (buts compris). Plus la case est foncée, plus on y a tiré. Zones : dans la surface, jusqu\'à 10 m du but, au-delà, sur 3 couloirs.</div>')
 
 
 # ------------------------------------------------------------------ duos et présences (France)
