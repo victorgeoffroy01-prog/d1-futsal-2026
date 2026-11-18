@@ -12,6 +12,7 @@ import streamlit as st
 
 import analyse
 import edf
+import edf_avance as av
 import components as ui
 from components import e
 from nav import Sortie
@@ -43,6 +44,7 @@ def page_liste(F):
         F["bas"](o)
         return
     o.add(_sec(F, ui.kicker("Bilan des Bleus") + edf.bilan(matchs), pad="16px 16px 0"))
+    _en_donnees(F, o, E)
     o.add(_sec(F, ui.kicker("Calendrier et résultats"), pad="22px 16px 10px"))
     lst = matchs
     if F["mobile"]:
@@ -101,6 +103,8 @@ def page_match(F):
     elif onglet == "couloirs":
         o.add(_sec(F, ui.kicker("Par où on attaque") + _carte(F, edf.couloirs(d)) if not F["mobile"] else ui.kicker("Par où on attaque") + edf.couloirs(d),
                    pad="16px 16px 0"))
+    elif onglet == "avance":
+        _avance(F, o, m, d, N)
     elif onglet == "temps-de-jeu":
         head, lignes, note = edf.temps_jeu(d, F["mobile"])
         o.add(_sec(F, ui.kicker("Temps de jeu"), pad="16px 16px 6px"))
@@ -234,3 +238,60 @@ def section_joueur(F, o, id_joueur):
         tete = " · ".join(x for x in ["ÉQUIPE DE FRANCE", m["phase"]] if x)
         o.lien(f'<div style="padding: {pad}">' + analyse.carte_joueur_match(None, None, edf.nom_pays(adv), score, jr, entete=tete) + "</div>",
                "edfmatch", id=m["id"], onglet="analyse")
+
+
+# ================================================================== stats avancées (lot D)
+def _cote(F, blocs):
+    """Blocs côte à côte sur ordinateur, les uns sous les autres sur téléphone."""
+    if F["mobile"]:
+        return "".join(f'<div style="margin-top: 14px">{b}</div>' for b in blocs)
+    return ('<div style="display: flex; flex-wrap: wrap; gap: 22px; align-items: flex-start">'
+            + "".join(f'<div style="flex: 1; min-width: 320px">{_carte(F, b)}</div>' for b in blocs) + '</div>')
+
+
+def _titre_bleu(t):
+    return (f'<div style="font-family: {COND}; font-weight: 800; font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; '
+            f'color: {ui.BLEU_FR}; margin-bottom: 10px">{e(t)}</div>')
+
+
+def _en_donnees(F, o, E):
+    """Page France : cumul de tous les matchs analysés (pressing, pertes, zones de tir, duos, présences)."""
+    dl = [E["donnees"][m["id"]] for m in E["matchs"] if E["donnees"].get(m["id"])]
+    if not dl:
+        return
+    connus = []
+    n = len(dl)
+    tete = (ui.bande_fr(5) + '<div style="height: 12px"></div>'
+            + f'<div style="font-family: {SERIF}; font-size: {26 if F["mobile"] else 32}px; line-height: 1.1">Les Bleus en données</div>'
+            + f'<div style="font-size: 13px; color: {MUTED}; margin-top: 4px">Cumul des {n} match{"s" if n > 1 else ""} analysé{"s" if n > 1 else ""} action par action. '
+            + 'Des stats qu\'on ne trouve nulle part ailleurs sur la sélection.</div>')
+    o.add(_sec(F, tete, pad="26px 16px 0"))
+    o.add(_sec(F, ui.kicker("Pressing et pertes de balle") + av.tuiles_enchainements(dl) + av.note_enchainements(), pad="18px 16px 0"))
+    adv = [d for d in dl]
+    zf = av.zones_tir(dl, av.FRANCE)
+    za = {"tirs": 0}
+    ga = [[dict(tirs=0, buts=0) for _ in range(3)] for _ in range(3)]
+    for d in dl:
+        a = av._adversaire(d)
+        if a:
+            g = av.zones_tir([d], a)
+            for i in range(3):
+                for j in range(3):
+                    ga[i][j]["tirs"] += g[i][j]["tirs"]; ga[i][j]["buts"] += g[i][j]["buts"]
+    o.add(_sec(F, ui.kicker("Zones de tir"), pad="22px 16px 0"))
+    o.add(_sec(F, _cote(F, [_titre_bleu("Où tire la France") + av.zones_svg(zf, ui.BLEU_FR),
+                            _titre_bleu("Où tirent ses adversaires") + av.zones_svg(ga, RED)]) + av.zones_note(), pad="0 16px"))
+    o.add(_sec(F, _cote(F, [ui.kicker("Les duos qui font gagner") + av.duos_html(av.duos(dl, connus)),
+                            ui.kicker("Temps de jeu et présences") + av.presences_html(av.presences(dl, connus), mobile=F["mobile"])]), pad="22px 16px 0"))
+
+
+def _avance(F, o, m, d, N):
+    """Onglet Stats avancées d'un match."""
+    adv = av._adversaire(d)
+    na = N.get(adv, edf.nom_pays(adv)) if adv else None
+    o.add(_sec(F, ui.kicker("Pressing et pertes de balle") + av.tuiles_enchainements([d], adv=na) + av.note_enchainements(), pad="16px 16px 0"))
+    blocs = [_titre_bleu("Où tire la France") + av.zones_svg(av.zones_tir([d], av.FRANCE), ui.BLEU_FR)]
+    if adv:
+        blocs.append(_titre_bleu(f"Où tire {na}") + av.zones_svg(av.zones_tir([d], adv), RED))
+    o.add(_sec(F, ui.kicker("Zones de tir") + _cote(F, blocs) + av.zones_note(), pad="22px 16px 0"))
+    o.add(_sec(F, ui.kicker("Les duos sur le terrain aux buts") + av.duos_html(av.duos([d], mini=1)), pad="22px 16px 0"))

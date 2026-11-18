@@ -338,6 +338,8 @@ def onglets_dispo(m, r, d) -> list:
         out.append(("couloirs", "Couloirs"))
     if d and d.get("temps_jeu"):
         out.append(("temps-de-jeu", "Temps de jeu"))
+    if d and d.get("actions"):
+        out.append(("avance", "Stats avancées"))
     return out
 
 
