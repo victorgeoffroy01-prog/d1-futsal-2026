@@ -291,14 +291,15 @@ def _en_donnees(F, o, E):
             + f'<div style="font-family: {SERIF}; font-size: {26 if F["mobile"] else 32}px; line-height: 1.1">Les Bleus en données</div>'
             + f'<div style="font-size: 13px; color: {MUTED}; margin-top: 4px">Cumul des {n} match{"s" if n > 1 else ""} analysé{"s" if n > 1 else ""} action par action.</div>')
     o.add(_sec(F, tete, pad="30px 16px 4px"))
-    themes = [("jeu", "Pressing et pertes"), ("tirs", "Zones de tir"), ("duos", "Duos"), ("temps", "Temps de jeu")]
-    vue = F["choix"]("vue", [k for k, _ in themes], "jeu")
+    themes = ([("jeu", "Pressing"), ("tirs", "Tirs"), ("duos", "Duos"), ("temps", "Temps de jeu")] if F["mobile"]      # tient sur un écran de téléphone
+              else [("jeu", "Pressing et pertes"), ("tirs", "Zones de tir"), ("duos", "Duos"), ("temps", "Temps de jeu")])
+    vue = F["choix"]("onglet", [k for k, _ in themes], "jeu")   # les onglets du site passent par le paramètre « onglet »
     F["onglets"](o, "edf", {}, themes, vue)
     if vue == "jeu":
         o.add(_sec(F, av.tuiles_enchainements(dl) + av.note_enchainements(), pad="16px 16px 0"))
     elif vue == "tirs":
         o.add('<div style="height: 12px"></div>')
-        _zones(F, o, "edf", {"vue": "tirs"}, av.zones_tir(dl, av.FRANCE), _zones_adversaires(dl), "Les adversaires")
+        _zones(F, o, "edf", {"onglet": "tirs"}, av.zones_tir(dl, av.FRANCE), _zones_adversaires(dl), "Les adversaires")
     elif vue == "duos":
         o.add(_sec(F, _carte(F, av.duos_html(av.duos(dl, connus), n=10)), pad="16px 16px 0"))
     else:
