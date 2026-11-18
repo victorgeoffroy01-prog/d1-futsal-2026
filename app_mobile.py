@@ -7,6 +7,8 @@ La navigation se fait sans rechargement (voir nav.py).
 """
 from __future__ import annotations
 import os
+from datetime import datetime
+from zoneinfo import ZoneInfo
 import sys
 import threading
 
@@ -60,6 +62,7 @@ with _VERROU:
     import blocs
     import contexte
     import rapports
+    import visites
     import recherche
     import site_ordi
     from nav import Sortie
@@ -734,7 +737,9 @@ def page_controle():
         entete(o, "Accès refusé"); o.fin(); return
     rows = "".join(f'<div style="padding: 8px 0; border-bottom: 1px solid {LINE}; font-size: 13px"><b style="color: {RED if a.niveau == "BLOQUANT" else INK}">{a.niveau}</b> · {e(a.source)} · {e(a.message)}</div>'
                    for a in base.anomalies + ANOM_RAPPORTS + EDF["anomalies"]) or ui.empty("Aucune anomalie.")
+    st.html(visites.SCRIPT_MOI, unsafe_allow_javascript=True)     # cet appareil = Victor : ses visites ne sont plus comptées
     entete(o, "Contrôle des données")
+    section_visites(o)
     o.add(ui.section(ui.kicker(f"{len(base.anomalies) + len(ANOM_RAPPORTS) + len(EDF['anomalies'])} anomalie(s)") + rows
                      + ui.kicker(f"Rapports publiés : {len(RAPPORTS)}", mt=22) + "".join(
                          f'<div style="padding: 6px 0; font-size: 13px">J{k[0]} · {e(NOMS[k[1]])} · {e(os.path.basename(v))}</div>' for k, v in sorted(RAPPORTS.items())),
@@ -747,6 +752,53 @@ def page_controle():
         with st.container(key="editeur"):
             editeur_textes.editeur(base, lambda j: base.classement(jusqua=j))
     o.fin()
+
+
+def section_visites(o: Sortie):
+    """Page contrôle : chiffres de fréquentation (hors visites de Victor et des robots)."""
+    v, etat = visites.toutes()
+    m = visites._memoire()
+    ligne = lambda a, b, c="", d="": (f'<div style="display: grid; grid-template-columns: minmax(0,1.6fr) 70px 70px 70px; gap: 8px; padding: 7px 0; border-bottom: 1px solid {LINE}; font-size: 13px">'
+                                       f'<span>{a}</span><span style="text-align: right; font-weight: 700">{b}</span><span style="text-align: right">{c}</span><span style="text-align: right; color: {MUTED}">{d}</span></div>')
+    h = ui.kicker("Visites du site")
+    if etat:
+        h += f'<div style="font-size: 12px; color: {RED}; margin-top: 8px">{e(etat)}</div>'
+    if v.empty:
+        o.add(ui.section(h + ui.empty("Pas encore de visite enregistrée (tes visites et celles des robots ne comptent pas)."), pad="16px 16px 0"))
+        return
+    jour = datetime.now(ZoneInfo("Europe/Paris")).strftime("%Y-%m-%d")
+    par_jour = v.groupby("date").agg(visiteurs=("visiteur", "nunique"), pages=("page", "size"), mobile=("appareil", lambda x: round(100 * (x == "mobile").mean()))).sort_index(ascending=False)
+    auj = par_jour.loc[jour] if jour in par_jour.index else None
+    h += ui.tiles(ui.tile(int(auj.visiteurs) if auj is not None else 0, "visiteurs aujourd’hui", "red"),
+                  ui.tile(int(par_jour.visiteurs.sum()), "visiteurs depuis le début", "dark"), ui.tile(len(v), "pages vues"))
+    h += (f'<div style="font-size: 12px; color: {MUTED}; margin-top: 8px">Visiteur = un appareil sur une journée (anonyme). Tes visites et les robots ne sont pas comptés. '
+          f'{len(m["lignes"])} visite(s) en attente d’envoi à GitHub.</div>')
+    h += ui.kicker("Par jour", mt=20) + ligne("<b>Jour</b>", "Visiteurs", "<b>Pages</b>", "Mobile")
+    for d, r in par_jour.head(21).iterrows():
+        h += ligne(e(d), int(r.visiteurs), int(r.pages), f"{int(r.mobile)} %")
+
+    RUBRIQUES = {"une": "La Une", "matchs": "Matchs", "match": "Fiches match", "classements": "Classements", "clubs": "Clubs", "club": "Fiches club",
+                 "joueurs": "Joueurs / Statistiques", "joueur": "Fiches joueur", "methodo": "Méthodologie", "edf": "Équipe de France", "edfmatch": "Équipe de France · match"}
+
+    def nom_fiche(page, fiche):
+        if page == "joueur":
+            return f"Joueur · {JREF.at[fiche, 'nom_affiche'] if fiche in JREF.index else fiche}"
+        if page == "club":
+            return f"Club · {NOMS.get(fiche, fiche)}"
+        if page == "match" and "-" in fiche:
+            j, dom = fiche.split("-", 1)
+            mm = base.matchs[(base.matchs.journee.astype(str) == j[1:]) & (base.matchs.dom == dom)]
+            return f"Match · {j} {NOMS.get(dom, dom)}-{NOMS.get(mm.ext.iloc[0], mm.ext.iloc[0])}" if len(mm) else f"Match · {fiche}"
+        lib = {"une": "La Une", "matchs": "Matchs", "classements": "Classements", "clubs": "Clubs", "joueurs": "Joueurs / Statistiques",
+               "methodo": "Méthodologie", "edf": "Équipe de France", "edfmatch": "Équipe de France · match"}.get(page, page)
+        return lib + (f" · {fiche}" if fiche and page not in ("une",) else "")
+    top = v.groupby(["page", "fiche"]).agg(vues=("page", "size"), visiteurs=("visiteur", "nunique")).reset_index().sort_values("vues", ascending=False)
+    h += ui.kicker("Pages les plus vues", mt=20) + ligne("<b>Page</b>", "Vues", "<b>Visiteurs</b>", "")
+    for r in top.head(20).itertuples():
+        h += ligne(e(nom_fiche(r.page, r.fiche)), int(r.vues), int(r.visiteurs))
+    rub = v.groupby("page").size().sort_values(ascending=False)
+    h += ui.kicker("Par rubrique", mt=20) + "".join(ligne(e(RUBRIQUES.get(k, k)), int(n), f"{round(100 * n / len(v))} %") for k, n in rub.items())
+    o.add(ui.section(h, pad="16px 16px 0"))
 
 
 def page_maintenance():
@@ -796,6 +848,7 @@ def _version(nom, fonction):
         st.query_params.from_dict(dict(qp))
         if nom != "controle":
             nav.suivre(nom, dict(qp))
+            visites.noter(nom, dict(qp), ORDI)     # compteur de visites (jamais bloquant), voir visites.py
         if ORDI and not base.bloquant and nom in site_ordi.PAGES_ORDI:
             site_ordi.PAGES_ORDI[nom]()
         else:
