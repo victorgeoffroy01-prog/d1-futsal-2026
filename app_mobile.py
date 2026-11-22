@@ -801,6 +801,11 @@ def section_visites(o: Sortie):
     rub = v.groupby("page").size().sort_values(ascending=False)
     h += ui.kicker("Par rubrique", mt=20) + "".join(ligne(e(RUBRIQUES.get(k, k)), int(n), f"{round(100 * n / len(v))} %") for k, n in rub.items())
     o.add(ui.section(h, pad="16px 16px 0"))
+    # sauvegarde manuelle : toutes les visites (GitHub + en attente) en fichier, au cas où le site redémarrerait sans clé GitHub
+    o.flush()
+    with st.container(key="pad-visites-csv"):
+        st.download_button("Télécharger toutes les visites (CSV)", v.to_csv(index=False).encode("utf-8"),
+                           file_name=f"visites_{datetime.now(ZoneInfo('Europe/Paris')).strftime('%Y-%m-%d_%Hh%M')}.csv", mime="text/csv")
 
 
 def page_maintenance():
