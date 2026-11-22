@@ -476,18 +476,19 @@ def page_classements():
     if vue == "equipes":
         o.rangee([(ui.pill_item(lab, k == lieu), "classements", {"vue": "equipes", "lieu": k}, "content") for k, lab in
                   [("tous", "Général"), ("dom", "Domicile"), ("ext", "Extérieur")]], style="pills")
-        grid = "grid-template-columns: 20px 26px minmax(0,1fr) 20px 20px 20px 20px 34px 30px"
+        grid = "grid-template-columns: 20px 26px minmax(0,1fr) 36px 18px 18px 18px 18px 30px"
         o.add(f'<div style="display: grid; {grid}; gap: 6px; padding: 6px 12px; font-family: {COND}; font-weight: 700; font-size: 11px; color: {MUTED}; border-bottom: 2px solid {INK}">'
-              f'<span>#</span><span></span><span>ÉQUIPE</span><span style="text-align:center">J</span><span style="text-align:center">G</span><span style="text-align:center">N</span>'
-              f'<span style="text-align:center">P</span><span style="text-align:right">DIFF</span><span style="text-align:right">PTS</span></div>')
+              f'<span>#</span><span></span><span>ÉQUIPE</span><span style="text-align:center">PTS</span><span style="text-align:center">J</span><span style="text-align:center">G</span>'
+              f'<span style="text-align:center">N</span><span style="text-align:center">P</span><span style="text-align:right">DIFF</span></div>')
         for r in base.classement(lieu).itertuples():
             nb = len(base.clubs)
             zone = RED if (lieu == "tous" and r.Rg <= C.NB_PLAYOFFS) else (INK if (lieu == "tous" and r.Rg > nb - C.NB_DESCENTE) else None)
             o.lien(f'<div style="display: grid; {grid}; gap: 6px; align-items: center; padding: 10px 12px; border-bottom: 1px solid {LINE}; background: {PAPER}; '
                    f'{"box-shadow: inset 4px 0 0 " + zone if zone else ""}"><span style="font-family: {COND}; font-weight: 700">{r.Rg}</span>{ui.logo_or_badge(r.club, 24, 8)}'
                    f'<span style="font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{e(NOMS[r.club])}</span>'
+                   f'<span style="display: inline-block; background: {INK}; color: #fff; border-radius: 6px; text-align: center; font-family: {SERIF}; font-size: 17px; line-height: 1.2; padding: 2px 0">{r.Pts}</span>'
                    + "".join(f'<span style="font-family: {COND}; color: {MUTED}; text-align: center">{v}</span>' for v in (r.J, r.G, r.N, r.P))
-                   + f'<span style="font-family: {COND}; text-align: right">{r.Diff:+d}</span><span style="font-family: {SERIF}; font-size: 19px; text-align: right">{r.Pts}</span></div>',
+                   + f'<span style="font-family: {COND}; text-align: right">{r.Diff:+d}</span></div>',
                    "club", id=r.club)
         leg = lambda c, t: f'<span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 4px; height: 14px; background: {c}"></span>{t}</span>'
         o.add(f'<div style="display: flex; flex-wrap: wrap; gap: 14px; padding: 12px 16px 4px; font-size: 12px; color: {MUTED}">'

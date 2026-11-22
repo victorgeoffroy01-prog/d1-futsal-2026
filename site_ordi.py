@@ -183,6 +183,12 @@ def chiffre(v, size=17, color=INK):
     return f'<span style="font-family: {SERIF}; font-size: {size}px; color: {color}">{v}</span>'
 
 
+def pastille_pts(v, size=19):
+    """Points du classement : chiffre blanc sur pastille noire, pour qu'ils ressortent juste après le nom du club."""
+    return (f'<span style="display: inline-block; min-width: 34px; padding: 3px 6px; box-sizing: border-box; background: {INK}; color: #fff; '
+            f'border-radius: 6px; text-align: center; font-family: {SERIF}; font-size: {size}px; line-height: 1.15">{v}</span>')
+
+
 def cond(v, color=INK):
     return f'<span style="font-family: {COND}; color: {color}">{v}</span>'
 
@@ -213,22 +219,22 @@ def grille_matchs(matchs, par_ligne=3):
 def classement_table(t, lieu="tous", compact=False):
     N = X["noms"]; nb = len(X["base"].clubs)
     if compact:
-        tpl = "grid-template-columns: 20px 26px minmax(0,1fr) repeat(4, 20px) 32px 28px 84px"
-        cols = [("#", "left"), ("", "left"), ("Équipe", "left"), ("J", "center"), ("G", "center"), ("N", "center"), ("P", "center"),
-                ("Diff", "center"), ("Pts", "right"), ("Forme", "right")]
+        tpl = "grid-template-columns: 20px 26px minmax(0,1fr) 40px repeat(4, 20px) 32px 84px"
+        cols = [("#", "left"), ("", "left"), ("Équipe", "left"), ("Pts", "center"), ("J", "center"), ("G", "center"), ("N", "center"), ("P", "center"),
+                ("Diff", "center"), ("Forme", "right")]
     else:
-        tpl = "grid-template-columns: 28px 34px minmax(0,1fr) repeat(8, 46px) 130px"
-        cols = [("#", "left"), ("", "left"), ("Équipe", "left"), ("J", "center"), ("G", "center"), ("N", "center"), ("P", "center"),
-                ("BP", "center"), ("BC", "center"), ("Diff", "center"), ("Pts", "right"), ("Forme", "right")]
+        tpl = "grid-template-columns: 28px 34px minmax(0,1fr) 56px repeat(7, 46px) 130px"
+        cols = [("#", "left"), ("", "left"), ("Équipe", "left"), ("Pts", "center"), ("J", "center"), ("G", "center"), ("N", "center"), ("P", "center"),
+                ("BP", "center"), ("BC", "center"), ("Diff", "center"), ("Forme", "right")]
     rows = []
     for r in t.itertuples():
         forme = f'<span style="display: inline-flex; gap: 2px">{"".join(ui.form_chip(x, 18 if compact else 20) for x in r.forme)}</span>'
         base = [f'<span style="font-family: {COND}; font-weight: 700; color: {RED if lieu == "tous" and r.Rg <= C.NB_PLAYOFFS else INK}">{r.Rg}</span>',
                 ui.logo_or_badge(r.club, 24 if compact else 26, 8),
                 f'<span style="display: block; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{ui.lien_club(r.club, e(N[r.club]))}</span>',
-                cond(r.J), cond(r.G), cond(r.N), cond(r.P)]
+                pastille_pts(r.Pts, 17 if compact else 19), cond(r.J), cond(r.G), cond(r.N), cond(r.P)]
         base += [cond(f"{r.Diff:+d}")] if compact else [cond(r.BP), cond(r.BC), cond(f"{r.Diff:+d}")]
-        rows.append(base + [chiffre(r.Pts, 19), forme])
+        rows.append(base + [forme])
     head, lignes = tableau_html(cols, rows, tpl)
     o = Sortie()
     o.add(head)
