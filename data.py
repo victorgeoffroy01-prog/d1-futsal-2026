@@ -394,6 +394,9 @@ def charger(f_buts=C.FICHIER_BUTS, f_passes=C.FICHIER_PASSES, f_fiches=C.FICHIER
         nom = nom.upper()
         if (nom, club) in ref:
             return ref[(nom, club)]
+        if (nom, club) in C.ALIAS_JOUEURS and C.ALIAS_JOUEURS[(nom, club)] in ids_noms:   # orthographe confirmée par Victor
+            ref[(nom, club)] = C.ALIAS_JOUEURS[(nom, club)]
+            return ref[(nom, club)]
         if nom in ref_nom:     # présent dans les fiches mais sous un autre club
             anomalies.append(controles.Anomalie(controles.ALERTE, "fiches",
                              f"{nom} : fiche dans un autre club que {club} (transfert ?)."))
