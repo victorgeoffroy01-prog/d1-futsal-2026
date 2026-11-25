@@ -310,7 +310,7 @@ def page_une():
             ("Meilleurs passeurs", "Passes", STATS[STATS.Passes > 0].sort_values(["Passes", "Buts", "joueur"], ascending=[False, False, True]), "passeurs",
              lambda r: f"{r.Buts} b · {r.Passes} p"),
             ("Buts décisifs", "Decisifs", contexte.classer_decisifs(STATS), "decisifs",
-             lambda r: f"{int(r.Dec_V)} victoire · {int(r.Dec_N)} nul" + (f" · {int(r.PD_dec)} passe déc." if r.PD_dec else ""))]:
+             lambda r: f"{int(r.Dec_V)} victoire · {int(r.Dec_N)} nul · {int(r.Pts_rapportes)} pts" + (f" · {int(r.PD_dec)} passe déc." if r.PD_dec else ""))]:
         o.add(ui.section(ui.kicker(titre_l), pad="24px 16px 4px"))
         for k, (_, r) in enumerate(d.head(3).iterrows(), 1):
             rg = int(r.rang) if "rang" in r else k
@@ -497,11 +497,11 @@ def page_classements():
               f'<div style="padding: 4px 16px; font-size: 12px; color: {MUTED}">Départage : points, différence de buts, buts marqués.</div>')
     elif vue == "decisifs":
         d = contexte.classer_decisifs(STATS)
-        o.add(f'<div style="padding: 10px 16px 0; font-size: 12px; color: {MUTED}">But décisif : le dernier but du vainqueur dans un match gagné d’un but, ou le dernier but d’un match nul. '
+        o.add(f'<div style="padding: 10px 16px 0; font-size: 12px; color: {MUTED}">But décisif : le dernier but du vainqueur dans un match gagné d’un but, ou le dernier but d’un match nul. Points rapportés : 3 par but de la victoire, 1 par but du nul. '
               f'À égalité : le plus de buts de la victoire, puis le but le plus tardif.</div>'
               f'<div style="margin-top: 10px; border-top: 1px solid {LINE}"></div>')
         for _, r in d.iterrows():
-            sous = f"{int(r.Dec_V)} victoire · {int(r.Dec_N)} nul" + (f" · {int(r.PD_dec)} passe{'s' if r.PD_dec > 1 else ''} déc." if r.PD_dec else "")
+            sous = f"{int(r.Dec_V)} victoire · {int(r.Dec_N)} nul · {int(r.Pts_rapportes)} pts" + (f" · {int(r.PD_dec)} passe{'s' if r.PD_dec > 1 else ''} déc." if r.PD_dec else "")
             o.lien(ui.rank_row(int(r.rang), r.joueur, "", int(r.Decisifs), r.rang == 1, sous_html=f"{ui.lien_club(r.club, e(NOMS.get(r.club, r.club)))} · {sous}"),
                    "joueur", id=r.id_joueur)
     else:

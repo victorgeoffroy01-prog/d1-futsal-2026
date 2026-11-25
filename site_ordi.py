@@ -332,7 +332,7 @@ def page_une():
         top_liste(S[S.Passes > 0].sort_values(["Passes", "Buts", "joueur"], ascending=[False, False, True]), "Passes", 6)
         lien_d("TOUS LES PASSEURS", "joueurs", vue="tableau", tri="Passes", sens="desc")
     with c3:
-        st.html(kick("Buts décisifs") + sous_titre("Dernier but du vainqueur d’un match gagné d’un but, ou dernier but d’un nul."))
+        st.html(kick("Buts décisifs") + sous_titre("Dernier but du vainqueur d’un match gagné d’un but, ou dernier but d’un nul. Pts : 3 par but de la victoire, 1 par but du nul."))
         top_liste(contexte.classer_decisifs(S), "Decisifs", 6)
         lien_d("TOUS LES BUTS DÉCISIFS", "joueurs", vue="tableau", cols="contexte", tri="Decisifs", sens="desc")
     # ---------- 4. les buts de la D1 | records et séries
@@ -549,7 +549,7 @@ COLS_STATS = {"joueur": "Joueur", "club": "Club", "Buts": "Buts", "Passes": "Pas
 TETES_STATS = {"joueur": "Joueur", "club": "Club", "Buts": "Buts", "Passes": "Passes", "B+P": "B+P", "Buts_1MT": "1re MT", "Buts_2MT": "2e MT",
                "Buts_dom": "Dom", "Buts_ext": "Ext", "Att_placee": "Placée", "Transition": "Transit.", "Att_rapide": "Rapide", "CPA": "CPA",
                "Power_play": "P. play", "Penalty": "Pen.", "Buts_ouverture": "1er but", "Pct_buts_club": "% club"}
-# 2e jeu de colonnes : contexte des buts (égalisateurs, vainqueurs, buts décisifs...), voir contexte.py
+# 2e jeu de colonnes : contexte des buts (égalisateurs, buts décisifs, points rapportés...), voir contexte.py
 _BASE_COLS = {"joueur": "Joueur", "club": "Club", "Buts": "Buts", "Passes": "Passes", "B+P": "B+P"}
 COLS_CTX = {**_BASE_COLS, **contexte.COLS}
 TETES_CTX = {**_BASE_COLS, **contexte.COURTS}
@@ -714,7 +714,7 @@ def page_joueurs():
             st.download_button("Exporter en CSV", aff.to_csv(index=False, sep=";", decimal=",").encode("utf-8-sig"), file_name=f"d1futsal_stats_joueurs_{jeu}.csv", mime="text/csv")
         if jeu == "contexte":
             st.html(f'<div style="font-size: 12px; color: {MUTED}; line-height: 1.6; margin-top: 10px">Égalis. : buts égalisateurs. Avantage : buts qui font passer de l’égalité à devant (hors 1er but du match). '
-                    f'Vainq. : but après lequel l’équipe ne sera plus rejointe. Décisifs : buts de la victoire (dernier but du vainqueur d’un match gagné d’un but) + buts du nul (dernier but d’un match nul). Passes déc. : passes décisives sur ces buts. Mené, Égalité, Devant : score de son équipe au moment du but. '
+                    f'Décisifs : buts de la victoire (dernier but du vainqueur d’un match gagné d’un but) + buts du nul (dernier but d’un match nul). Pts rapp. : 3 points par but de la victoire, 1 par but du nul. Passes déc. : passes décisives sur ces buts. Mené, Égalité, Devant : score de son équipe au moment du but. '
                     f'36’-40’ : buts des 5 dernières minutes. Doublés : matchs à 2 buts ou plus. Min. moy. : minute moyenne de ses buts. '
                     f'Les filtres Lieu et Phase de jeu s’appliquent aux buts et aux passes.</div>')
         else:
@@ -732,7 +732,7 @@ def page_joueurs():
         A, B = s.set_index("id_joueur").loc[a], s.set_index("id_joueur").loc[b_]
         rows = [({**COLS_STATS, **contexte.COLS}[c], A[c], B[c]) for c in ["Buts", "Passes", "B+P", "Buts_1MT", "Buts_2MT", "Buts_dom", "Buts_ext", "Att_placee", "Transition",
                                                       "Att_rapide", "CPA", "Power_play", "Buts_ouverture",
-                                                      "Egalisateurs", "Vainqueurs", "Decisifs", "PD_dec", "Fin_match"]]
+                                                      "Egalisateurs", "Decisifs", "Pts_rapportes", "PD_dec", "Fin_match"]]
         rows = [(l, int(x), int(y)) for l, x, y in rows]
         g, d = st.columns(2, gap="large")
         for col, J in [(g, A), (d, B)]:

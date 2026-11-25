@@ -77,8 +77,9 @@ def stats_joueurs(b: pd.DataFrame, matchs: pd.DataFrame) -> pd.DataFrame:
         n_match = g.groupby(["journee", "club_dom"]).size()
         rows.append({"id_joueur": i,
                      "Egalisateurs": int(g.egalisateur.sum()), "Avantage": int(g.avantage.sum()),
-                     "Vainqueurs": int(g.vainqueur.sum()),
                      "Decisifs": int(len(dec)), "Dec_V": int(g.dec_victoire.sum()), "Dec_N": int(g.dec_nul.sum()),
+                     # points rapportés (barème de Victor, 25/11) : 3 par but de la victoire, 1 par but du nul
+                     "Pts_rapportes": int(3 * g.dec_victoire.sum() + g.dec_nul.sum()),
                      "PD_dec": int(((b.id_passeur == i) & b.decisif).sum()),
                      "Dec_minute": int(dec.minute.max()) if len(dec) else 0,        # départage : le but décisif le plus tardif
                      "Mene": int((g.etat_avant == "mene").sum()), "Egal": int((g.etat_avant == "egal").sum()),
@@ -108,12 +109,12 @@ def liste_decisifs(b: pd.DataFrame, i: str) -> pd.DataFrame:
 
 
 # colonnes du tableau « Contexte » (libellés complets pour l'export, courts pour l'écran)
-COLS = {"Egalisateurs": "Buts égalisateurs", "Avantage": "Buts qui donnent l'avantage", "Vainqueurs": "Buts vainqueurs",
-        "Decisifs": "Buts décisifs (victoire + nul)", "Dec_V": "Buts décisifs de la victoire", "Dec_N": "Buts décisifs du nul",
+COLS = {"Egalisateurs": "Buts égalisateurs", "Avantage": "Buts qui donnent l'avantage",
+        "Decisifs": "Buts décisifs (victoire + nul)", "Pts_rapportes": "Points rapportés (3 par but de la victoire, 1 par but du nul)", "Dec_V": "Buts décisifs de la victoire", "Dec_N": "Buts décisifs du nul",
         "PD_dec": "Passes décisives sur un but décisif", "Mene": "Buts quand l'équipe est menée", "Egal": "Buts à égalité",
         "Devant": "Buts quand l'équipe mène", "Fin_match": "Buts 36'-40'", "Doubles": "Matchs à 2 buts ou plus",
         "Minute_moy": "Minute moyenne de ses buts"}
-COURTS = {"Egalisateurs": "Égalis.", "Avantage": "Avant.", "Vainqueurs": "Vainq.", "Decisifs": "Décisifs", "Dec_V": "Déc. vict.",
+COURTS = {"Egalisateurs": "Égalis.", "Avantage": "Avant.", "Decisifs": "Décisifs", "Pts_rapportes": "Pts rapp.", "Dec_V": "Déc. vict.",
           "Dec_N": "Déc. nul", "PD_dec": "Passes déc.",
           "Mene": "Mené", "Egal": "Égalité", "Devant": "Devant", "Fin_match": "36'-40'", "Doubles": "Doublés", "Minute_moy": "Min. moy."}
 
@@ -270,11 +271,11 @@ def records(b: pd.DataFrame, matchs: pd.DataFrame, dr: pd.DataFrame, noms: dict)
     if x is not None:
         out.append(dict(cle="rapide", valeur=f"{x.minute}'", libelle="But le plus rapide",
                         detail=f"{x.buteur} ({N(x.club_marque)}) · {vs(x)}", lien=(x.journee, x.club_dom)))
-    # but vainqueur le plus tardif
-    v = b[b.vainqueur].sort_values(["minute", "journee"], ascending=[False, True])
+    # but de la victoire le plus tardif (match gagné d'un but)
+    v = b[b.dec_victoire].sort_values(["minute", "journee"], ascending=[False, True])
     if len(v):
         x = v.iloc[0]
-        out.append(dict(cle="vainqueur", valeur=f"{x.minute}'", libelle="But vainqueur le plus tardif",
+        out.append(dict(cle="vainqueur", valeur=f"{x.minute}'", libelle="But de la victoire le plus tardif",
                         detail=f"{x.buteur} ({N(x.club_marque)}) · {vs(x)}", lien=(x.journee, x.club_dom)))
     # égalisation la plus tardive
     v = b[b.egalisateur].sort_values(["minute", "journee"], ascending=[False, True])
