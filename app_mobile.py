@@ -497,7 +497,7 @@ def page_classements():
               f'<div style="padding: 4px 16px; font-size: 12px; color: {MUTED}">Départage : points, différence de buts, buts marqués.</div>')
     elif vue == "decisifs":
         d = contexte.classer_decisifs(STATS)
-        o.add(f'<div style="padding: 10px 16px 0; font-size: 12px; color: {MUTED}">But décisif : le dernier but du vainqueur dans un match gagné d’un but, ou le dernier but d’un match nul. Points rapportés : 3 par but de la victoire, 1 par but du nul. '
+        o.add(f'<div style="padding: 10px 16px 0; font-size: 12px; color: {MUTED}">But décisif : le dernier but du vainqueur dans un match gagné d’un but, ou le dernier but d’un match nul. Points rapportés : 3 par but ou passe sur un but de la victoire, 1 sur un but du nul. '
               f'À égalité : le plus de buts de la victoire, puis le but le plus tardif.</div>'
               f'<div style="margin-top: 10px; border-top: 1px solid {LINE}"></div>')
         for _, r in d.iterrows():
@@ -686,7 +686,9 @@ def page_joueur():
             o.add(ui.section(ui.kicker("Comment il marque") + '<div style="margin-top: 12px">'
                              + ui.hbars([(ORIG.get(k, k), int(v), RED if n == 0 else INK) for n, (k, v) in enumerate(og.items())], int(og.max())) + "</div>"))
         elif s is not None and s.PD_dec:     # passeur sans but : ses passes décisives sur des buts décisifs
-            o.add(ui.section(ui.kicker("Passes sur des buts décisifs") + blocs.detail_decisifs(contexte.liste_decisifs(base.buts, i), NOMS)))
+            o.add(ui.section(ui.kicker("Passes sur des buts décisifs")
+                             + f'<div style="font-size: 13px; margin-top: 8px"><b>{int(s.Pts_rapportes)} points rapportés</b> par ses passes</div>'
+                             + blocs.detail_decisifs(contexte.liste_decisifs(base.buts, i), NOMS)))
         if npas:
             c = pj.groupby("buteur").size().sort_values(ascending=False)
             o.add(ui.section(ui.kicker("Ses passes pour") + '<div style="margin-top: 12px">' + ui.hbars([(k, int(v), INK) for k, v in c.items()], int(c.max()), label_w=170) + "</div>"))

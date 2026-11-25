@@ -332,7 +332,7 @@ def page_une():
         top_liste(S[S.Passes > 0].sort_values(["Passes", "Buts", "joueur"], ascending=[False, False, True]), "Passes", 6)
         lien_d("TOUS LES PASSEURS", "joueurs", vue="tableau", tri="Passes", sens="desc")
     with c3:
-        st.html(kick("Buts décisifs") + sous_titre("Dernier but du vainqueur d’un match gagné d’un but, ou dernier but d’un nul. Pts : 3 par but de la victoire, 1 par but du nul."))
+        st.html(kick("Buts décisifs") + sous_titre("Dernier but du vainqueur d’un match gagné d’un but, ou dernier but d’un nul. Points rapportés : 3 par but ou passe sur un but de la victoire, 1 sur un nul."))
         top_liste(contexte.classer_decisifs(S), "Decisifs", 6)
         lien_d("TOUS LES BUTS DÉCISIFS", "joueurs", vue="tableau", cols="contexte", tri="Decisifs", sens="desc")
     # ---------- 4. les buts de la D1 | records et séries
@@ -714,7 +714,7 @@ def page_joueurs():
             st.download_button("Exporter en CSV", aff.to_csv(index=False, sep=";", decimal=",").encode("utf-8-sig"), file_name=f"d1futsal_stats_joueurs_{jeu}.csv", mime="text/csv")
         if jeu == "contexte":
             st.html(f'<div style="font-size: 12px; color: {MUTED}; line-height: 1.6; margin-top: 10px">Égalis. : buts égalisateurs. Avantage : buts qui font passer de l’égalité à devant (hors 1er but du match). '
-                    f'Décisifs : buts de la victoire (dernier but du vainqueur d’un match gagné d’un but) + buts du nul (dernier but d’un match nul). Pts rapp. : 3 points par but de la victoire, 1 par but du nul. Passes déc. : passes décisives sur ces buts. Mené, Égalité, Devant : score de son équipe au moment du but. '
+                    f'Décisifs : buts de la victoire (dernier but du vainqueur d’un match gagné d’un but) + buts du nul (dernier but d’un match nul). Passes déc. : passes décisives sur ces buts. Pts buts / Pts passes : 3 points par but ou passe sur un but de la victoire, 1 sur un but du nul ; Pts rapp. : le total. Mené, Égalité, Devant : score de son équipe au moment du but. '
                     f'36’-40’ : buts des 5 dernières minutes. Doublés : matchs à 2 buts ou plus. Min. moy. : minute moyenne de ses buts. '
                     f'Les filtres Lieu et Phase de jeu s’appliquent aux buts et aux passes.</div>')
         else:
@@ -913,7 +913,9 @@ def page_joueur():
             o.add('<div style="height: 24px"></div>' + blocs.buts_qui_comptent(s, int(bj.ouverture.sum()), int((bj.periode == 1).sum()), int((bj.periode == 2).sum()),
                                                                                  liste=contexte.liste_decisifs(base.buts, i), noms=N))
         elif s is not None and s.PD_dec:
-            o.add('<div style="height: 24px"></div>' + ui.kicker("Passes sur des buts décisifs") + blocs.detail_decisifs(contexte.liste_decisifs(base.buts, i), N))
+            o.add('<div style="height: 24px"></div>' + ui.kicker("Passes sur des buts décisifs")
+                  + f'<div style="font-size: 13px; margin-top: 8px"><b>{int(s.Pts_rapportes)} points rapportés</b> par ses passes</div>'
+                  + blocs.detail_decisifs(contexte.liste_decisifs(base.buts, i), N))
         o.add(blocs.duo_favori(contexte.duo_joueur(base.buts, i)))
         o.fin()
     with d:

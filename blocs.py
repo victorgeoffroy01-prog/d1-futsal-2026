@@ -52,13 +52,14 @@ def buts_qui_comptent(s, nb_ouverture: int, mt1: int, mt2: int, numsize=30, list
     return (ui.kicker("Buts qui comptent", mt=4)
             + ui.tiles(t(int(s.Decisifs), "buts décisifs", "red"), t(int(s.Pts_rapportes), "points rapportés", "dark"), t(int(s.Egalisateurs), "égalisateurs"))
             + (f'<div style="font-size: 12px; color: {MUTED}; margin-top: 8px">Buts décisifs : {int(s.Dec_V)} de la victoire, {int(s.Dec_N)} du nul'
-               + (f' · {_pl(int(s.PD_dec), "passe décisive", "passes décisives")} sur un but décisif' if s.PD_dec else "") + "</div>")
+               + (f' · {_pl(int(s.PD_dec), "passe décisive", "passes décisives")} sur un but décisif' if s.PD_dec else "")
+               + f' · points rapportés : {int(s.Pts_buts)} par ses buts, {int(s.Pts_passes)} par ses passes</div>')
             + detail_decisifs(liste, noms or {})
             + ui.tiles(t(nb_ouverture, "ouvrent le score"), t(int(s.Avantage), "donnent l’avantage"), t(int(s.Fin_match), "buts 36’-40’"), mt=8)
             + f'<div style="margin-top: 16px; font-family: {COND}; font-weight: 700; font-size: 12px; letter-spacing: 0.08em">SES BUTS SELON LE SCORE</div>' + barre
             + _note(e(details))
             + _note("But décisif : le dernier but du vainqueur dans un match gagné d’un seul but, ou le dernier but d’un match nul. "
-                    "Points rapportés : 3 par but de la victoire, 1 par but du nul. "
+                    "Points rapportés : 3 par but ou passe décisive sur un but de la victoire, 1 sur un but du nul. "
                     "Donnent l’avantage : buts qui font passer de l’égalité à devant, hors 1er but du match.", 6))
 
 
@@ -317,7 +318,8 @@ def record_ligne(r, compact=False) -> str:
 # ================================================================== méthodologie
 DEFINITIONS = [
     "Buts décisifs : dans un match gagné d’un seul but, le dernier but du vainqueur (but de la victoire) ; dans un match nul, le dernier but du match (but du nul). "
-    "Points rapportés : 3 points par but de la victoire, 1 point par but du nul. Les passes décisives décisives sont les passes saisies sur ces buts.",
+    "Points rapportés : 3 points par but de la victoire, 1 point par but du nul, et pareil pour la passe décisive sur ces buts (le buteur et le passeur gagnent chacun les points). "
+    "Les passes décisives décisives sont les passes saisies sur ces buts.",
     "Égalisateur : but qui remet les deux équipes à égalité. "
     "Donne l’avantage : but qui fait passer de l’égalité à devant, hors 1er but du match.",
     "Temps passé devant, à égalité, derrière : calculé minute par minute à partir de la minute de chaque but, sur 40 minutes. Réaction : but marqué dans les 2 minutes après un but encaissé.",

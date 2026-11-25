@@ -78,9 +78,12 @@ def stats_joueurs(b: pd.DataFrame, matchs: pd.DataFrame) -> pd.DataFrame:
         rows.append({"id_joueur": i,
                      "Egalisateurs": int(g.egalisateur.sum()), "Avantage": int(g.avantage.sum()),
                      "Decisifs": int(len(dec)), "Dec_V": int(g.dec_victoire.sum()), "Dec_N": int(g.dec_nul.sum()),
-                     # points rapportés (barème de Victor, 25/11) : 3 par but de la victoire, 1 par but du nul
-                     "Pts_rapportes": int(3 * g.dec_victoire.sum() + g.dec_nul.sum()),
+                     # points rapportés (barème de Victor, 25-26/11) : 3 par but ou passe décisive sur un but de la victoire, 1 sur un but du nul
+                     "Pts_rapportes": int(3 * g.dec_victoire.sum() + g.dec_nul.sum()
+                                          + 3 * ((b.id_passeur == i) & b.dec_victoire).sum() + ((b.id_passeur == i) & b.dec_nul).sum()),
                      "PD_dec": int(((b.id_passeur == i) & b.decisif).sum()),
+                     "Pts_buts": int(3 * g.dec_victoire.sum() + g.dec_nul.sum()),
+                     "Pts_passes": int(3 * ((b.id_passeur == i) & b.dec_victoire).sum() + ((b.id_passeur == i) & b.dec_nul).sum()),
                      "Dec_minute": int(dec.minute.max()) if len(dec) else 0,        # départage : le but décisif le plus tardif
                      "Mene": int((g.etat_avant == "mene").sum()), "Egal": int((g.etat_avant == "egal").sum()),
                      "Devant": int((g.etat_avant == "devant").sum()), "Fin_match": int(g.fin_match.sum()),
@@ -110,12 +113,15 @@ def liste_decisifs(b: pd.DataFrame, i: str) -> pd.DataFrame:
 
 # colonnes du tableau « Contexte » (libellés complets pour l'export, courts pour l'écran)
 COLS = {"Egalisateurs": "Buts égalisateurs", "Avantage": "Buts qui donnent l'avantage",
-        "Decisifs": "Buts décisifs (victoire + nul)", "Pts_rapportes": "Points rapportés (3 par but de la victoire, 1 par but du nul)", "Dec_V": "Buts décisifs de la victoire", "Dec_N": "Buts décisifs du nul",
-        "PD_dec": "Passes décisives sur un but décisif", "Mene": "Buts quand l'équipe est menée", "Egal": "Buts à égalité",
+        "Decisifs": "Buts décisifs (victoire + nul)", "Dec_V": "Buts décisifs de la victoire", "Dec_N": "Buts décisifs du nul",
+        "PD_dec": "Passes décisives sur un but décisif",
+        "Pts_buts": "Points rapportés par ses buts", "Pts_passes": "Points rapportés par ses passes",
+        "Pts_rapportes": "Points rapportés (3 par but ou passe sur un but de la victoire, 1 sur un but du nul)", "Mene": "Buts quand l'équipe est menée", "Egal": "Buts à égalité",
         "Devant": "Buts quand l'équipe mène", "Fin_match": "Buts 36'-40'", "Doubles": "Matchs à 2 buts ou plus",
         "Minute_moy": "Minute moyenne de ses buts"}
-COURTS = {"Egalisateurs": "Égalis.", "Avantage": "Avant.", "Decisifs": "Décisifs", "Pts_rapportes": "Pts rapp.", "Dec_V": "Déc. vict.",
+COURTS = {"Egalisateurs": "Égalis.", "Avantage": "Avant.", "Decisifs": "Décisifs", "Dec_V": "Déc. vict.",
           "Dec_N": "Déc. nul", "PD_dec": "Passes déc.",
+          "Pts_buts": "Pts buts", "Pts_passes": "Pts passes", "Pts_rapportes": "Pts rapp.",
           "Mene": "Mené", "Egal": "Égalité", "Devant": "Devant", "Fin_match": "36'-40'", "Doubles": "Doublés", "Minute_moy": "Min. moy."}
 
 
