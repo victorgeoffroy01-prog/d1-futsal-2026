@@ -255,6 +255,8 @@ def top_liste(df, col, n=10, sous=lambda r: ""):
     rang, prev = 0, None
     for i, (_, r) in enumerate(df.head(n).iterrows(), 1):
         v = int(r[col]); rang = i if v != prev else rang; prev = v
+        if "rang" in r:              # classement avec départage (buts décisifs)
+            rang = int(r.rang)
         o.lien(f'<div style="display: grid; grid-template-columns: 24px minmax(0,1fr) auto 34px; gap: 8px; align-items: center; padding: 8px 0; border-bottom: 1px solid {LINE}">'
                f'<span style="font-family: {COND}; font-weight: 700; color: {RED if rang == 1 else MUTED}">{rang}</span>'
                f'<span style="font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{e(r.joueur)}</span>'
@@ -330,9 +332,9 @@ def page_une():
         top_liste(S[S.Passes > 0].sort_values(["Passes", "Buts", "joueur"], ascending=[False, False, True]), "Passes", 6)
         lien_d("TOUS LES PASSEURS", "joueurs", vue="tableau", tri="Passes", sens="desc")
     with c3:
-        st.html(kick("Les plus décisifs") + sous_titre("Points que leur équipe aurait perdus sans leurs buts."))
-        top_liste(S[S.Pts_rapportes > 0].sort_values(["Pts_rapportes", "Vainqueurs", "joueur"], ascending=[False, False, True]), "Pts_rapportes", 6)
-        lien_d("CONTEXTE DES BUTS", "joueurs", vue="tableau", cols="contexte", tri="Pts_rapportes", sens="desc")
+        st.html(kick("Buts décisifs") + sous_titre("Dernier but du vainqueur d’un match gagné d’un but, ou dernier but d’un nul."))
+        top_liste(contexte.classer_decisifs(S), "Decisifs", 6)
+        lien_d("TOUS LES BUTS DÉCISIFS", "joueurs", vue="tableau", cols="contexte", tri="Decisifs", sens="desc")
     # ---------- 4. les buts de la D1 | records et séries
     st.html('<div style="height: 34px"></div>')
     c1, c2, c3 = st.columns(3, gap="large")
@@ -547,7 +549,7 @@ COLS_STATS = {"joueur": "Joueur", "club": "Club", "Buts": "Buts", "Passes": "Pas
 TETES_STATS = {"joueur": "Joueur", "club": "Club", "Buts": "Buts", "Passes": "Passes", "B+P": "B+P", "Buts_1MT": "1re MT", "Buts_2MT": "2e MT",
                "Buts_dom": "Dom", "Buts_ext": "Ext", "Att_placee": "Placée", "Transition": "Transit.", "Att_rapide": "Rapide", "CPA": "CPA",
                "Power_play": "P. play", "Penalty": "Pen.", "Buts_ouverture": "1er but", "Pct_buts_club": "% club"}
-# 2e jeu de colonnes : contexte des buts (égalisateurs, vainqueurs, points rapportés...), voir contexte.py
+# 2e jeu de colonnes : contexte des buts (égalisateurs, vainqueurs, buts décisifs...), voir contexte.py
 _BASE_COLS = {"joueur": "Joueur", "club": "Club", "Buts": "Buts", "Passes": "Passes", "B+P": "B+P"}
 COLS_CTX = {**_BASE_COLS, **contexte.COLS}
 TETES_CTX = {**_BASE_COLS, **contexte.COURTS}
@@ -673,7 +675,8 @@ def page_joueurs():
         sens = X["choix"]("sens", ["asc", "desc"], "asc" if texte else "desc")
         s = s.assign(_club=s.club.map(lambda c: N.get(c, c)), _nom=s.joueur.map(recherche.norm))
         cle = {"joueur": "_nom", "club": "_club"}.get(tri, tri)
-        s = s.sort_values(["Buts", "B+P", "_nom"], ascending=[False, False, True]).sort_values(cle, ascending=sens == "asc", kind="stable").reset_index(drop=True)
+        avant = ["Dec_V", "Dec_minute", "_nom"] if tri == "Decisifs" else ["Buts", "B+P", "_nom"]   # départage des buts décisifs
+        s = s.sort_values(avant, ascending=[False, False, True]).sort_values(cle, ascending=sens == "asc", kind="stable").reset_index(drop=True)
         nums = [c for c in COLS if c not in ("joueur", "club")]
         TPL = tpl_stats(len(nums))
         st.html(css_stats(TPL) + f'<div style="font-size: 13px; color: {MUTED}; margin-bottom: 8px">{len(s)} joueur{"s" if len(s) > 1 else ""} · '
@@ -711,7 +714,7 @@ def page_joueurs():
             st.download_button("Exporter en CSV", aff.to_csv(index=False, sep=";", decimal=",").encode("utf-8-sig"), file_name=f"d1futsal_stats_joueurs_{jeu}.csv", mime="text/csv")
         if jeu == "contexte":
             st.html(f'<div style="font-size: 12px; color: {MUTED}; line-height: 1.6; margin-top: 10px">Égalis. : buts égalisateurs. Avantage : buts qui font passer de l’égalité à devant (hors 1er but du match). '
-                    f'Vainq. : buts de la victoire. Pts rapp. : points que l’équipe aurait perdus sans ses buts. Mené, Égalité, Devant : score de son équipe au moment du but. '
+                    f'Vainq. : but après lequel l’équipe ne sera plus rejointe. Décisifs : buts de la victoire (dernier but du vainqueur d’un match gagné d’un but) + buts du nul (dernier but d’un match nul). Passes déc. : passes décisives sur ces buts. Mené, Égalité, Devant : score de son équipe au moment du but. '
                     f'36’-40’ : buts des 5 dernières minutes. Doublés : matchs à 2 buts ou plus. Min. moy. : minute moyenne de ses buts. '
                     f'Les filtres Lieu et Phase de jeu s’appliquent aux buts et aux passes.</div>')
         else:
@@ -729,7 +732,7 @@ def page_joueurs():
         A, B = s.set_index("id_joueur").loc[a], s.set_index("id_joueur").loc[b_]
         rows = [({**COLS_STATS, **contexte.COLS}[c], A[c], B[c]) for c in ["Buts", "Passes", "B+P", "Buts_1MT", "Buts_2MT", "Buts_dom", "Buts_ext", "Att_placee", "Transition",
                                                       "Att_rapide", "CPA", "Power_play", "Buts_ouverture",
-                                                      "Egalisateurs", "Vainqueurs", "Pts_rapportes", "Fin_match"]]
+                                                      "Egalisateurs", "Vainqueurs", "Decisifs", "PD_dec", "Fin_match"]]
         rows = [(l, int(x), int(y)) for l, x, y in rows]
         g, d = st.columns(2, gap="large")
         for col, J in [(g, A), (d, B)]:
@@ -907,7 +910,10 @@ def page_joueur():
               f'<div style="font-size: 14px; color: {MUTED}">{"Meilleur buteur de D1" if rang == 1 and nb else (f"{rang}e buteur de D1" if nb else "Pas encore buteur")}</div></div></div>'
               + ui.tiles(ui.tile(npas, "passes déc.", "dark"), ui.tile(nb + npas, "buts + passes"), ui.tile(int(s.Pct_buts_club) if s is not None else 0, "% buts du club"), mt=16))
         if nb:
-            o.add('<div style="height: 24px"></div>' + blocs.buts_qui_comptent(s, int(bj.ouverture.sum()), int((bj.periode == 1).sum()), int((bj.periode == 2).sum())))
+            o.add('<div style="height: 24px"></div>' + blocs.buts_qui_comptent(s, int(bj.ouverture.sum()), int((bj.periode == 1).sum()), int((bj.periode == 2).sum()),
+                                                                                 liste=contexte.liste_decisifs(base.buts, i), noms=N))
+        elif s is not None and s.PD_dec:
+            o.add('<div style="height: 24px"></div>' + ui.kicker("Passes sur des buts décisifs") + blocs.detail_decisifs(contexte.liste_decisifs(base.buts, i), N))
         o.add(blocs.duo_favori(contexte.duo_joueur(base.buts, i)))
         o.fin()
     with d:

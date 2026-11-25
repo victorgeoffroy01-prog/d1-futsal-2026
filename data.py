@@ -290,10 +290,10 @@ class Base:
             })
         df = pd.DataFrame(rows)
         df["Buts_par_match"] = (df.Buts / df.MJ_club.where(df.MJ_club > 0)).round(2)
-        # contexte des buts (égalisateurs, vainqueurs, points rapportés...) : 0 pour un joueur sans but
+        # contexte des buts (égalisateurs, vainqueurs, buts décisifs...) : 0 pour un joueur sans but
         ctx = contexte.stats_joueurs(b, self.matchs)
         df = df.merge(ctx, on="id_joueur", how="left")
-        for c in contexte.COLS:
+        for c in list(contexte.COLS) + ["Dec_minute", "Triples"]:
             df[c] = df[c].fillna(0).astype(float if c == "Minute_moy" else int)
         return df.sort_values(["Buts", "B+P", "joueur"], ascending=[False, False, True]).reset_index(drop=True)
 
