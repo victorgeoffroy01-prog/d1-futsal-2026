@@ -46,3 +46,10 @@ RATTACHEMENTS_CONFIRMES = {
     ("JULES CASAMAYOU DIT BOUCAU", "ARTISTES"),
     ("FRANCIS LOKOKA KOLOMONI", "SPORTING"),
 }
+
+# Orthographes différentes d'un même joueur, confirmées par Victor : (nom saisi, club) -> id de la fiche.
+# Ajouter une ligne ici quand la page contrôle signale un joueur « absent des fiches » qui existe déjà sous un autre nom.
+ALIAS_JOUEURS = {
+    ("JHONATAN PEREIRA DE OLIVEIRA", "MTP"): "johnatan-pereira-de-oliveira",      # RUAS
+    ("RENATO PAES LEME BAPTISTA J", "NANTES"): "renatinho",                      # RENATINHO
+}

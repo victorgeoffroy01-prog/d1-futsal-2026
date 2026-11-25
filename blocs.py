@@ -19,7 +19,24 @@ def _note(txt, mt=10):
 
 
 # ================================================================== joueur
-def buts_qui_comptent(s, nb_ouverture: int, mt1: int, mt2: int, numsize=30) -> str:
+def detail_decisifs(liste, noms) -> str:
+    """Détail des buts décisifs et passes décisives décisives d'un joueur (liste = contexte.liste_decisifs)."""
+    if liste is None or not len(liste):
+        return ""
+    lignes = ""
+    for r in liste.itertuples():
+        adv = r.club_ext if r.club_marque == r.club_dom else r.club_dom
+        nature = "but de la victoire" if r.dec_victoire else "but du nul"
+        qui = "But" if r.role == "but" else f"Passe pour {e(r.buteur)}"
+        lignes += (f'<div style="display: grid; grid-template-columns: 34px 44px minmax(0,1fr); gap: 8px; align-items: baseline; padding: 7px 0; border-bottom: 1px solid {LINE}; font-size: 13px">'
+                   f'<span style="font-family: {COND}; font-weight: 700">J{r.journee}</span>'
+                   f'<span style="font-family: {SERIF}; font-size: 17px; color: {RED}">{r.minute}’</span>'
+                   f'<span><b>{qui}</b> contre {e(noms.get(adv, adv))} · {r.score_dom_apres}-{r.score_ext_apres} '
+                   f'<span style="color: {MUTED}">({e(noms.get(r.club_dom, r.club_dom))}-{e(noms.get(r.club_ext, r.club_ext))}, {nature})</span></span></div>')
+    return f'<div style="margin-top: 14px; border-top: 1px solid {LINE}">{lignes}</div>'
+
+
+def buts_qui_comptent(s, nb_ouverture: int, mt1: int, mt2: int, numsize=30, liste=None, noms=None) -> str:
     """Tuiles « Buts qui comptent » + répartition selon le score de la fiche joueur (s = ligne de stats_joueurs)."""
     t = lambda v, l, st="paper": ui.tile(v, l, st, numsize)
     total = max(int(s.Mene + s.Egal + s.Devant), 1)
@@ -33,11 +50,16 @@ def buts_qui_comptent(s, nb_ouverture: int, mt1: int, mt2: int, numsize=30) -> s
                           _pl(int(s.Doubles), "match à 2 buts ou plus", "matchs à 2 buts ou plus")]
                          + ([_pl(int(s.Triples), "triplé")] if s.Triples else []))
     return (ui.kicker("Buts qui comptent", mt=4)
-            + ui.tiles(t(int(s.Pts_rapportes), "points rapportés", "red"), t(int(s.Vainqueurs), "buts vainqueurs", "dark"), t(int(s.Egalisateurs), "égalisateurs"))
+            + ui.tiles(t(int(s.Decisifs), "buts décisifs", "red"), t(int(s.Vainqueurs), "buts vainqueurs", "dark"), t(int(s.Egalisateurs), "égalisateurs"))
+            + (f'<div style="font-size: 12px; color: {MUTED}; margin-top: 8px">Buts décisifs : {int(s.Dec_V)} de la victoire, {int(s.Dec_N)} du nul'
+               + (f' · {_pl(int(s.PD_dec), "passe décisive", "passes décisives")} sur un but décisif' if s.PD_dec else "") + "</div>")
+            + detail_decisifs(liste, noms or {})
             + ui.tiles(t(nb_ouverture, "ouvrent le score"), t(int(s.Avantage), "donnent l’avantage"), t(int(s.Fin_match), "buts 36’-40’"), mt=8)
             + f'<div style="margin-top: 16px; font-family: {COND}; font-weight: 700; font-size: 12px; letter-spacing: 0.08em">SES BUTS SELON LE SCORE</div>' + barre
             + _note(e(details))
-            + _note("Points rapportés : points que son équipe aurait perdus sans ses buts. Donnent l’avantage : buts qui font passer de l’égalité à devant, hors 1er but du match.", 6))
+            + _note("But décisif : le dernier but du vainqueur dans un match gagné d’un seul but, ou le dernier but d’un match nul. "
+                    "Buts vainqueurs : le but après lequel l’équipe ne sera plus rejointe, quel que soit l’écart final. "
+                    "Donnent l’avantage : buts qui font passer de l’égalité à devant, hors 1er but du match.", 6))
 
 
 def duo_favori(d) -> str:
@@ -294,7 +316,8 @@ def record_ligne(r, compact=False) -> str:
 
 # ================================================================== méthodologie
 DEFINITIONS = [
-    "Points rapportés : points que l’équipe du joueur aurait perdus si on retirait ses buts du match (exemple : 1 but dans une victoire 3-2 = 2 points rapportés).",
+    "Buts décisifs : dans un match gagné d’un seul but, le dernier but du vainqueur (but de la victoire) ; dans un match nul, le dernier but du match (but du nul). "
+    "Les passes décisives décisives sont les passes saisies sur ces buts.",
     "But vainqueur : dans une victoire sur le score de 5-3, le 4e but du vainqueur, celui après lequel l’adversaire ne revient plus. Égalisateur : but qui remet les deux équipes à égalité. "
     "Donne l’avantage : but qui fait passer de l’égalité à devant, hors 1er but du match.",
     "Temps passé devant, à égalité, derrière : calculé minute par minute à partir de la minute de chaque but, sur 40 minutes. Réaction : but marqué dans les 2 minutes après un but encaissé.",

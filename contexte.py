@@ -1,6 +1,6 @@
 """
 Stats de contexte du site D1 Futsal (lot A du 12/11/2026), tirées UNIQUEMENT des buts et des passes.
-- joueurs : buts qui comptent, points rapportés, buts selon le score, 36'-40', doublés, minute moyenne, duos
+- joueurs : buts qui comptent, buts décisifs (victoire / nul), buts selon le score, 36'-40', doublés, minute moyenne, duos
 - équipes : marque/encaisse en premier, remontadas, temps devant/égalité/derrière, mi-temps, réaction, dépendance...
 - records et séries de la D1 (bloc compact de la Une)
 Tout part de base.buts (1 ligne = 1 but) et base.matchs. Aucune donnée des rapports PDF ici.
@@ -40,54 +40,81 @@ def enrichir_buts(b: pd.DataFrame, matchs: pd.DataFrame) -> pd.DataFrame:
     b["fin_match"] = b.minute >= FIN
     # but vainqueur : pour un score final f-a gagné, c'est le (a+1)e but du vainqueur
     b["vainqueur"] = False
+    # buts décisifs (demande de Victor du 25/11) :
+    # - de la victoire : match gagné d'UN seul but, le dernier but du vainqueur (celui qui donne l'avance définitive)
+    # - du nul : match nul, le dernier but du match (celui qui arrache l'égalité)
+    b["dec_victoire"] = False
+    b["dec_nul"] = False
     fin = {(r.journee, r.dom): (r.bd, r.be) for r in matchs.itertuples()}
     for (j, d), g in ordonner(b).groupby(["journee", "club_dom"], sort=False):
         bd, be = fin[(j, d)]
         if bd == be:
+            if len(g):
+                b.loc[g.index[-1], "dec_nul"] = True
             continue
         gagnant = d if bd > be else g.club_ext.iloc[0]
         a = min(bd, be)
         idx = g[g.club_marque == gagnant].index
         if len(idx) > a:
             b.loc[idx[a], "vainqueur"] = True
+            if abs(bd - be) == 1:
+                b.loc[idx[a], "dec_victoire"] = True     # (a+1)e but = dernier but du vainqueur quand il gagne d'un but
+    b["decisif"] = b.dec_victoire | b.dec_nul
     return b
 
 
 # ================================================================== joueurs
 def stats_joueurs(b: pd.DataFrame, matchs: pd.DataFrame) -> pd.DataFrame:
-    """1 ligne par buteur : buts qui comptent, points rapportés, selon le score, 36'-40', doublés, minute moyenne."""
-    bj = b[b.id_buteur.notna()]
-    if bj.empty:
-        return pd.DataFrame(columns=["id_joueur"] + list(COLS))
-    fin = {(r.journee, r.dom): (r.bd, r.be) for r in matchs.itertuples()}
+    """1 ligne par buteur ou passeur : buts qui comptent, buts décisifs (victoire / nul) et passes décisives décisives,
+    buts selon le score, 36'-40', doublés, minute moyenne."""
+    ids = pd.concat([b.id_buteur, b.id_passeur]).dropna().unique()
+    if not len(ids):
+        return pd.DataFrame(columns=["id_joueur"] + list(COLS) + ["Dec_minute", "Triples"])
     rows = []
-    for i, g in bj.groupby("id_buteur"):
-        pts = 0
-        par_match = g.groupby(["journee", "club_dom"])
-        for (j, d), gm in par_match:
-            if (j, d) not in fin:
-                continue
-            bd, be = fin[(j, d)]
-            dom = gm.club_marque.iloc[0] == d
-            f, a = (bd, be) if dom else (be, bd)
-            pts += _pts(f, a) - _pts(f - len(gm), a)      # points perdus si on retire ses buts
-        n_match = par_match.size()
+    for i in ids:
+        g = b[b.id_buteur == i]
+        dec = g[g.decisif]
+        n_match = g.groupby(["journee", "club_dom"]).size()
         rows.append({"id_joueur": i,
                      "Egalisateurs": int(g.egalisateur.sum()), "Avantage": int(g.avantage.sum()),
-                     "Vainqueurs": int(g.vainqueur.sum()), "Pts_rapportes": int(pts),
+                     "Vainqueurs": int(g.vainqueur.sum()),
+                     "Decisifs": int(len(dec)), "Dec_V": int(g.dec_victoire.sum()), "Dec_N": int(g.dec_nul.sum()),
+                     "PD_dec": int(((b.id_passeur == i) & b.decisif).sum()),
+                     "Dec_minute": int(dec.minute.max()) if len(dec) else 0,        # départage : le but décisif le plus tardif
                      "Mene": int((g.etat_avant == "mene").sum()), "Egal": int((g.etat_avant == "egal").sum()),
                      "Devant": int((g.etat_avant == "devant").sum()), "Fin_match": int(g.fin_match.sum()),
                      "Doubles": int((n_match >= 2).sum()), "Triples": int((n_match >= 3).sum()),
-                     "Minute_moy": round(float(g.minute.mean()), 1)})
+                     "Minute_moy": round(float(g.minute.mean()), 1) if len(g) else 0.0})
     return pd.DataFrame(rows)
+
+
+# Classement « Buts décisifs » : total, puis le plus de buts de la victoire, puis le but décisif le plus tardif
+TRI_DECISIFS = (["Decisifs", "Dec_V", "Dec_minute", "joueur"], [False, False, False, True])
+
+
+def classer_decisifs(s: pd.DataFrame) -> pd.DataFrame:
+    """Joueurs avec au moins un but décisif, dans l'ordre du classement, avec leur rang (égalité parfaite = même rang)."""
+    d = s[s.Decisifs > 0].sort_values(TRI_DECISIFS[0], ascending=TRI_DECISIFS[1]).reset_index(drop=True)
+    cle = list(zip(d.Decisifs, d.Dec_V, d.Dec_minute))
+    d["rang"] = [cle.index(c) + 1 for c in cle]
+    return d
+
+
+def liste_decisifs(b: pd.DataFrame, i: str) -> pd.DataFrame:
+    """Buts décisifs et passes décisives décisives d'un joueur, dans l'ordre des journées."""
+    d = b[b.decisif & ((b.id_buteur == i) | (b.id_passeur == i))].copy()
+    d["role"] = ["but" if x == i else "passe" for x in d.id_buteur]
+    return d.sort_values(["journee", "minute"])
 
 
 # colonnes du tableau « Contexte » (libellés complets pour l'export, courts pour l'écran)
 COLS = {"Egalisateurs": "Buts égalisateurs", "Avantage": "Buts qui donnent l'avantage", "Vainqueurs": "Buts vainqueurs",
-        "Pts_rapportes": "Points rapportés", "Mene": "Buts quand l'équipe est menée", "Egal": "Buts à égalité",
+        "Decisifs": "Buts décisifs (victoire + nul)", "Dec_V": "Buts décisifs de la victoire", "Dec_N": "Buts décisifs du nul",
+        "PD_dec": "Passes décisives sur un but décisif", "Mene": "Buts quand l'équipe est menée", "Egal": "Buts à égalité",
         "Devant": "Buts quand l'équipe mène", "Fin_match": "Buts 36'-40'", "Doubles": "Matchs à 2 buts ou plus",
         "Minute_moy": "Minute moyenne de ses buts"}
-COURTS = {"Egalisateurs": "Égalis.", "Avantage": "Avantage", "Vainqueurs": "Vainq.", "Pts_rapportes": "Pts rapp.",
+COURTS = {"Egalisateurs": "Égalis.", "Avantage": "Avant.", "Vainqueurs": "Vainq.", "Decisifs": "Décisifs", "Dec_V": "Déc. vict.",
+          "Dec_N": "Déc. nul", "PD_dec": "Passes déc.",
           "Mene": "Mené", "Egal": "Égalité", "Devant": "Devant", "Fin_match": "36'-40'", "Doubles": "Doublés", "Minute_moy": "Min. moy."}
 
 

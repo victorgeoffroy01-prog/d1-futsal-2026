@@ -309,11 +309,12 @@ def page_une():
     for titre_l, col, d, vue, sous in [
             ("Meilleurs passeurs", "Passes", STATS[STATS.Passes > 0].sort_values(["Passes", "Buts", "joueur"], ascending=[False, False, True]), "passeurs",
              lambda r: f"{r.Buts} b · {r.Passes} p"),
-            ("Les plus décisifs", "Pts_rapportes", STATS[STATS.Pts_rapportes > 0].sort_values(["Pts_rapportes", "Vainqueurs", "joueur"], ascending=[False, False, True]), "decisifs",
-             lambda r: f"{int(r.Pts_rapportes)} points rapportés · {int(r.Vainqueurs)} vainq.")]:
+            ("Buts décisifs", "Decisifs", contexte.classer_decisifs(STATS), "decisifs",
+             lambda r: f"{int(r.Dec_V)} victoire · {int(r.Dec_N)} nul" + (f" · {int(r.PD_dec)} passe déc." if r.PD_dec else ""))]:
         o.add(ui.section(ui.kicker(titre_l), pad="24px 16px 4px"))
         for k, (_, r) in enumerate(d.head(3).iterrows(), 1):
-            o.lien(ui.rank_row(k, r.joueur, "", int(r[col]), k == 1, sous_html=f"{ui.lien_club(r.club, e(NOMS.get(r.club, r.club)))} · {sous(r)}"), "joueur", id=r.id_joueur)
+            rg = int(r.rang) if "rang" in r else k
+            o.lien(ui.rank_row(rg, r.joueur, "", int(r[col]), rg == 1, sous_html=f"{ui.lien_club(r.club, e(NOMS.get(r.club, r.club)))} · {sous(r)}"), "joueur", id=r.id_joueur)
         o.lien(lien_rouge("TOUT LE CLASSEMENT"), "classements", vue=vue)
     # 6. records et séries, condensés
     section_records(o, j)
@@ -495,15 +496,13 @@ def page_classements():
               f'{leg(RED, f"Top {C.NB_PLAYOFFS} : play-offs")}{leg(INK, f"{C.NB_DESCENTE} derniers : descente en D2")}</div>'
               f'<div style="padding: 4px 16px; font-size: 12px; color: {MUTED}">Départage : points, différence de buts, buts marqués.</div>')
     elif vue == "decisifs":
-        d = STATS[STATS.Pts_rapportes > 0].sort_values(["Pts_rapportes", "Vainqueurs", "Egalisateurs", "joueur"], ascending=[False, False, False, True])
-        o.add(f'<div style="padding: 10px 16px 0; font-size: 12px; color: {MUTED}">Points rapportés : points que son équipe aurait perdus sans ses buts.</div>'
+        d = contexte.classer_decisifs(STATS)
+        o.add(f'<div style="padding: 10px 16px 0; font-size: 12px; color: {MUTED}">But décisif : le dernier but du vainqueur dans un match gagné d’un but, ou le dernier but d’un match nul. '
+              f'À égalité : le plus de buts de la victoire, puis le but le plus tardif.</div>'
               f'<div style="margin-top: 10px; border-top: 1px solid {LINE}"></div>')
-        rang, prev = 0, None
-        for i, (_, r) in enumerate(d.iterrows(), 1):
-            v = int(r.Pts_rapportes)
-            rang = i if v != prev else rang
-            prev = v
-            o.lien(ui.rank_row(rang, r.joueur, "", v, rang == 1, sous_html=f"{ui.lien_club(r.club, e(NOMS.get(r.club, r.club)))} · {int(r.Vainqueurs)} vainq. · {int(r.Egalisateurs)} égalis."),
+        for _, r in d.iterrows():
+            sous = f"{int(r.Dec_V)} victoire · {int(r.Dec_N)} nul" + (f" · {int(r.PD_dec)} passe{'s' if r.PD_dec > 1 else ''} déc." if r.PD_dec else "")
+            o.lien(ui.rank_row(int(r.rang), r.joueur, "", int(r.Decisifs), r.rang == 1, sous_html=f"{ui.lien_club(r.club, e(NOMS.get(r.club, r.club)))} · {sous}"),
                    "joueur", id=r.id_joueur)
     else:
         col, tri = {"buteurs": ("Buts", ["Buts", "Passes"]), "passeurs": ("Passes", ["Passes", "Buts"]), "bp": ("B+P", ["B+P", "Buts"])}[vue]
@@ -640,7 +639,7 @@ def page_joueurs():
         d = tous[[recherche.correspond(q, t) for t in tous.texte]]
     else:
         d = STATS.sort_values(["B+P", "Buts"], ascending=False).head(30)
-    o.add(ui.section(ui.kicker("Résultats" if q else "Les plus décisifs"), pad="10px 16px 6px"))
+    o.add(ui.section(ui.kicker("Résultats" if q else "Buts + passes"), pad="10px 16px 6px"))
     for i, (_, r) in enumerate(d.iterrows(), 1):
         o.lien(ui.rank_row(i, r.joueur, "", r["B+P"], sous_html=f"{ui.lien_club(r.club, e(NOMS.get(r.club, r.club)))} · {r.Buts} b · {r.Passes} p"), "joueur", id=r.id_joueur)
     if q and d.empty:
@@ -680,11 +679,14 @@ def page_joueur():
                          + ui.tiles(ui.tile(npas, "passes déc.", "dark"), ui.tile(nb + npas, "buts + passes"), ui.tile(int(s.Pct_buts_club) if s is not None else 0, "% buts du club")),
                          pad="16px 16px 0"))
         if nb:
-            o.add(ui.section(blocs.buts_qui_comptent(s, int(bj.ouverture.sum()), int((bj.periode == 1).sum()), int((bj.periode == 2).sum()), 28)))
+            o.add(ui.section(blocs.buts_qui_comptent(s, int(bj.ouverture.sum()), int((bj.periode == 1).sum()), int((bj.periode == 2).sum()), 28,
+                                                     contexte.liste_decisifs(base.buts, i), NOMS)))
             o.add(ui.section(ui.kicker("Quand il marque") + f'<div style="margin-top: 10px">{blocs.frise_buts(bj, NOMS, ORIG)}</div>'))
             og = bj.origine_but.value_counts()
             o.add(ui.section(ui.kicker("Comment il marque") + '<div style="margin-top: 12px">'
                              + ui.hbars([(ORIG.get(k, k), int(v), RED if n == 0 else INK) for n, (k, v) in enumerate(og.items())], int(og.max())) + "</div>"))
+        elif s is not None and s.PD_dec:     # passeur sans but : ses passes décisives sur des buts décisifs
+            o.add(ui.section(ui.kicker("Passes sur des buts décisifs") + blocs.detail_decisifs(contexte.liste_decisifs(base.buts, i), NOMS)))
         if npas:
             c = pj.groupby("buteur").size().sort_values(ascending=False)
             o.add(ui.section(ui.kicker("Ses passes pour") + '<div style="margin-top: 12px">' + ui.hbars([(k, int(v), INK) for k, v in c.items()], int(c.max()), label_w=170) + "</div>"))
