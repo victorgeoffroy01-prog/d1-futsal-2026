@@ -204,6 +204,8 @@ def lire_fiches(path=C.FICHIER_FICHES) -> tuple[pd.DataFrame, pd.DataFrame, pd.D
         if c in j:
             j[c] = nettoie(j[c])
     j["nom_base"] = j["nom_base"].str.upper()
+    if "nationalite" in j:      # orthographe des nationalités (joueurs de D1 masculine : « Français », pas « Française »)
+        j["nationalite"] = j["nationalite"].replace(C.NATIONALITES)
     j["id_auto"] = j["id_joueur"].isna()
     j.loc[j["id_auto"], "id_joueur"] = j.loc[j["id_auto"], "nom_base"].map(slug)
     j["nom_affiche"] = [nom_affiche(s) if isinstance(s, str) and s.strip() else nom_affiche(b, p, n)

@@ -34,6 +34,11 @@ def show(h: str):
     st.html(h)
 
 
+def de(nom) -> str:
+    """« de » ou « d’ » devant un nom (but d’Axel KIRTYS, but de Bilal FAHMI)."""
+    return "d’" if str(nom)[:1].upper() in "AEIOUYÀÂÄÉÈÊËÎÏÔÖÙÛÜ" else "de "
+
+
 def fr(x, d=1) -> str:
     return f"{x:.{d}f}".replace(".", ",")
 

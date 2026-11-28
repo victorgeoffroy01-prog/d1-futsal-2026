@@ -53,3 +53,7 @@ ALIAS_JOUEURS = {
     ("JHONATAN PEREIRA DE OLIVEIRA", "MTP"): "johnatan-pereira-de-oliveira",      # RUAS
     ("RENATO PAES LEME BAPTISTA J", "NANTES"): "renatinho",                      # RENATINHO
 }
+
+# Corrections d'orthographe des nationalités saisies dans les fiches (appliquées à l'affichage)
+NATIONALITES = {"Française": "Français", "Turque": "Turc", "Vénézuéla": "Vénézuélien", "Venezuela": "Vénézuélien",
+                "Cap Verdien": "Cap-Verdien", "Cap-verdien": "Cap-Verdien"}

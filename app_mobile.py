@@ -310,7 +310,8 @@ def page_une():
             ("Meilleurs passeurs", "Passes", STATS[STATS.Passes > 0].sort_values(["Passes", "Buts", "joueur"], ascending=[False, False, True]), "passeurs",
              lambda r: f"{r.Buts} b · {r.Passes} p"),
             ("Buts décisifs", "Decisifs", contexte.classer_decisifs(STATS), "decisifs",
-             lambda r: f"{int(r.Dec_V)} victoire · {int(r.Dec_N)} nul · {int(r.Pts_rapportes)} pts" + (f" · {int(r.PD_dec)} passe déc." if r.PD_dec else ""))]:
+             lambda r: f"{int(r.Dec_V)} victoire{'s' if r.Dec_V > 1 else ''} · {int(r.Dec_N)} nul{'s' if r.Dec_N > 1 else ''} · {int(r.Pts_rapportes)} pt{'s' if r.Pts_rapportes > 1 else ''}"
+             + (f" · {int(r.PD_dec)} passe{'s' if r.PD_dec > 1 else ''} déc." if r.PD_dec else ""))]:
         o.add(ui.section(ui.kicker(titre_l), pad="24px 16px 4px"))
         for k, (_, r) in enumerate(d.head(3).iterrows(), 1):
             rg = int(r.rang) if "rang" in r else k
@@ -501,7 +502,7 @@ def page_classements():
               f'À égalité : le plus de buts de la victoire, puis le but le plus tardif.</div>'
               f'<div style="margin-top: 10px; border-top: 1px solid {LINE}"></div>')
         for _, r in d.iterrows():
-            sous = f"{int(r.Dec_V)} victoire · {int(r.Dec_N)} nul · {int(r.Pts_rapportes)} pts" + (f" · {int(r.PD_dec)} passe{'s' if r.PD_dec > 1 else ''} déc." if r.PD_dec else "")
+            sous = (f"{int(r.Dec_V)} victoire{'s' if r.Dec_V > 1 else ''} · {int(r.Dec_N)} nul{'s' if r.Dec_N > 1 else ''} · {int(r.Pts_rapportes)} pt{'s' if r.Pts_rapportes > 1 else ''}") + (f" · {int(r.PD_dec)} passe{'s' if r.PD_dec > 1 else ''} déc." if r.PD_dec else "")
             o.lien(ui.rank_row(int(r.rang), r.joueur, "", int(r.Decisifs), r.rang == 1, sous_html=f"{ui.lien_club(r.club, e(NOMS.get(r.club, r.club)))} · {sous}"),
                    "joueur", id=r.id_joueur)
     else:
@@ -562,7 +563,7 @@ def page_club():
         o.add(ui.section(ui.kicker("Joueurs clés"), pad="22px 16px 4px"))
         top = STATS[STATS.club == club].sort_values(["B+P", "Buts"], ascending=False).head(5)
         for i, (_, r) in enumerate(top.iterrows(), 1):
-            o.lien(ui.rank_row(i, r.joueur, f"{r.Buts} buts · {r.Passes} passes", r["B+P"], i == 1), "joueur", id=r.id_joueur)
+            o.lien(ui.rank_row(i, r.joueur, f"{r.Buts} but{'s' if r.Buts > 1 else ''} · {r.Passes} passe{'s' if r.Passes > 1 else ''}", r["B+P"], i == 1), "joueur", id=r.id_joueur)
     elif onglet == "contexte":
         ctx = contexte.contexte_club(CTX["dr"], base.buts, club)
         du = contexte.duos(base.buts, club)
@@ -704,7 +705,7 @@ def page_joueur():
             home = r.club_marque == r.club_dom
             opp = r.club_ext if home else r.club_dom
             detail = ((f"passe {ui.lien_joueur(r.id_passeur, e(r.passeur))}" if isinstance(r.passeur, str) else "sans passe") if onglet == "buts"
-                      else f"but de {ui.lien_joueur(r.id_buteur, e(r.buteur))}")
+                      else f"but {ui.de(r.buteur)}{ui.lien_joueur(r.id_buteur, e(r.buteur))}")
             o.lien(f'<div style="display: grid; grid-template-columns: 30px 38px minmax(0,1fr) 44px; align-items: center; gap: 8px; padding: 10px 16px; border-bottom: 1px solid {LINE}">'
                    f'<span style="font-family: {COND}; font-weight: 700; color: {MUTED}">J{r.journee}</span><span style="font-family: {COND}; font-weight: 700; color: {RED}">{r.minute}\u2019</span>'
                    f'<span><span style="display: block; font-weight: 600">vs {ui.lien_club(opp, e(NOMS[opp]))}</span><span style="font-size: 12px; color: {MUTED}">{e(lib_origine(r.origine_but))} · {detail}</span></span>'

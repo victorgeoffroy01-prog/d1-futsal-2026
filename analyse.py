@@ -199,7 +199,7 @@ def carte_gardien(g, club_nom, couleur):
     rel = ""
     if g.get("rel_faciles") is not None:
         ok, ko = g.get("rel_diff_ok") or 0, g.get("rel_diff_ko") or 0
-        rel = (f'<div style="font-size: 12px; margin-top: 8px"><b>Relances</b> : {g["rel_faciles"]} faciles · difficiles {ok} réussie{"s" if ok > 1 else ""}, '
+        rel = (f'<div style="font-size: 12px; margin-top: 8px"><b>Relances</b> : {g["rel_faciles"]} facile{"s" if (g["rel_faciles"] or 0) > 1 else ""} · difficiles : {ok} réussie{"s" if ok > 1 else ""}, '
                f'{ko} loupée{"s" if ko > 1 else ""}</div>')
     hc = []
     for cle, lib in [("hc_buts", "but"), ("hc_tirs", "tir"), ("hc_inter", "interception"), ("hc_pertes", "perte"), ("hc_passes_loupees", "passe loupée")]:
@@ -213,7 +213,7 @@ def carte_gardien(g, club_nom, couleur):
             f'<div style="font-family: {COND}; font-size: 11px; letter-spacing: 0.08em; color: {MUTED}; text-transform: uppercase">{e(club_nom)}</div></div>'
             f'<div style="font-family: {SERIF}; font-size: 32px; line-height: 1">{pct} %</div></div>'
             f'<div style="height: 6px; background: {SOFT}; border-radius: 3px; margin-top: 8px"><div style="height: 6px; width: {pct}%; background: {couleur}; border-radius: 3px"></div></div>'
-            f'<div style="font-size: 12px; margin-top: 8px">{g.get("arrets") or 0} arrêt{"s" if (g.get("arrets") or 0) > 1 else ""} sur {g.get("tirs_subis") or 0} tirs cadrés · '
+            f'<div style="font-size: 12px; margin-top: 8px">{g.get("arrets") or 0} arrêt{"s" if (g.get("arrets") or 0) > 1 else ""} sur {g.get("tirs_subis") or 0} tir{"s" if (g.get("tirs_subis") or 0) > 1 else ""} cadré{"s" if (g.get("tirs_subis") or 0) > 1 else ""} · '
             f'{bs} but{"s" if bs > 1 else ""} encaissé{"s" if bs > 1 else ""}</div>{rel}{hors}</div>')
 
 

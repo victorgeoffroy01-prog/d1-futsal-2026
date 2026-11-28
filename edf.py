@@ -233,7 +233,7 @@ def ligne_match(m, analyse_ok, compact=False):
         return (f'<div style="display: flex; align-items: center; gap: 10px">{logo(c, 26 if compact else 30)}'
                 f'<span style="flex: 1; font-weight: {700 if gras else 500}; font-size: {15 if compact else 16}px">{e(nom_pays(c))}</span>'
                 f'<span style="font-family: {SERIF}; font-size: {22 if compact else 26}px; color: {INK if gras or not joue else MUTED}">{"" if s is None else s}</span></div>')
-    meta = " · ".join(x for x in [m["date"], m["phase"], m["lieu"]] if x) or m["competition"]
+    meta = " · ".join(x for x in [m["date"], m["phase"], nom_pays(m["lieu"]) if m["lieu"] else None] if x) or m["competition"]
     badge = ui.BADGE_ANALYSE if analyse_ok else ""
     etat = "" if joue else f'<span style="font-family: {COND}; font-size: 11px; letter-spacing: 0.1em; color: {RED}">À VENIR</span>'
     return (f'<div style="display: flex; flex-direction: column; gap: 8px; background: {PAPER}; border: 1.5px solid {INK}; border-radius: 10px; '
@@ -624,8 +624,8 @@ def temps_jeu(d, mobile=False) -> tuple:
                        f'<div style="width: {p1:.1f}%; background: {COUL[k]}"></div><div style="width: {p2:.1f}%; background: {COUL[k]}; opacity: 0.45"></div></div>'
                        f'<div style="font-size: 11px; color: {MUTED}; margin-top: 3px">{e(moy.lstrip(" ·"))}</div></div>',
                        d.get("_liens", {}).get(analyse._sa(j["nom"])) if code(tj["equipe"]) == FRANCE else None))
-    note = (f'<div style="font-size: 12px; color: {MUTED}; margin-top: 10px; line-height: 1.6">Temps de jeu de {e(nom_pays(code(tj["equipe"])))} '
-            f'relevé match en direct, chrono arrêté. Barre pleine : 1re mi-temps, barre claire : 2e mi-temps, sur 40 minutes.</div>')
+    note = (f'<div style="font-size: 12px; color: {MUTED}; margin-top: 10px; line-height: 1.6">Temps de jeu {"de la " + e(nom_pays(code(tj["equipe"]))) if code(tj["equipe"]) == FRANCE else "de " + e(nom_pays(code(tj["equipe"])))}, '
+            f'relevé en direct pendant le match, chrono arrêté. Barre pleine : 1re mi-temps, barre claire : 2e mi-temps, sur 40 minutes.</div>')
     return head, lignes, note
 
 
